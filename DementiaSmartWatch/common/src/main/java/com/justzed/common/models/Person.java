@@ -112,7 +112,7 @@ public class Person {
 
             if (person == null) {
                 ParseObject parseObject = this.serialize();
-                parseObject.saveEventually(e -> {
+                parseObject.saveInBackground(e -> {
                     if (e == null) {
                         objectId = parseObject.getObjectId();
                         subscriber.onNext(this);
@@ -193,7 +193,7 @@ public class Person {
                     ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSON);
                     query.getInBackground(objectId, (parseObject, e) -> {
                         if (e == null) {
-                            parseObject.deleteEventually(e1 -> {
+                            parseObject.deleteInBackground(e1 -> {
                                 if (e1 == null) {
                                     subscriber.onNext(null);
                                     subscriber.onCompleted();

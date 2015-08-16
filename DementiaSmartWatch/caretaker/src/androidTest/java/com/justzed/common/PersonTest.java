@@ -3,6 +3,7 @@ package com.justzed.common;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import com.justzed.caretaker.Application;
 import com.justzed.common.models.Person;
@@ -23,6 +24,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
 
     private final String testToken = "someyadayadahardcodedtoken";
 
+    private Person person;
 
     public PersonTest() {
         super(Application.class);
@@ -31,9 +33,18 @@ public class PersonTest extends ApplicationTestCase<Application> {
     @Before
     protected void setUp() throws Exception {
         super.setUp();
+
+
+        //test creation
+        person = new Person(Person.PATIENT, testToken)
+                .save()
+                .toBlocking()
+                .first();
+
+        assertNotNull(person.getObjectId());
     }
 
-    @Test
+    @SmallTest
     public void testConstructer() {
 
         Person person = new Person(Person.CARETAKER, testToken);
@@ -45,18 +56,6 @@ public class PersonTest extends ApplicationTestCase<Application> {
     //create
     @Test
     public void testCreate() {
-
-        //test creation
-        Person person = new Person(Person.PATIENT, testToken);
-
-        Person retPerson = person
-                .save()
-                .toBlocking()
-                .first();
-
-        assertNotNull(retPerson.getObjectId());
-
-
         //test uniqueness
         Person person1 = new Person(Person.PATIENT, testToken);
         Person retPerson1 = person1
@@ -65,30 +64,30 @@ public class PersonTest extends ApplicationTestCase<Application> {
                 .first();
 
         assertNotNull(retPerson1.getObjectId());
-        assertEquals(retPerson.getObjectId(), retPerson1.getObjectId());
+        assertEquals(person.getObjectId(), retPerson1.getObjectId());
     }
 
     //read
     @Test
     public void testRead() {
-        Person person = Person
+        //read
+
+        Person person1 = Person
                 .getByUniqueToken(testToken)
                 .toBlocking()
                 .first();
 
-        assertNotNull(person);
-        assertEquals(person.getUniqueToken(), testToken);
-        assertTrue(person.getType() == Person.PATIENT);
+        assertNotNull(person1);
+        assertEquals(person1.getUniqueToken(), person.getUniqueToken());
+        assertEquals(person1.getUniqueToken(), testToken);
+        assertEquals(person1.getType(), person.getType());
+        assertTrue(person1.getType() == Person.PATIENT);
     }
 
     //delete
     @Test
     public void testDelete() {
-        Person person = Person
-                .getByUniqueToken(testToken)
-                .toBlocking()
-                .first();
-        assertNotNull(person);
+
         try {
             assertNull(person.delete().toBlocking().single());
             assertTrue(true);
@@ -104,10 +103,27 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNull(person1);
 
 
+        //test creation
+        person = new Person(Person.PATIENT, testToken)
+                .save()
+                .toBlocking()
+                .first();
+
+        assertNotNull(person.getObjectId());
+
     }
 
     @After
     protected void tearDown() throws Exception {
+        try {
+            assertNull(person.delete().toBlocking().single());
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
+
+        person = null;
+
         super.tearDown();
     }
 }
