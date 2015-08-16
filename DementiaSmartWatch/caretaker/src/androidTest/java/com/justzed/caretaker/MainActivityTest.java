@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class MainActivityTest extends ActivityTestCase {
+
+    private static final String TAG = MainActivityTest.class.getName();
+
     public MainActivityTest() {
         super();
         setActivity(new MainActivity());
@@ -26,9 +29,11 @@ public class MainActivityTest extends ActivityTestCase {
     }
 
     @Test
-    public void someTest() {
+    public void parseWriteTest() {
 
+        assertEquals(true, true);
     }
+
 
     @After
     public void tearDown() throws Exception {

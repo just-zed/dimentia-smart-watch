@@ -1,5 +1,6 @@
-package com.justzed.patient;
+package com.justzed.common;
 
+import android.app.Application;
 import android.test.ApplicationTestCase;
 
 /**
