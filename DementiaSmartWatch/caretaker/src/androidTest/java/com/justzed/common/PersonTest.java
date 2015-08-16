@@ -14,15 +14,14 @@ import org.junit.runner.RunWith;
 
 /**
  * Created by freeman on 8/16/15.
+ * sequential tests covers CRD (no update) operations for Person
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 
-    private String testPersonId;
-    private final String testToken = "somehardcodedtoken";
-    private final String testToken2 = "someotherhardcodedtoken";
+    private final String testToken = "someyadayadahardcodedtoken";
 
 
     public PersonTest() {
@@ -47,6 +46,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     @Test
     public void testCreate() {
 
+        //test creation
         Person person = new Person(Person.PATIENT, testToken);
 
         Person retPerson = person
@@ -55,7 +55,17 @@ public class PersonTest extends ApplicationTestCase<Application> {
                 .first();
 
         assertNotNull(retPerson.getObjectId());
-        testPersonId = retPerson.getObjectId();
+
+
+        //test uniqueness
+        Person person1 = new Person(Person.PATIENT, testToken);
+        Person retPerson1 = person1
+                .save()
+                .toBlocking()
+                .first();
+
+        assertNotNull(retPerson1.getObjectId());
+        assertEquals(retPerson.getObjectId(), retPerson1.getObjectId());
     }
 
     //read
@@ -80,7 +90,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
                 .first();
         assertNotNull(person);
         try {
-            person.delete().toBlocking().single();
+            assertNull(person.delete().toBlocking().single());
             assertTrue(true);
         } catch (Exception e) {
             assertTrue(false);
