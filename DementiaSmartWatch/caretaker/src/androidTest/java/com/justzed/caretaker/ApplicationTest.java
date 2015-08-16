@@ -4,9 +4,6 @@ import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.parse.ParseObject;
-
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
