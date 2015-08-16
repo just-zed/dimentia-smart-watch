@@ -90,6 +90,19 @@ public class Person {
                 parseObject.getString(KEY_UNIQUE_TOKEN));
     }
 
+    /**
+     * usage:
+     * person.save()
+     * .subscribeOn(Scheduler.io())
+     * .observerOn(AndroidSchedulers.mainThread())
+     * .subscribe(person->{
+     * // do something in UI thread with saved person object with new objectId already inside
+     * },throwable->{
+     * // handle error
+     * })
+     *
+     * @return Observable<Person>
+     */
     public Observable<Person> save() {
         return Observable.defer(() -> Observable.create(subscriber -> {
             Person person = null;
@@ -115,6 +128,21 @@ public class Person {
         }));
     }
 
+    /**
+     * (static)
+     * usage:
+     * Person.getByUniqueToken(token)
+     * .subscribeOn(Scheduler.io())
+     * .observerOn(AndroidSchedulers.mainThread())
+     * .subscribe(person->{
+     * // do something in UI thread with retrieved person object
+     * },throwable->{
+     * // handle error
+     * })
+     *
+     * @param uniqueToken generated token that's unique to device
+     * @return Observable<Person>
+     */
     public static Observable<Person> getByUniqueToken(String uniqueToken) {
 
         return Observable.defer(() ->
@@ -140,7 +168,19 @@ public class Person {
 
     }
 
-
+    /**
+     * usage:
+     * person.delete()
+     * .subscribeOn(Scheduler.io())
+     * .observerOn(AndroidSchedulers.mainThread())
+     * .subscribe(person->{
+     * // person is always null
+     * },throwable->{
+     * // handle error
+     * })
+     *
+     * @return Observable<Person>
+     */
     public Observable<Person> delete() {
         return Observable.defer(() ->
                 Observable.create(subscriber -> {
