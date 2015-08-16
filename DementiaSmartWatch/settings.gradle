@@ -1,1 +1,4 @@
-include ':caretaker', ':patient'
+include ':caretaker', ':patient', ':common'
+gradle.ext.DAGGER_VERSION = '2.0.1'
+gradle.ext.DEXMAKER_VERSION = '1.2'
+gradle.ext.PARSE_VERSION = '1.2.1'
