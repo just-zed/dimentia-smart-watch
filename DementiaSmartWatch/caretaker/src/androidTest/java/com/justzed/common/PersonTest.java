@@ -2,7 +2,7 @@ package com.justzed.common;
 
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import com.justzed.caretaker.Application;
 import com.justzed.common.models.Person;
@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
  * sequential tests covers CRD (no update) operations for Person
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 

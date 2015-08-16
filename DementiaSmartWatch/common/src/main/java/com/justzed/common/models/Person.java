@@ -91,6 +91,8 @@ public class Person {
     }
 
     /**
+     * this method automatically checks for duplicate and save the person object to database
+     * <p>
      * usage:
      * person.save()
      * .subscribeOn(Scheduler.io())
@@ -110,7 +112,7 @@ public class Person {
 
             if (person == null) {
                 ParseObject parseObject = this.serialize();
-                parseObject.saveInBackground(e -> {
+                parseObject.saveEventually(e -> {
                     if (e == null) {
                         objectId = parseObject.getObjectId();
                         subscriber.onNext(this);
@@ -191,7 +193,7 @@ public class Person {
                     ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSON);
                     query.getInBackground(objectId, (parseObject, e) -> {
                         if (e == null) {
-                            parseObject.deleteInBackground(e1 -> {
+                            parseObject.deleteEventually(e1 -> {
                                 if (e1 == null) {
                                     subscriber.onNext(null);
                                     subscriber.onCompleted();
