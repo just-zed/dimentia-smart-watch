@@ -44,7 +44,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person.getObjectId());
     }
 
-    @SmallTest
+    @Test
     public void testConstructer() {
 
         Person person = new Person(Person.CARETAKER, testToken);
