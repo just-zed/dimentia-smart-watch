@@ -4,6 +4,15 @@ apply plugin: 'me.tatarka.retrolambda'
 
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'justzed'
+            keyPassword 'justzed'
+            storeFile file('../justzed.jks')
+            storePassword 'justzed'
+        }
+    }
+
     compileSdkVersion 22
     buildToolsVersion '22.0.1'
     defaultConfig {
@@ -17,6 +26,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
