@@ -87,9 +87,17 @@ public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
 
         try {
             assertNull(person.delete().toBlocking().single());
+            assertNull(person.getObjectId());
             assertTrue(true);
         } catch (Exception e) {
             assertTrue(false);
+        }
+
+        try {
+            assertNull(person.delete().toBlocking().single());
+            assertTrue(false);
+        } catch (Exception e) {
+            assertTrue(true);
         }
 
         Person person1 = Person

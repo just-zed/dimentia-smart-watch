@@ -90,7 +90,7 @@ public class Person {
     }
 
 
-    private static Person deserialize(ParseObject parseObject) {
+    public static Person deserialize(ParseObject parseObject) {
         return new Person(parseObject,
                 parseType(parseObject.getInt(KEY_TYPE_ID)),
                 parseObject.getString(KEY_UNIQUE_TOKEN));
@@ -120,7 +120,8 @@ public class Person {
                 ParseObject parseObject = this.serialize();
                 parseObject.saveInBackground(e -> {
                     if (e == null) {
-                        objectId = parseObject.getObjectId();
+                        this.objectId = parseObject.getObjectId();
+                        this.parseObject = parseObject;
                         subscriber.onNext(this);
                         subscriber.onCompleted();
                     } else {
@@ -201,6 +202,7 @@ public class Person {
                         if (e == null) {
                             parseObject.deleteInBackground(e1 -> {
                                 if (e1 == null) {
+                                    objectId = null;
                                     subscriber.onNext(null);
                                     subscriber.onCompleted();
                                 } else {
