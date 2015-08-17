@@ -1,4 +1,4 @@
-package com.justzed.common.models;
+package com.justzed.common.model;
 
 import android.support.annotation.IntDef;
 import android.util.Log;

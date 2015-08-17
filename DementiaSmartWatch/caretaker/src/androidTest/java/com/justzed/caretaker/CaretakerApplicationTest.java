@@ -11,8 +11,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ApplicationTest extends ApplicationTestCase<Application> {
-    public ApplicationTest() {
-        super(Application.class);
+public class CaretakerApplicationTest extends ApplicationTestCase<CaretakerApplication> {
+    public CaretakerApplicationTest() {
+        super(CaretakerApplication.class);
     }
 }

@@ -3,10 +3,9 @@ package com.justzed.common;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
-import com.justzed.caretaker.Application;
-import com.justzed.common.models.Person;
+import com.justzed.caretaker.CaretakerApplication;
+import com.justzed.common.model.Person;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +18,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class PersonTest extends ApplicationTestCase<Application> {
+public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
     private static final String TAG = PersonTest.class.getName();
 
     private final String testToken = "someyadayadahardcodedtoken";
@@ -27,7 +26,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     private Person person;
 
     public PersonTest() {
-        super(Application.class);
+        super(CaretakerApplication.class);
     }
 
     @Before
