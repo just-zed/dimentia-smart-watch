@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 
 /**
  * Created by freeman on 8/16/15.
- * sequential tests covers CRD (no update) operations for Person
+ * tests covers CRD (no update) operations for Person
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -56,14 +56,12 @@ public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
     @Test
     public void testCreate() {
         //test uniqueness
-        Person person1 = new Person(Person.PATIENT, testToken);
-        Person retPerson1 = person1
+        Person person1 = new Person(Person.PATIENT, testToken)
                 .save()
                 .toBlocking()
                 .first();
-
-        assertNotNull(retPerson1.getObjectId());
-        assertEquals(person.getObjectId(), retPerson1.getObjectId());
+        assertNotNull(person1.getObjectId());
+        assertEquals(person.getObjectId(), person1.getObjectId());
     }
 
     //read
