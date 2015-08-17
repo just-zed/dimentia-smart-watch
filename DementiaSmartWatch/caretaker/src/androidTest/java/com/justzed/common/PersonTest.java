@@ -3,10 +3,9 @@ package com.justzed.common;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
-import com.justzed.caretaker.Application;
-import com.justzed.common.models.Person;
+import com.justzed.caretaker.CaretakerApplication;
+import com.justzed.common.model.Person;
 
 import org.junit.After;
 import org.junit.Before;
@@ -15,11 +14,11 @@ import org.junit.runner.RunWith;
 
 /**
  * Created by freeman on 8/16/15.
- * sequential tests covers CRD (no update) operations for Person
+ * tests covers CRD (no update) operations for Person
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class PersonTest extends ApplicationTestCase<Application> {
+public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
     private static final String TAG = PersonTest.class.getName();
 
     private final String testToken = "someyadayadahardcodedtoken";
@@ -27,7 +26,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     private Person person;
 
     public PersonTest() {
-        super(Application.class);
+        super(CaretakerApplication.class);
     }
 
     @Before
@@ -57,14 +56,12 @@ public class PersonTest extends ApplicationTestCase<Application> {
     @Test
     public void testCreate() {
         //test uniqueness
-        Person person1 = new Person(Person.PATIENT, testToken);
-        Person retPerson1 = person1
+        Person person1 = new Person(Person.PATIENT, testToken)
                 .save()
                 .toBlocking()
                 .first();
-
-        assertNotNull(retPerson1.getObjectId());
-        assertEquals(person.getObjectId(), retPerson1.getObjectId());
+        assertNotNull(person1.getObjectId());
+        assertEquals(person.getObjectId(), person1.getObjectId());
     }
 
     //read

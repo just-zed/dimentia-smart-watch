@@ -1,4 +1,4 @@
-package com.justzed.common.models;
+package com.justzed.common.model;
 
 import android.support.annotation.IntDef;
 import android.util.Log;
@@ -38,8 +38,14 @@ public class Person {
     private int type;
     private String uniqueToken;
 
+    private ParseObject parseObject;
+
     public String getObjectId() {
         return objectId;
+    }
+
+    public ParseObject getParseObject() {
+        return parseObject;
     }
 
     @Type
@@ -66,12 +72,12 @@ public class Person {
         this.uniqueToken = uniqueToken;
     }
 
-    public Person(String objectId, @Type int type, String uniqueToken) {
-        this.objectId = objectId;
+    public Person(ParseObject parseObject, @Type int type, String uniqueToken) {
+        this.objectId = parseObject.getObjectId();
+        this.parseObject = parseObject;
         this.type = type;
         this.uniqueToken = uniqueToken;
     }
-
 
     private ParseObject serialize() {
         return serialize(new ParseObject(KEY_PERSON));
@@ -85,7 +91,7 @@ public class Person {
 
 
     private static Person deserialize(ParseObject parseObject) {
-        return new Person(parseObject.getObjectId(),
+        return new Person(parseObject,
                 parseType(parseObject.getInt(KEY_TYPE_ID)),
                 parseObject.getString(KEY_UNIQUE_TOKEN));
     }
