@@ -29,8 +29,7 @@ public class MainActivityTest extends ActivityTestCase {
     }
 
     @Test
-    public void parseWriteTest() {
-
+    public void testTrue() {
         assertEquals(true, true);
     }
 
