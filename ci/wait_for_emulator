@@ -1,5 +1,4 @@
 #!/bin/bash
-# https://github.com/andrewhr/rxjava-android-example/blob/master/ci/wait_for_emulator
 
 bootanim=""
 failcounter=0
