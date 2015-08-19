@@ -22,4 +22,4 @@ before_script:
 after_success:
     - coveralls
 notifications:
-    hipchat: 9a2ee1a055d11705229e675c791952@Travis
+  slack: just-zed:7joaVCGwJ4jQkzbgqfxa7HkO
