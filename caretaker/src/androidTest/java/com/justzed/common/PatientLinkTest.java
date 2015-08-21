@@ -4,7 +4,7 @@ import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import com.justzed.caretaker.CaretakerApplication;
+import com.justzed.caretaker.Application;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
 
@@ -19,7 +19,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class PatientLinkTest extends ApplicationTestCase<CaretakerApplication> {
+public class PatientLinkTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientLinkTest.class.getName();
 
     private final String patientToken = "someyadayadahardcodedpatienttoken";
@@ -30,7 +30,7 @@ public class PatientLinkTest extends ApplicationTestCase<CaretakerApplication> {
     private Person caretaker;
 
     public PatientLinkTest() {
-        super(CaretakerApplication.class);
+        super(Application.class);
     }
 
     @Before

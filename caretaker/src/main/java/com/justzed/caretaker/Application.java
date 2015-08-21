@@ -1,8 +1,8 @@
-package com.justzed.patient;
+package com.justzed.caretaker;
 
-import com.justzed.patient.internal.di.ApplicationComponent;
-import com.justzed.patient.internal.di.ApplicationModule;
-import com.justzed.patient.internal.di.DaggerApplicationComponent;
+import com.justzed.caretaker.internal.di.ApplicationComponent;
+import com.justzed.caretaker.internal.di.ApplicationModule;
+import com.justzed.caretaker.internal.di.DaggerApplicationComponent;
 
 /**
  * Created by freeman on 8/16/15.
