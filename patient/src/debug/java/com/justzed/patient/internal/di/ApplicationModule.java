@@ -1,7 +1,7 @@
-package com.justzed.caretaker.internal.di;
+package com.justzed.patient.internal.di;
 
-import com.justzed.caretaker.CaretakerApplication;
 import com.justzed.common.ApiKeys;
+import com.justzed.patient.Application;
 import com.parse.Parse;
 
 import javax.inject.Singleton;
@@ -13,11 +13,11 @@ import dagger.Provides;
  * Created by freeman on 8/17/15.
  */
 @Module
-public class CaretakerApplicationModule {
+public class ApplicationModule {
 
-    private final CaretakerApplication application;
+    private final Application application;
 
-    public CaretakerApplicationModule(CaretakerApplication application) {
+    public ApplicationModule(Application application) {
         this.application = application;
         Parse.enableLocalDatastore(application);
         Parse.initialize(application,
@@ -27,7 +27,7 @@ public class CaretakerApplicationModule {
 
     @Provides
     @Singleton
-    CaretakerApplication provideApplication() {
+    Application provideApplication() {
         return application;
     }
 }

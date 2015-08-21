@@ -13,16 +13,16 @@ import dagger.Provides;
  * Created by freeman on 8/17/15.
  */
 @Module
-public class CaretakerApplicationModule {
+public class ApplicationModule {
 
     private final Application application;
 
-    public CaretakerApplicationModule(Application application) {
+    public ApplicationModule(Application application) {
         this.application = application;
         Parse.enableLocalDatastore(application);
         Parse.initialize(application,
-                ApiKeys.PARSE_API_PROD_APPLICATION_ID,
-                ApiKeys.PARSE_API_PROD_CLIENT_KEY);
+                ApiKeys.PARSE_API_TEST_APPLICATION_ID,
+                ApiKeys.PARSE_API_TEST_CLIENT_KEY);
     }
 
     @Provides
