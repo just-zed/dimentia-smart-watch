@@ -19,11 +19,15 @@ import android.widget.Toast;
  *
  */
 public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNdefMessageCallback{
+    //Private Constant
+    private final String TEMPORARY_UNIQUE_ID = "myFirsUniqueToken";
+
     //Private Variables
     private NfcAdapter mNfcAdapter;
-    private String[] myInformation;
+    private String[] myInformation = new String[]{"",""};
     private String[] tempPatientInformation;
     private Person personDatabase;
+
     /**
      * Main method to send the myInformation's info to the caretaker
      */
@@ -44,7 +48,11 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         }
         catch(Exception e){
-            Toast.makeText(TokenSenderActivity.this, "There was an error when attempting to use NFC.", Toast.LENGTH_LONG).show();
+            //Try and catch used to avoid any errors with Toast and the tests
+            try {
+                Toast.makeText(TokenSenderActivity.this, "There was an error when attempting to use NFC.", Toast.LENGTH_LONG).show();
+            } catch(Exception Toast){}
+
             finish();
             return;
         }
@@ -56,7 +64,7 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
         }
 
         //Get the the user's data from the database
-        myInformation = getMyRecordsFromDatabase();
+        myInformation = getMyRecordsFromDatabase(TEMPORARY_UNIQUE_ID);
 
         //Send the data via NFC
         mNfcAdapter.setNdefPushMessageCallback(this, this);
@@ -81,7 +89,11 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
         }
         catch(Exception e)
         {
+            //Try and catch used to avoid any errors with Toast and the tests
+            try{
             Toast.makeText(TokenSenderActivity.this, "Check that your device is NFC Compatible.", Toast.LENGTH_LONG).show();
+            } catch(Exception Toast){}
+
             return false;
         }
     }
@@ -136,20 +148,17 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      * Returns a string[] that contains information from the People table of the
      * Parse.com database using this device's unique id.
      */
-    private String[] getMyRecordsFromDatabase()
+    private String[] getMyRecordsFromDatabase(String tokenFromDatabase)
     {
-        //ParseQuery<ParseObject> query = ParseQuery.getQuery("GameScore");
-        // query.whereEqualTo("People","uniqueToken");
-        //query.findInBackground( new FindCallback<ParseObject>(){
-        //  public void done(List<ParseObject> list; ParseException exceptionToBeChecked){
-        //   if(exceptionToBeChecked == null) {
+        Person mySelf =
+        new Person(Person.PATIENT,tokenFromDatabase)
+                .save()
+                .toBlocking()
+                .first();
 
-        //   }
-        //   else{
+        tempPatientInformation[0] = mySelf.getUniqueToken();
+        tempPatientInformation[1] = Integer.toString(mySelf.getType());
 
-        //   }
-        // }
-        // });
         return tempPatientInformation;
     }
 }

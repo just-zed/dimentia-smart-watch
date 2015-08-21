@@ -66,15 +66,6 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Fail the test the application does not end when there is no enabled NFC adpater.
-     */
-    /**  @Test
-    public void testCheckNfcFinishesApplicationIfNoDevice() {
-
-    assertFalse(sendToken.checkNfc(mNfcAdapter));
-    }*/
-
-    /**
      * Fail the test if any exceptions occur.
      */
     @Test
@@ -142,3 +133,4 @@ public class TokenSenderActivityTest extends ActivityTestCase{
         assertTrue(stringMessage.equals(EXPECTED_EMPTY_TEST_PATIENT_INFORMATION_FROM_NDEF_MESSAGE));
     }
 }
+
