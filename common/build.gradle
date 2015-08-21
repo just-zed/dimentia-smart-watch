@@ -32,7 +32,7 @@ android {
 dependencies {
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava:1.0.13'
-    compile 'com.android.support:support-v4:23.0.0'
+    compile 'com.android.support:support-v4:22.2.1'
     compile 'com.parse.bolts:bolts-android:1.2.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
