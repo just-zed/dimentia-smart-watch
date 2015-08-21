@@ -1,22 +1,64 @@
 package com.justzed.caretaker;
 
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.InterruptedIOException;
+import java.util.Random;
+
+import static com.google.android.gms.maps.CameraUpdateFactory.newLatLng;
+import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngBounds;
+
 
 public class MapActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private Marker patientMarker;
+    final Handler mapHandler = new Handler();
+    private boolean randomValue = true;
+
+    private final double[] BRISBANE_LAT_LONG = new double[]{-27.471010,153.0333};
+    private final double[] NOT_BRISBANE_LAT_LONG = new double[]{-28.4667,154.0333};
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_map);
         setUpMapIfNeeded();
+
+        runThread();
+    }
+
+    private void runThread(){
+        new Thread(){
+            public void run(){
+                    try {
+                        runOnUiThread(new Runnable(){
+                            @Override
+                            public void run(){
+                                tempTestUpdate();
+                            }
+                        });
+                        Thread.sleep((3000));
+                    }
+                    catch(InterruptedException e){
+                        e.printStackTrace();
+
+                    }
+                }
+        }.start();
     }
 
     @Override
@@ -25,20 +67,22 @@ public class MapActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
 
+    private void tempTestUpdate() {
+
+        if(randomValue) {
+            updatePatientLocationOnMap(BRISBANE_LAT_LONG[0] , BRISBANE_LAT_LONG[1]);
+            randomValue = false;
+        }
+        else{
+            updatePatientLocationOnMap(NOT_BRISBANE_LAT_LONG[0] , NOT_BRISBANE_LAT_LONG[1]);
+            randomValue = true;
+        }
+    }
+
     /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
+     * Created by Tristan Dubois
+     *
+     * This checks if the map needs to be set up.
      */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -54,23 +98,35 @@ public class MapActivity extends FragmentActivity {
     }
 
     /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     * Created by Tristan Dubois
+     *
+     * This method is used to set up the map.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //retrieve location from other method
+        //Set the patients location
+        showPatientOnMap(BRISBANE_LAT_LONG[0],BRISBANE_LAT_LONG[1]);
     }
 
-
-    public void showPatientOnMap(double patientCurrentLocationLong, double patientCurrentLocationLat) {
-
+    /**
+     * Created by Tristan Duboi
+     *
+     * This method adds a marker for the patient on the map.
+     */
+    public void showPatientOnMap( double patientCurrentLocationLat, double patientCurrentLocationLong) {
+        patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title("TestPatient"));
+        mMap.moveCamera(newLatLng(patientMarker.getPosition()));
     }
 
+    /**
+     * Created by Tristan Duboi
+     *
+     * This method updates the patient marker to a new location
+     */
     public void updatePatientLocationOnMap(double patientCurrentLocationLong, double patientCurrentLocationLat){
-
-
+        patientMarker.setPosition(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong));
     }
+
+
 }
 
