@@ -24,8 +24,8 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
 
     //Private Variables
     private NfcAdapter mNfcAdapter;
-    private String[] myInformation = new String[]{"",""};
-    private String[] tempPatientInformation;
+    private String myInformation;
+    private String tempPatientInformation;
     private Person personDatabase;
 
     /**
@@ -113,28 +113,11 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      *
      * Stores a string array inside an NDEF message.
      */
-    public NdefMessage messageBuilder(String[] patientInformation){
-        String stringOfMessage;
-        StringBuilder strBuilder = new StringBuilder();
-
-        for (int i = 0; i < patientInformation.length; i++)
-        {
-
-            if( i < patientInformation.length - 1) {
-                strBuilder.append(patientInformation[i] + ",");
-            }
-            else
-            {
-                strBuilder.append(patientInformation[i]);
-            }
-        }
-
-        stringOfMessage = strBuilder.toString();
-
+    public NdefMessage messageBuilder(String patientInformation){
 
         NdefMessage message = new NdefMessage(
                 new NdefRecord[]{ NdefRecord.createMime("com.justzed.caretaker",
-                        stringOfMessage.getBytes()),
+                        patientInformation.getBytes()),
                         NdefRecord.createApplicationRecord("caretaker")
                 });
 
@@ -148,7 +131,7 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      * Returns a string[] that contains information from the People table of the
      * Parse.com database using this device's unique id.
      */
-    private String[] getMyRecordsFromDatabase(String tokenFromDatabase)
+    private String getMyRecordsFromDatabase(String tokenFromDatabase)
     {
         Person mySelf =
         new Person(Person.PATIENT,tokenFromDatabase)
@@ -156,8 +139,8 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
                 .toBlocking()
                 .first();
 
-        tempPatientInformation[0] = mySelf.getUniqueToken();
-        tempPatientInformation[1] = Integer.toString(mySelf.getType());
+        tempPatientInformation = mySelf.getUniqueToken();
+
 
         return tempPatientInformation;
     }

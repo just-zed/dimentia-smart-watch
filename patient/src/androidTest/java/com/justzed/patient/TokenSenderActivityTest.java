@@ -21,13 +21,13 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     private NfcAdapter mNfcAdapter;
     public TokenSenderActivity sendToken = new TokenSenderActivity();;
     //Constants
-    private String[] TEST_PATIENT_INFORMATION = new String[]{"101", "Jenny", "Patient", "f07a13984f6d116a" };
-    private String[] EMPTY_TEST_PATIENT_INFORMATION = new String[]{"", "", "", "" };
-    private String[] SMALL_TEST_PATIENT_INFORMATION = new String[]{"1", "J", "Patient", "f" };
-    private String[] LARGE_TEST_PATIENT_INFORMATION = new String[]{"1013215413456453135",
-            "Jenny Of the woods who also likes to be called bob during her birthdays",
-            "Patient",
-            "f07a13984f6d116a010101000010101010101010010101010101010101010101010101010" };
+    private String TEST_PATIENT_INFORMATION = "101,Jenny,Patient,f07a13984f6d116a";
+    private String EMPTY_TEST_PATIENT_INFORMATION = ",,,";
+    private String SMALL_TEST_PATIENT_INFORMATION = "1,J,Patient,f";
+    private String LARGE_TEST_PATIENT_INFORMATION = "1013215413456453135,"
+            +"Jenny Of the woods who also likes to be called bob during her birthdays,"
+            +"Patient,"
+            +"f07a13984f6d116a010101000010101010101010010101010101010101010101010101010";
 
 
     private String EXPECTED_PATIENT_INFORMATION_FROM_NDEF_MESSAGE = "101,Jenny,Patient,f07a13984f6d116a";
