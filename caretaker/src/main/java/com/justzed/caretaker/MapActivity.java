@@ -15,7 +15,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLng;
-
+import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 
 public class MapActivity extends FragmentActivity {
@@ -29,16 +29,14 @@ public class MapActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_map);
-        setUpMapIfNeeded();
+        checkIfSetUpMapNeeded();
         countdownToNextUpdate(5000);
-
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        checkIfSetUpMapNeeded();
         countdownToNextUpdate(5000);
     }
 
@@ -57,24 +55,10 @@ public class MapActivity extends FragmentActivity {
 
     }
 
-
-    public void countdownToNextUpdate(int timeBetweenUpdates){
-        new CountDownTimer(timeBetweenUpdates, 1000) {
-
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                LatLng coordinates = new LatLng(0,0);
-                updatePatientLocationOnMap(patientMarker,coordinates,false );
-            }
-        }.start();
-    }
-
     /**
      * This checks if the map needs to be set up.
      */
-    private void setUpMapIfNeeded() {
+    public void checkIfSetUpMapNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
@@ -105,7 +89,7 @@ public class MapActivity extends FragmentActivity {
      */
     public void showPatientOnMap( double patientCurrentLocationLat, double patientCurrentLocationLong) {
         patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title("TestPatient"));
-        mMap.moveCamera(newLatLng(patientMarker.getPosition()));
+        mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 10.0f));
     }
 
     /**
@@ -113,7 +97,7 @@ public class MapActivity extends FragmentActivity {
      *
      * This method updates the patient marker to a new location
      */
-    public void updatePatientLocationOnMap(/*double patientCurrentLocationLong, double patientCurrentLocationLat,*/final Marker marker, final LatLng toPosition,
+    private void updatePatientLocationOnMap(/*double patientCurrentLocationLong, double patientCurrentLocationLat,*/final Marker marker, final LatLng toPosition,
                                            final boolean hideMarker){
        // patientMarker.setPosition(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong));
 
@@ -122,7 +106,7 @@ public class MapActivity extends FragmentActivity {
         Projection proj = mMap.getProjection();
         Point startPoint = proj.toScreenLocation(marker.getPosition());
         final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 30000;
+        final long duration = 500;
 
         final Interpolator interpolator = new LinearInterpolator();
 
@@ -152,6 +136,24 @@ public class MapActivity extends FragmentActivity {
             }
         });
 
+    }
+
+    /**
+     * Created by Tristan Duboi
+     *
+     * Countdown till the next patient location update.
+     */
+    public void countdownToNextUpdate(int timeBetweenUpdates){
+        new CountDownTimer(timeBetweenUpdates, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                LatLng coordinates = new LatLng(0,0);
+                updatePatientLocationOnMap(patientMarker,coordinates,false );
+            }
+        }.start();
     }
 }
 

@@ -17,9 +17,17 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class MapActivityTest extends ActivityTestCase{
 
+    // checkIfSetUpMapNeeded
+        //Null map
+        //None Null map
+        //exception error
+
+    // setUpMap
+        //exception errors
+
     //showPatientOnMap
         //exception
-        //check if location is correctly store in the marker.
+        //check if location is correctly stored in the marker.
         //check with large location
         //check with small location
 
@@ -29,5 +37,6 @@ public class MapActivityTest extends ActivityTestCase{
         //check with small location
         //exception
 
-
+    //countdownToNextUpdate
+        //exception test
 }
