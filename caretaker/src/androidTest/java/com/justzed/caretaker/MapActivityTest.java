@@ -1,6 +1,7 @@
 package com.justzed.caretaker;
 
 import android.support.test.runner.AndroidJUnit4;
+import android.support.test.uiautomator.UiDevice;
 import android.test.ActivityTestCase;
 
 import android.test.suitebuilder.annotation.LargeTest;
@@ -29,7 +30,9 @@ public class MapActivityTest extends ActivityTestCase{
     @Before
     public void createMapActvity()
     {
-        mapActivity = mock(MapActivity.class);
+        mapActivity = new MapActivity();
+        UiDevice device = UiDevice.getInstance(getInstrumentation());
+
 
 
     }
