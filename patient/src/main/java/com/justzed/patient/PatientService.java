@@ -12,6 +12,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
+ * TODO: this doesn't seem to be working
  * Created by freeman on 8/23/15.
  */
 public class PatientService extends IntentService {
