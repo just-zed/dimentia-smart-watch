@@ -20,4 +20,5 @@
         AIzaSyDCyT08j8b_ZaTPTCgf9sRX2ncdV8B0NLk
     </string>
     <string name="title_activity_caretaker_nfc">CaretakerNfcActivity</string>
+    <string name="action_connect_patient">Connect to Patient</string>
 </resources>

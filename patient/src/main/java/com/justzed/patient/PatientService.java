@@ -19,7 +19,6 @@ public class PatientService extends IntentService {
     private static final String TAG = PatientService.class.getName();
     private Subscription subscription;
 
-    public static final String PREF_PATIENT_KEY = "patientPref";
     public static final String INTENT_PATIENT_KEY = "patientIntent";
 
 

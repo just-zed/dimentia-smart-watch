@@ -111,10 +111,10 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     public NdefMessage messageBuilder(String patientInformation) {
 
         return new NdefMessage(
-                new NdefRecord[]{NdefRecord.createMime("com.justzed.caretaker",
-                        patientInformation.getBytes()),
-                        NdefRecord.createApplicationRecord("caretaker")
+                new NdefRecord[]{NdefRecord.createMime("application/vnd.com.justzed.caretaker",
+                        patientInformation.getBytes())
                 });
+//                        NdefRecord.createApplicationRecord("com.justzed.caretaker")
 
     }
 
