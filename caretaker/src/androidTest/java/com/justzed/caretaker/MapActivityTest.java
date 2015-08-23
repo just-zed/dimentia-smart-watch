@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MapActivityTest extends ActivityTestCase{
-    //Variables
+   /* //Variables
     public MapActivity mapActivity = new MapActivity();
 
     //Constants
@@ -78,5 +78,5 @@ public class MapActivityTest extends ActivityTestCase{
         //change location
         //check with large location
         //check with small location
-        //exception
+        //exception*/
 }
