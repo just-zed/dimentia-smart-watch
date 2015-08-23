@@ -94,7 +94,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
                 .toBlocking()
                 .single();
 
-        assertNotNull(location.getObjectId());
+        assertNotNull(location2.getObjectId());
 
         //test delete
 

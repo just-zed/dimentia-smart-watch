@@ -54,16 +54,16 @@ public class PatientLocation {
         return serialize(new ParseObject(KEY_PERSONLOCATION));
     }
 
-    private ParseObject serialize(ParseObject personLocation) {
-        personLocation.put(KEY_PATIENT, patient.getParseObject());
-        personLocation.put(KEY_LATLNG, toParseGeoPoint(latLng));
-        return personLocation;
+    private ParseObject serialize(ParseObject parseObject) {
+        parseObject.put(KEY_PATIENT, patient.getParseObject());
+        parseObject.put(KEY_LATLNG, toParseGeoPoint(latLng));
+        return parseObject;
     }
 
     public static PatientLocation deserialize(ParseObject parseObject) {
         return new PatientLocation(parseObject,
                 Person.deserialize(parseObject.getParseObject(KEY_PATIENT)),
-                toLatLng(parseObject.getParseGeoPoint(KEY_PERSONLOCATION)));
+                toLatLng(parseObject.getParseGeoPoint(KEY_LATLNG)));
     }
 
     public static LatLng toLatLng(ParseGeoPoint geoPoint) {
