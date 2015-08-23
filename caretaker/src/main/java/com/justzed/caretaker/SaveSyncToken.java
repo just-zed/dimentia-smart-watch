@@ -15,7 +15,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 /**
- * Created by Shirin on 8/22/2015.
+ * Created by Shirin on
+ *
+ * This class adds a new row to the PersonLink table of the database and
+ * syncs the DB to both devices.
  */
 public class SaveSyncToken {
 
@@ -25,7 +28,7 @@ public class SaveSyncToken {
         this.activity = activity;
     }
 
-    public String findDeviceId(){
+    public String findMyDeviceId(){
         final TelephonyManager tm = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
 
         final String tmDevice, androidId;
@@ -43,13 +46,13 @@ public class SaveSyncToken {
     //get the token from patient device
     // tokensenderActivity token;
     // token.....
-    public String patientDeviceID(){
+    public String getPatientDeviceID(){
         //String PatientDeviceID =
         return "";
     }
 
-    String careTakerId=findDeviceId();
-    String patientId=patientDeviceID();
+    String careTakerId=findMyDeviceId();
+    String patientId= getPatientDeviceID();
     public void inserToDB(String careTakerId, String patientId){
         //ParseObject personLink = new ParseObject("PersonLink");
         //personLink.put("caretakerUniqueToken","deviceId" );
