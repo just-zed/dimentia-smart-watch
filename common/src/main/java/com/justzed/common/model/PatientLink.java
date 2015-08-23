@@ -52,6 +52,11 @@ public class PatientLink {
         this.objectId = parseObject.getObjectId();
         this.patient = patient;
         this.caretaker = caretaker;
+
+        //TODO: put some check to check that patient is patient, caretaker is caretaker
+//        if (patient.getType()!= Person.PATIENT || caretaker.getType()!= Person.CARETAKER){
+//            throw new Exception("");
+//        }
     }
 
     private ParseObject serialize() {
