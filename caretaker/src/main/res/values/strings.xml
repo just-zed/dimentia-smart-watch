@@ -19,4 +19,5 @@
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
         AIzaSyDCyT08j8b_ZaTPTCgf9sRX2ncdV8B0NLk
     </string>
+    <string name="title_activity_caretaker_nfc">CaretakerNfcActivity</string>
 </resources>
