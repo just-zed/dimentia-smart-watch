@@ -19,6 +19,8 @@ import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 
 public class MapActivity extends FragmentActivity {
+    private final int UPDATE_TIMER_NORMAL= 5000;
+    private final int UPDATE_TIMER_PAUSE= 30000;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker patientMarker;
@@ -30,20 +32,20 @@ public class MapActivity extends FragmentActivity {
 
         setContentView(R.layout.activity_map);
         checkIfSetUpMapNeeded();
-        countdownToNextUpdate(5000);
+        countdownToNextUpdate(UPDATE_TIMER_NORMAL);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkIfSetUpMapNeeded();
-        countdownToNextUpdate(5000);
+        countdownToNextUpdate(UPDATE_TIMER_NORMAL);
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        countdownToNextUpdate(30000);
+        countdownToNextUpdate(UPDATE_TIMER_PAUSE);
 
 
     }
@@ -89,7 +91,7 @@ public class MapActivity extends FragmentActivity {
      */
     public void showPatientOnMap( double patientCurrentLocationLat, double patientCurrentLocationLong) {
         patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title("TestPatient"));
-        mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 10.0f));
+        mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 1.0f));
     }
 
     /**
@@ -97,16 +99,14 @@ public class MapActivity extends FragmentActivity {
      *
      * This method updates the patient marker to a new location
      */
-    private void updatePatientLocationOnMap(/*double patientCurrentLocationLong, double patientCurrentLocationLat,*/final Marker marker, final LatLng toPosition,
+    public void updatePatientLocationOnMap(final Marker marker, final LatLng toPosition,
                                            final boolean hideMarker){
-       // patientMarker.setPosition(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong));
-
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
         Projection proj = mMap.getProjection();
         Point startPoint = proj.toScreenLocation(marker.getPosition());
         final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 500;
+        final long duration = 30000;
 
         final Interpolator interpolator = new LinearInterpolator();
 
@@ -121,7 +121,7 @@ public class MapActivity extends FragmentActivity {
                 double lat = t * toPosition.latitude + (1 - t)
                         * startLatLng.latitude;
                 marker.setPosition(new LatLng(lat, lng));
-                mMap.moveCamera(newLatLng(patientMarker.getPosition()));
+                //mMap.moveCamera(newLatLng(patientMarker.getPosition()));
 
                 if (t < 1.0) {
                     // Post again 16ms later.

@@ -15,4 +15,9 @@
     <string name="title_activity_map">MapActivity</string>
 
     <string name="hello_world">Hello world!</string>
+
+        <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">
+
+             AIzaSyDCyT08j8b_ZaTPTCgf9sRX2ncdV8B0NLk
+    </string>
 </resources>

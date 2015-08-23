@@ -59,4 +59,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile project(':common')
     provided 'org.glassfish:javax.annotation:10.0-b28'
+    compile 'com.google.android.gms:play-services:7.8.0'
 }

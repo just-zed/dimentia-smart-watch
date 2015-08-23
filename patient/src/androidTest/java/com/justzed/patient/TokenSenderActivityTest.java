@@ -19,10 +19,10 @@ import org.junit.runner.RunWith;
 public class TokenSenderActivityTest extends ActivityTestCase{
     //Variables
     private NfcAdapter mNfcAdapter;
-    public TokenSenderActivity sendToken = new TokenSenderActivity();;
+    public TokenSenderActivity sendToken = new TokenSenderActivity();
     //Constants
     private String TEST_PATIENT_INFORMATION = "101,Jenny,Patient,f07a13984f6d116a";
-    private String EMPTY_TEST_PATIENT_INFORMATION = ",,,";
+    private String EMPTY_TEST_PATIENT_INFORMATION = "";
     private String SMALL_TEST_PATIENT_INFORMATION = "1,J,Patient,f";
     private String LARGE_TEST_PATIENT_INFORMATION = "1013215413456453135,"
             +"Jenny Of the woods who also likes to be called bob during her birthdays,"
@@ -31,7 +31,7 @@ public class TokenSenderActivityTest extends ActivityTestCase{
 
 
     private String EXPECTED_PATIENT_INFORMATION_FROM_NDEF_MESSAGE = "101,Jenny,Patient,f07a13984f6d116a";
-    private String EXPECTED_EMPTY_TEST_PATIENT_INFORMATION_FROM_NDEF_MESSAGE = ",,,";
+    private String EXPECTED_EMPTY_TEST_PATIENT_INFORMATION_FROM_NDEF_MESSAGE = "";
     private String EXPECTED_SMALL_TEST_PATIENT_INFORMATION_FROM_NDEF_MESSAGE = "1,J,Patient,f";
     private String EXPECTED_LARGE_TEST_PATIENT_INFORMATION_FROM_NDEF_MESSAGE = "1013215413456453135,"
             +"Jenny Of the woods who also likes to be called bob during her birthdays,"
