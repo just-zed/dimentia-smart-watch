@@ -20,6 +20,8 @@ public class MainActivity extends Activity {
 
     private final Gson gson = new Gson();
 
+    private Person person;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,45 +52,61 @@ public class MainActivity extends Activity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(person -> {
                         // save person in app
+                        this.person = person;
                         Editor editor = mPrefs.edit();
-                        String personJson = gson.toJson(person);
-                        editor.putString(PatientService.PREF_PATIENT_KEY, personJson);
+                        editor.putString(PatientService.PREF_PATIENT_KEY, person.getUniqueToken());
                         editor.apply();
 
-                        //start service
-                        Intent serviceIntent = new Intent(this, PatientService.class);
-                        serviceIntent.putExtra(PatientService.INTENT_PATIENT_KEY, personJson);
-                        startService(serviceIntent);
-
                         //start token activity
-                        startTokenSenderActivity(personJson);
+                        startTokenSenderActivity();
                     });
 
 
         } else {
-            //get patient from cache and start service
-            String personJson = mPrefs.getString(PatientService.PREF_PATIENT_KEY, "");
-            //start service
-            Intent serviceIntent = new Intent(this, PatientService.class);
-            serviceIntent.putExtra(PatientService.INTENT_PATIENT_KEY, personJson);
-            startService(serviceIntent);
+            //get patient token from cache, get person object from database and start service
+            String uniqueToken = mPrefs.getString(PatientService.PREF_PATIENT_KEY, "");
 
-            //start token activity
-            startTokenSenderActivity(personJson);
+            Person.getByUniqueToken(uniqueToken)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            person -> {
+                                this.person = person;
+
+                                //start service
+                                Intent serviceIntent = new Intent(this, PatientService.class);
+                                serviceIntent.putExtra(PatientService.INTENT_PATIENT_KEY, uniqueToken);
+                                startService(serviceIntent);
+
+                                //start token activity
+                                startTokenSenderActivity();
+                            },
+                            throwable -> {
+                            }
+                    );
+
         }
 
 
     }
 
-    private void startTokenSenderActivity(String personJson) {
-        Person person = gson.fromJson(personJson, Person.class);
-
-        //only do this if the patient link does not exist
-        if (PatientLink.getByPatient(person).toBlocking().single() == null) {
-            Intent tokenSenderActivityIntent = new Intent(this, TokenSenderActivity.class);
-            tokenSenderActivityIntent.putExtra(TokenSenderActivity.INTENT_TOKEN_KEY, person.getUniqueToken());
-            startActivityForResult(tokenSenderActivityIntent, SEND_TOKEN);
+    private void startTokenSenderActivity() {
+        if (person != null) {
+            //only do this if the patient link does not exist
+            PatientLink.getByPatient(person)
+                    .observeOn(Schedulers.io())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe(patientLink -> {
+                        if (patientLink == null) {
+                            Intent intent = new Intent(this, TokenSenderActivity.class);
+                            intent.putExtra(TokenSenderActivity.INTENT_TOKEN_KEY, person.getUniqueToken());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivityForResult(intent, SEND_TOKEN);
+                        }
+                    }, throwable -> {
+                    });
         }
+
 
     }
 
