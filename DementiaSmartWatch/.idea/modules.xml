@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/DementiaSmartWatch.iml" filepath="$PROJECT_DIR$/DementiaSmartWatch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/caretaker/caretaker.iml" filepath="$PROJECT_DIR$/caretaker/caretaker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/patient/patient.iml" filepath="$PROJECT_DIR$/patient/patient.iml" />
+    </modules>
+  </component>
+</project>
