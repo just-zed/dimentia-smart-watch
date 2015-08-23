@@ -113,7 +113,7 @@ public class NfcActivity extends Activity {
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(patientLink1 -> {
-                                    Toast.makeText(this, "Link Saved!", Toast.LENGTH_SHORT);
+                                    Toast.makeText(this, "Link Saved!", Toast.LENGTH_SHORT).show();
                                     finish();
                                 });
                     });

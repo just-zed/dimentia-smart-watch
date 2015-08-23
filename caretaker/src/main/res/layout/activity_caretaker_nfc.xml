@@ -6,12 +6,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.justzed.caretaker.NfcActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="some test label below" />
+    tools:context="com.justzed.caretaker.NfcActivity"
+    tools:ignore="RtlHardcoded">
 
     <TextView
         android:id="@+id/text_view"
@@ -20,7 +16,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="21dp"
-        android:textSize="80px"
+        android:textSize="80sp"
         android:typeface="monospace" />
 
 </RelativeLayout>
