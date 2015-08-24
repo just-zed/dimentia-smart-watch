@@ -17,13 +17,15 @@ android:
     - extra-google-google_play_services
     - sys-img-armeabi-v7a-android-22
 before_script:
-    - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-    - emulator -avd test -no-skin -no-audio -no-window &
-    - android-wait-for-emulator
-    - adb shell input keyevent 82 &
+  # Create and start emulator
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - adb wait-for-device
+  - adb shell input keyevent 82 &
+script: ./gradlew connectedAndroidTest
 notifications:
-    hipchat: 9a2ee1a055d11705229e675c791952@Travis
-    email: false
+  hipchat: 9a2ee1a055d11705229e675c791952@Travis
+  email: false
 addons:
   coverity_scan:
     project:
@@ -32,3 +34,6 @@ addons:
     build_command_prepend: "mvn clean"
     build_command:   "mvn -DskipTests=true compile"
     branch_pattern: coverity_scan
+
+
+
