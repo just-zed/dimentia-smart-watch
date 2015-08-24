@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.google.gson.Gson;
+import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
 
@@ -133,7 +134,7 @@ public class MainActivity extends Activity {
     }
 
     private String generateToken() {
-        return "patient";
+        return new SaveSyncToken(this).findMyDeviceId();
     }
 
 }
