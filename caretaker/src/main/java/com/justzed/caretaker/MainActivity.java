@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.Person;
 
 import rx.android.schedulers.AndroidSchedulers;
@@ -75,7 +76,7 @@ public class MainActivity extends Activity {
     }
 
     private String generateToken() {
-        return "caretaker";
+        return new SaveSyncToken(this).findMyDeviceId();
     }
 
 }

@@ -1,8 +1,9 @@
-package com.justzed.caretaker;
+package com.justzed.common;
 import android.test.ActivityTestCase;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import com.justzed.caretaker.MainActivity;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
 
