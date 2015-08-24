@@ -101,6 +101,8 @@ public class NfcActivity extends Activity {
 
     private void saveLink() {
         if (patientToken != null && caretakerToken != null) {
+
+            //TODO: improve this to single subscribe. move these to a repository class
             Observable.combineLatest(
                     Person.getByUniqueToken(patientToken),
                     Person.getByUniqueToken(caretakerToken),
@@ -117,15 +119,6 @@ public class NfcActivity extends Activity {
                                     finish();
                                 });
                     });
-//                    .flatMap(PatientLink::save)
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(patientLink -> {
-//                        Toast.makeText(this, "Link Saved!", Toast.LENGTH_SHORT);
-//                        finish();
-//                    }, throwable -> {
-//                        Log.e(TAG, throwable.getMessage());
-//                    });
         }
 
     }
@@ -155,6 +148,7 @@ public class NfcActivity extends Activity {
         return msgs;
     }
 
+
     // Check whether NFC hardware is available on device
     private boolean checkNFCHardware() {
         PackageManager pm = this.getPackageManager();
@@ -179,7 +173,6 @@ public class NfcActivity extends Activity {
             startActivity(new Intent(Settings.ACTION_NFC_SETTINGS));
             return false;
         }
-
         // Check whether Android Beam feature is enabled on device
         else if (!mNfcAdapter.isNdefPushEnabled()) {
             toast("Please enable Android Beam.");

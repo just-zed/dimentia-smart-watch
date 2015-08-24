@@ -98,6 +98,7 @@ public class MainActivity extends Activity {
 
     private void startTokenSenderActivity() {
         if (person != null) {
+            //TODO: move these to repository class
             //only do this if the patient link does not exist
             PatientLink.getByPatient(person)
                     .observeOn(Schedulers.io())

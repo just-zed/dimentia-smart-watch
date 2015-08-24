@@ -47,7 +47,8 @@ public class MainActivity extends Activity {
 
 
         } else {
-            //get patient token from cache, get person object from database and start service
+            //get patient token from app data,
+            // get person object from database and start service
             String uniqueToken = mPrefs.getString(PREF_PERSON_KEY, "");
 
             Person.getByUniqueToken(uniqueToken)
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
     }
 
     private void finishActivityWithResult() {
+        // if activity is called by NfcActivity, close and return result
         if (getCallingActivity() != null) {
             Intent result = new Intent();
             result.putExtra(NfcActivity.INTENT_TOKEN_KEY, person.getUniqueToken());
