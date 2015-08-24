@@ -41,7 +41,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
                 .toBlocking()
-                .first();
+                .single();
 
         assertNotNull(patient.getObjectId());
 
@@ -49,7 +49,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         caretaker = new Person(Person.CARETAKER, caretakerToken)
                 .save()
                 .toBlocking()
-                .first();
+                .single();
 
         assertNotNull(caretaker.getObjectId());
     }
@@ -122,7 +122,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
 
         //read test
         PatientLink link = PatientLink.getByPersons(patient, caretaker)
-                .toBlocking().first();
+                .toBlocking().single();
 
         assertNotNull(link);
         assertEquals(link.getPatient().getObjectId(), patient.getObjectId());

@@ -62,6 +62,26 @@ public class PersonTest extends ApplicationTestCase<Application> {
                 .first();
         assertNotNull(person1.getObjectId());
         assertEquals(person.getObjectId(), person1.getObjectId());
+        assertEquals(person1.getType(), Person.PATIENT);
+
+        //test if person is updated to caretaker
+        Person person2 = new Person(Person.CARETAKER, testToken)
+                .save()
+                .toBlocking()
+                .first();
+        assertNotNull(person2.getObjectId());
+        assertEquals(person2.getType(), Person.CARETAKER);
+
+        //set it back to patient
+        Person person3 = new Person(Person.PATIENT, testToken)
+                .save()
+                .toBlocking()
+                .first();
+        assertEquals(person3.getType(), Person.PATIENT);
+        assertNotNull(person3.getObjectId());
+        assertEquals(person3.getType(), Person.PATIENT);
+
+
     }
 
     //read
