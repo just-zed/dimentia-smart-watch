@@ -52,6 +52,10 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <fragment android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.google.android.gms.maps.MapFragment"/>
     </application>
 
 </manifest>

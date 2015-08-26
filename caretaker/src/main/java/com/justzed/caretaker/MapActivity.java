@@ -8,7 +8,10 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -22,7 +25,7 @@ public class MapActivity extends FragmentActivity {
     private final int UPDATE_TIMER_NORMAL= 5000;
     private final int UPDATE_TIMER_PAUSE= 30000;
 
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private static GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker patientMarker;
     private final double[] BRISBANE_LAT_LONG = new double[]{-27.471010,153.0333};
 
@@ -62,14 +65,26 @@ public class MapActivity extends FragmentActivity {
      */
     public void checkIfSetUpMapNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
+
+        try {
+            if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+
+                mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                        .getMap();
+            }
+
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
             }
+        }
+        catch(Exception e){
+            try
+            {
+                Toast.makeText(MapActivity.this, "Map could not be loaded", Toast.LENGTH_LONG).show();
+            }catch(Exception Toast){}
         }
     }
 
@@ -90,8 +105,15 @@ public class MapActivity extends FragmentActivity {
      * This method adds a marker for the patient on the map.
      */
     public void showPatientOnMap( double patientCurrentLocationLat, double patientCurrentLocationLong) {
-        patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title("TestPatient"));
-        mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 1.0f));
+        try {
+            patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title("TestPatient"));
+            mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 1.0f));
+        } catch (Exception e) {
+            try {
+                Toast.makeText(MapActivity.this, "A Marker could not be placed", Toast.LENGTH_LONG).show();
+            } catch (Exception Toast) {
+            }
+        }
     }
 
     /**
@@ -100,13 +122,13 @@ public class MapActivity extends FragmentActivity {
      * This method updates the patient marker to a new location
      */
     public void updatePatientLocationOnMap(final Marker marker, final LatLng toPosition,
-                                           final boolean hideMarker){
+                                           final boolean hideMarker) {
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
         Projection proj = mMap.getProjection();
         Point startPoint = proj.toScreenLocation(marker.getPosition());
         final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 30000;
+        final long INTERPOLATION_DURATION = 30000;
 
         final Interpolator interpolator = new LinearInterpolator();
 
@@ -115,7 +137,7 @@ public class MapActivity extends FragmentActivity {
             public void run() {
                 long elapsed = SystemClock.uptimeMillis() - start;
                 float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
+                        / INTERPOLATION_DURATION);
                 double lng = t * toPosition.longitude + (1 - t)
                         * startLatLng.longitude;
                 double lat = t * toPosition.latitude + (1 - t)
