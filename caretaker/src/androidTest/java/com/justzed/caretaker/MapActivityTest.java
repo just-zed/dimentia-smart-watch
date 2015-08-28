@@ -1,12 +1,19 @@
 package com.justzed.caretaker;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.support.test.uiautomator.UiSelector;
+import android.support.test.uiautomator.Until;
 import android.test.ActivityTestCase;
 import static org.mockito.Mockito.mock;
-
-
+import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.By;
+import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -26,11 +33,12 @@ import static org.mockito.Mockito.mock;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MapActivityTest extends ActivityTestCase {
+public class MapActivityTest extends InstrumentationTestCase {
     //Variables
     public MapActivity mapActivity;
     private static GoogleMap testMap; // Might be null if Google Play services APK is not available.
     private Marker testPatientMarker;
+    UiDevice device;
 
     //Constants
     private double[] BASIC_LAT_LONG_BRISBANE = new double[]{-27.471010, 153.0333};
@@ -40,14 +48,23 @@ public class MapActivityTest extends ActivityTestCase {
     private int LARGE_TIMER = 10000;
     private int SMALL_TIMER = 10;
 
-    @Before
-    public void createMapActvity() {
-        mapActivity = new MapActivity();
-        mapActivity.checkIfSetUpMapNeeded();
-        UiDevice device = UiDevice.getInstance(getInstrumentation());
+
+    public void setUp() {
+        Context context = getInstrumentation().getContext();
+        Intent intent = context.getPackageManager()
+                .getLaunchIntentForPackage();
+
     }
 
     @Test
+    public void testUiMapActivity() throws UiObjectNotFoundException {
+        device = UiDevice.getInstance(getInstrumentation());
+        UiObject marker =  device.findObject(new UiSelector().descriptionContains("testPatient"));
+        marker.click();
+    }
+
+
+    /*
     public void testCheckIfSetUpMapNeededNull() {
         mapActivity.checkIfSetUpMapNeeded();
     }
@@ -93,6 +110,6 @@ public class MapActivityTest extends ActivityTestCase {
     @Test
     public void testcountdownToNextUpdateExceptionSmallTimer() {
         mapActivity.countdownToNextUpdate(SMALL_TIMER);
-    }
+    }*/
 }
 
