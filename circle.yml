@@ -1,0 +1,18 @@
+machine:
+  environment:
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+  java:
+    version: oraclejdk8
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.0,android-23"
+test:
+  override:
+    # start the emulator
+    - emulator -avd circleci-android22 -no-audio -no-window:
+        background: true
+        parallel: true
+    # wait for it to have booted
+    - circle-android wait-for-boot
+    # run tests  against the emulator.
+    - ./gradlew connectedAndroidTest

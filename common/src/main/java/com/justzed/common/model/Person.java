@@ -116,8 +116,13 @@ public class Person {
             Person person = null;
             person = getByUniqueToken(uniqueToken).toBlocking().first();
 
-            if (person == null) {
-                ParseObject parseObject = this.serialize();
+            if (person == null || person.getType() != type) {
+                ParseObject parseObject;
+                if (person == null) {
+                    parseObject = this.serialize();
+                } else {
+                    parseObject = this.serialize(person.getParseObject());
+                }
                 parseObject.saveInBackground(e -> {
                     if (e == null) {
                         this.objectId = parseObject.getObjectId();

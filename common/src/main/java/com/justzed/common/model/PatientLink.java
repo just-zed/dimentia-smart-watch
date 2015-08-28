@@ -52,6 +52,11 @@ public class PatientLink {
         this.objectId = parseObject.getObjectId();
         this.patient = patient;
         this.caretaker = caretaker;
+
+        //TODO: put some check to check that patient is patient, caretaker is caretaker
+//        if (patient.getType()!= Person.PATIENT || caretaker.getType()!= Person.CARETAKER){
+//            throw new Exception("");
+//        }
     }
 
     private ParseObject serialize() {
@@ -140,8 +145,24 @@ public class PatientLink {
      */
     public static Observable<PatientLink> getByPatient(Person patient) {
 
-        return null;
-
+        //TODO: handle multiple patient links of the same patient
+        return Observable.defer(() ->
+                Observable.create(subscriber -> {
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
+                    query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+                    query.setLimit(1);
+                    query.findInBackground((list, e) -> {
+                        if (e == null && list.size() == 1) {
+                            subscriber.onNext(deserialize(list.get(0)));
+                            subscriber.onCompleted();
+                        } else if (list.size() == 0) {
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
+                        } else {
+                            subscriber.onError(e);
+                        }
+                    });
+                }));
     }
 
     /**
