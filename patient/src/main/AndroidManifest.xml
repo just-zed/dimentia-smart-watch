@@ -26,20 +26,25 @@
         <meta-data
             android:name="com.parse.push.gcm_sender_id"
             android:value="id:609971025017" />
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme" >
+        </activity>
+        <activity
+            android:name=".TokenSenderActivity"
+            android:label="@string/title_activity_token_sender" >
+        </activity>
+        <activity
+            android:name=".PanicButtonActivity"
+            android:label="@string/title_activity_panic_button" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".TokenSenderActivity"
-            android:label="@string/title_activity_token_sender" >
         </activity>
 
         <service android:name="com.parse.PushService" />
@@ -51,17 +56,6 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-
-                <!--                   IMPORTANT: Change "com.parse.tutorials.pushnotifications" to match your app's package name. -->
-                <category android:name="com.justzed.patient" />
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name="com.parse.ParsePushBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
@@ -70,11 +64,17 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-        <activity
-            android:name=".PanicButtonActivity"
-            android:label="@string/title_activity_panic_button" >
-        </activity>
+<!--                   IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
+                <category android:name="com.justzed.patient" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
