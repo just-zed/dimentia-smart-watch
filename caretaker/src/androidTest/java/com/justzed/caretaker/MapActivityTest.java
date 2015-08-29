@@ -50,9 +50,6 @@ public class MapActivityTest extends InstrumentationTestCase {
 
 
     public void setUp() {
-        Context context = getInstrumentation().getContext();
-        Intent intent = context.getPackageManager()
-                .getLaunchIntentForPackage();
 
     }
 
