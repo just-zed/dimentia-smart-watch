@@ -9,6 +9,8 @@ import android.preference.PreferenceManager;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.Person;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -19,12 +21,18 @@ public class MainActivity extends Activity {
     public static final String PREF_PERSON_KEY = "PersonPref";
 
 
+    @OnClick(R.id.button)
+    void mapButtonClick(){
+        Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-
+        ButterKnife.bind(this);
         //TODO: move these to a splash screen activity
         //first run check if patient is already created. if not create it
         SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
