@@ -70,11 +70,15 @@ public class PatientLocation {
     public static PatientLocation deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLocation(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
-                toLatLng(parseObject.getParseGeoPoint(KEY_LATLNG)));
+                toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_LATLNG)));
     }
 
-    public static LatLng toLatLng(ParseGeoPoint geoPoint) {
-        return new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+    public static LatLng toLatLng(ParseGeoPoint geoPoint) throws ParseException {
+        if (geoPoint != null) {
+            return new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+        } else {
+            return null;
+        }
     }
 
     public static ParseGeoPoint toParseGeoPoint(LatLng latLng) {
@@ -131,7 +135,9 @@ public class PatientLocation {
             query.findInBackground((list, e) -> {
                 try {
                     if (e == null && list.size() >= 1) {
-                        subscriber.onNext(deserialize(list.get(0)));
+                        if (list.get(0) != null) {
+                            subscriber.onNext(deserialize(list.get(0)));
+                        }
                         subscriber.onCompleted();
                     } else if (list.size() == 0) {
                         subscriber.onNext(null);
