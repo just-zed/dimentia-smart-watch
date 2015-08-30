@@ -117,24 +117,23 @@ public class PatientLink {
      */
     public static Observable<PatientLink> getByPersons(Person patient, Person caretaker) {
 
-        return Observable.defer(() ->
-                Observable.create(subscriber -> {
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
-                    query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-                    query.whereEqualTo(KEY_CARETAKER, caretaker.getParseObject());
-                    query.setLimit(1);
-                    query.findInBackground((list, e) -> {
-                        if (e == null && list.size() == 1) {
-                            subscriber.onNext(deserialize(list.get(0)));
-                            subscriber.onCompleted();
-                        } else if (list.size() == 0) {
-                            subscriber.onNext(null);
-                            subscriber.onCompleted();
-                        } else {
-                            subscriber.onError(e);
-                        }
-                    });
-                }));
+        return Observable.create(subscriber -> {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
+            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+            query.whereEqualTo(KEY_CARETAKER, caretaker.getParseObject());
+            query.setLimit(1);
+            query.findInBackground((list, e) -> {
+                if (e == null && list.size() == 1) {
+                    subscriber.onNext(deserialize(list.get(0)));
+                    subscriber.onCompleted();
+                } else if (list.size() == 0) {
+                    subscriber.onNext(null);
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(e);
+                }
+            });
+        });
     }
 
     /**
@@ -146,23 +145,22 @@ public class PatientLink {
     public static Observable<PatientLink> getByPatient(Person patient) {
 
         //TODO: handle multiple patient links of the same patient
-        return Observable.defer(() ->
-                Observable.create(subscriber -> {
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
-                    query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-                    query.setLimit(1);
-                    query.findInBackground((list, e) -> {
-                        if (e == null && list.size() == 1) {
-                            subscriber.onNext(deserialize(list.get(0)));
-                            subscriber.onCompleted();
-                        } else if (list.size() == 0) {
-                            subscriber.onNext(null);
-                            subscriber.onCompleted();
-                        } else {
-                            subscriber.onError(e);
-                        }
-                    });
-                }));
+        return Observable.create(subscriber -> {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
+            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+            query.setLimit(1);
+            query.findInBackground((list, e) -> {
+                if (e == null && list.size() == 1) {
+                    subscriber.onNext(deserialize(list.get(0)));
+                    subscriber.onCompleted();
+                } else if (list.size() == 0) {
+                    subscriber.onNext(null);
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(e);
+                }
+            });
+        });
     }
 
     /**
@@ -181,28 +179,27 @@ public class PatientLink {
      * @return Observable<PatientLink>
      */
     public Observable<PatientLink> delete() {
-        return Observable.defer(() ->
-                Observable.create(subscriber -> {
-                    if (objectId == null) {
-                        // this should never happen in the app
-                        subscriber.onError(new Exception("incorrect usage"));
-                    }
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
-                    query.getInBackground(objectId, (parseObject, e) -> {
-                        if (e == null) {
-                            parseObject.deleteInBackground(e1 -> {
-                                if (e1 == null) {
-                                    objectId = null;
-                                    subscriber.onNext(null);
-                                    subscriber.onCompleted();
-                                } else {
-                                    subscriber.onError(e1);
-                                }
-                            });
+        return Observable.create(subscriber -> {
+            if (objectId == null) {
+                // this should never happen in the app
+                subscriber.onError(new Exception("incorrect usage"));
+            }
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
+            query.getInBackground(objectId, (parseObject, e) -> {
+                if (e == null) {
+                    parseObject.deleteInBackground(e1 -> {
+                        if (e1 == null) {
+                            objectId = null;
+                            subscriber.onNext(null);
+                            subscriber.onCompleted();
                         } else {
-                            subscriber.onError(e);
+                            subscriber.onError(e1);
                         }
                     });
-                }));
+                } else {
+                    subscriber.onError(e);
+                }
+            });
+        });
     }
 }

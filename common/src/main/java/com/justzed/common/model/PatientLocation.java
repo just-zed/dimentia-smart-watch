@@ -76,7 +76,7 @@ public class PatientLocation {
 
 
     public Observable<PatientLocation> save() {
-        return Observable.defer(() -> Observable.create(subscriber -> {
+        return Observable.create(subscriber -> {
             ParseObject parseObject = this.serialize();
             parseObject.saveInBackground(e -> {
                 if (e == null) {
@@ -88,53 +88,51 @@ public class PatientLocation {
                 }
             });
 
-        }));
+        });
     }
 
     public Observable<PatientLocation> delete() {
-        return Observable.defer(() ->
-                Observable.create(subscriber -> {
-                    if (objectId == null) {
-                        // this should never happen in the app
-                        subscriber.onError(new Exception("incorrect usage"));
-                    }
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
-                    query.getInBackground(objectId, (parseObject, e) -> {
-                        if (e == null) {
-                            parseObject.deleteInBackground(e1 -> {
-                                if (e1 == null) {
-                                    objectId = null;
-                                    subscriber.onNext(null);
-                                    subscriber.onCompleted();
-                                } else {
-                                    subscriber.onError(e1);
-                                }
-                            });
-                        } else {
-                            subscriber.onError(e);
-                        }
-                    });
-                }));
-    }
-
-    public static Observable<PatientLocation> getLatestPatientLocation(Person patient) {
-        return Observable.defer(() ->
-                Observable.create(subscriber -> {
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
-                    query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-                    query.orderByDescending("createdAt").setLimit(1);
-                    query.findInBackground((list, e) -> {
-                        if (e == null && list.size() == 1) {
-                            subscriber.onNext(deserialize(list.get(0)));
-                            subscriber.onCompleted();
-                        } else if (list.size() == 0) {
+        return Observable.create(subscriber -> {
+            if (objectId == null) {
+                // this should never happen in the app
+                subscriber.onError(new Exception("incorrect usage"));
+            }
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
+            query.getInBackground(objectId, (parseObject, e) -> {
+                if (e == null) {
+                    parseObject.deleteInBackground(e1 -> {
+                        if (e1 == null) {
+                            objectId = null;
                             subscriber.onNext(null);
                             subscriber.onCompleted();
                         } else {
-                            subscriber.onError(e);
+                            subscriber.onError(e1);
                         }
                     });
-                }));
+                } else {
+                    subscriber.onError(e);
+                }
+            });
+        });
+    }
+
+    public static Observable<PatientLocation> getLatestPatientLocation(Person patient) {
+        return Observable.create(subscriber -> {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
+            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+            query.orderByDescending("createdAt").setLimit(1);
+            query.findInBackground((list, e) -> {
+                if (e == null && list.size() >= 1) {
+                    subscriber.onNext(deserialize(list.get(0)));
+                    subscriber.onCompleted();
+                } else if (list.size() == 0) {
+                    subscriber.onNext(null);
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(e);
+                }
+            });
+        });
     }
 
 }
