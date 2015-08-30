@@ -25,10 +25,9 @@ import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 
 public class MapActivity extends FragmentActivity {
-    private static final String TAG = MapActivity.TAG;
+    private static final String TAG = MapActivity.class.getSimpleName();
     //Variables
-    private Person person;
-    private PatientLocation patientLocation;
+    private Person patient;
 
     private String patientMarkerName = "";
     private static GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -43,6 +42,9 @@ public class MapActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle data = getIntent().getExtras();
+        patient = data.getParcelable(Person.PARCELABLE_KEY);
+
         mMap = null;
         setContentView(R.layout.activity_map);
     }
@@ -215,8 +217,8 @@ public class MapActivity extends FragmentActivity {
      * This gets the current location of the patient from the database.
      */
     private Observable<LatLng> getPatientLocation() {
-        return Person.getByUniqueToken("ffffffff-fcfb-6ccb-0033-c58700000000")
-                .flatMap(PatientLocation::getLatestPatientLocation)
+        return PatientLocation.getLatestPatientLocation(patient)
+                .filter(patientLocation1 -> patientLocation1 != null)
                 .map(PatientLocation::getLatLng);
     }
 

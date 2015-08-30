@@ -88,6 +88,7 @@ public class PatientService extends IntentService {
         Bundle data = intent.getExtras();
         final Person person = data.getParcelable(Person.PARCELABLE_KEY);
         getLocationUpdates()
+                .filter(location1 -> location1 != null)
                 .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
                 .flatMap(latLng -> new PatientLocation(person, latLng).save())
                 .subscribeOn(AndroidSchedulers.mainThread())
