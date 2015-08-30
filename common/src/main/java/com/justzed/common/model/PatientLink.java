@@ -192,7 +192,27 @@ public class PatientLink {
      */
     public static Observable<PatientLink> getByCaretaker(Person caretaker) {
 
-        return null;
+        //TODO: handle multiple patient links of the same patient
+        return Observable.create(subscriber -> {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
+            query.whereEqualTo(KEY_CARETAKER, caretaker.getParseObject());
+            query.setLimit(1);
+            query.findInBackground((list, e) -> {
+                try {
+                    if (e == null && list.size() == 1) {
+                        subscriber.onNext(deserialize(list.get(0)));
+                        subscriber.onCompleted();
+                    } else if (list.size() == 0) {
+                        subscriber.onNext(null);
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(e);
+                    }
+                } catch (ParseException pe) {
+                    subscriber.onError(pe);
+                }
+            });
+        });
 
     }
 
