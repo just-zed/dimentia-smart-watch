@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
 
-            new Person(Person.PATIENT, generateToken())
+            new Person(Person.CARETAKER, generateToken())
                     .save()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
