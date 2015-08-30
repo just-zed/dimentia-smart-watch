@@ -122,7 +122,7 @@ public class PatientLocation {
                 Observable.create(subscriber -> {
                     ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
                     query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-                    query.setLimit(1);
+                    query.orderByDescending("createdAt").setLimit(1);
                     query.findInBackground((list, e) -> {
                         if (e == null && list.size() == 1) {
                             subscriber.onNext(deserialize(list.get(0)));

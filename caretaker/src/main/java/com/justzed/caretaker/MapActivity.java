@@ -1,9 +1,11 @@
 package com.justzed.caretaker;
 
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,6 +22,17 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
+
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
+
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 
@@ -36,7 +49,8 @@ public class MapActivity extends FragmentActivity {
     //Constants
 
     private final int UPDATE_TIMER_NORMAL= 10000;
-    private final int UPDATE_TIMER_PAUSE= 30000;
+    private Subscription subscription;
+    private Subscription patientLocationSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +58,6 @@ public class MapActivity extends FragmentActivity {
         mMap = null;
         setContentView(R.layout.activity_map);
         checkIfSetUpMapNeeded();
-        countdownToNextUpdate(UPDATE_TIMER_NORMAL);
     }
 
     @Override
@@ -57,7 +70,11 @@ public class MapActivity extends FragmentActivity {
     @Override
     protected void onPause(){
         super.onPause();
-        countdownToNextUpdate(UPDATE_TIMER_PAUSE);
+        if (subscription !=null && !subscription.isUnsubscribed())
+        {
+            subscription.unsubscribe();
+        }
+
     }
 
     @Override
@@ -100,7 +117,27 @@ public class MapActivity extends FragmentActivity {
      */
     private void setUpMap() {
         /* TODO Retrieve and set to the current location of the patient.*/
-        showPatientOnMap(getPatientLocation());
+
+        getPatientLocation()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<LatLng>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(LatLng latLng) {
+                        showPatientOnMap(latLng);
+                    }
+                });
+//        showPatientOnMap(getPatientLocation());
     }
 
     /**
@@ -163,18 +200,50 @@ public class MapActivity extends FragmentActivity {
      *
      * Countdown till the next patient location update.
      */
-    private void countdownToNextUpdate(int timeBetweenUpdates){
-        new CountDownTimer(timeBetweenUpdates, 1000) {
+    private void countdownToNextUpdate(long timeBetweenUpdates){
+       subscription = Observable.just(null)
+               .delay(timeBetweenUpdates, TimeUnit.MICROSECONDS)
+               .repeat()
+               .flatMap(new Func1<Object, Observable<LatLng>>() {
+                   @Override
+                   public Observable<LatLng> call(Object o) {
+                       return getPatientLocation();
+                   }
+               })
+               .subscribeOn(Schedulers.io())
+               .observeOn(AndroidSchedulers.mainThread())
+               .subscribe(
+                       new Subscriber<LatLng>() {
+                           @Override
+                           public void onCompleted() {
+                               
+                           }
 
-            public void onTick(long millisUntilFinished) {
-            }
+                           @Override
+                           public void onError(Throwable e) {
 
-            public void onFinish() {
-                toast("Update");
-                //LatLng coordinates = getPatientLocation();
-                //updatePatientLocationOnMap(patientMarker,coordinates,false );
-            }
-        }.start();
+                           }
+
+                           @Override
+                           public void onNext(LatLng latLng) {
+                                toast("Update");
+                               updatePatientLocationOnMap(patientMarker, latLng, false);
+                           }
+                       }
+               );
+       
+//       
+//        new CountDownTimer(timeBetweenUpdates, 1000) {
+//
+//            public void onTick(long millisUntilFinished) {
+//            }
+//
+//            public void onFinish() {
+//                toast("Update");
+//                //LatLng coordinates = getPatientLocation();
+//                //updatePatientLocationOnMap(patientMarker,coordinates,false );
+//            }
+//        }.start();
     }
 
     /**
@@ -197,11 +266,27 @@ public class MapActivity extends FragmentActivity {
      *
      * This gets the current location of the patient from the database.
      */
-    private LatLng getPatientLocation(){
-        //patientLocation = PatientLocation.getLatestPatientLocation(person).toBlocking().single();
-        //return patientLocation.getLatLng();
-
-        return new LatLng(0,0);
+    private Observable<LatLng> getPatientLocation(){
+        return Person.getByUniqueToken("ffffffff-fcfb-6ccb-0033-c58700000000")
+                .flatMap(new Func1<Person, Observable<PatientLocation>>() {
+                    @Override
+                    public Observable<PatientLocation> call(Person person) {
+                        return PatientLocation.getLatestPatientLocation(person);
+                    }
+                })
+        .map(new Func1<PatientLocation, LatLng>() {
+            @Override
+            public LatLng call(PatientLocation patientLocation) {
+                return patientLocation.getLatLng();
+            }
+        });
+//        PatientLocation.getLatestPatientLocation(person)
+//                .
+//
+//
+//        return patientLocation.getLatLng();
+//
+//        return patienLocation;
 
     }
 
@@ -217,7 +302,7 @@ public class MapActivity extends FragmentActivity {
 
     private void toast(String toastMessage) {
         try{
-            Toast.makeText(MapActivity.this, toastMessage, Toast.LENGTH_LONG).show();
+            Toast.makeText(MapActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
         }catch(Exception toast){}
     }
 }
