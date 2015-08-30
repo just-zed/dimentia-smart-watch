@@ -16,9 +16,10 @@
 
     <string name="hello_world">Hello world!</string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
-        AIzaSyDCyT08j8b_ZaTPTCgf9sRX2ncdV8B0NLk
+        <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">
+
+             AIzaSyDCyT08j8b_ZaTPTCgf9sRX2ncdV8B0NLk
     </string>
     <string name="title_activity_caretaker_nfc">CaretakerNfcActivity</string>
-    <string name="action_connect_patient">Connect to Patient</string>
+    <string name="center_map_description">button to center the map on the patient.</string>
 </resources>

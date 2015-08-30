@@ -1,41 +1,52 @@
 package com.justzed.caretaker;
 
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.justzed.common.model.PatientLocation;
+import com.justzed.common.model.Person;
+
+import java.util.concurrent.TimeUnit;
+
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 
 public class MapActivity extends FragmentActivity {
-    private static final int UPDATE_TIMER_NORMAL = 5000;
-    private static final int UPDATE_TIMER_PAUSE = 30000;
+    private static final String TAG = MapActivity.class.getSimpleName();
+    //Variables
+    private Person patient;
 
-    private static final double[] BRISBANE_LAT_LONG = new double[]{-27.471010, 153.0333};
-
-
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private String patientMarkerName = "";
+    private static GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker patientMarker;
+    boolean test = false;
+
+    //Constants
+
+    private static final int UPDATE_TIMER_NORMAL = 10000;
+    private Subscription subscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle data = getIntent().getExtras();
+        patient = data.getParcelable(Person.PARCELABLE_KEY);
 
+        mMap = null;
         setContentView(R.layout.activity_map);
-        checkIfSetUpMapNeeded();
-        countdownToNextUpdate(UPDATE_TIMER_NORMAL);
     }
 
     @Override
@@ -48,31 +59,41 @@ public class MapActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        countdownToNextUpdate(UPDATE_TIMER_PAUSE);
-
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-
+        patientMarker.remove();
     }
 
     /**
+     * Created by Tristan Dubois
+     * <p>
      * This checks if the map needs to be set up.
      */
     public void checkIfSetUpMapNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+
+        try {
+            if (mMap == null) {
+                // Try to obtain the map from the SupportMapFragment.
+
+                mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                        .getMap();
+            }
+
+
             // Check if we were successful in obtaining the map.
-            if (mMap != null) {
+            if (mMap == null || patientMarker == null) {
                 setUpMap();
             }
+        } catch (Exception e) {
+            toast("Map could not be loaded.");
         }
     }
 
@@ -82,9 +103,13 @@ public class MapActivity extends FragmentActivity {
      * This method is used to set up the map.
      */
     private void setUpMap() {
-        //retrieve location from other method
-        //Set the patients location
-        showPatientOnMap(BRISBANE_LAT_LONG[0], BRISBANE_LAT_LONG[1]);
+        /* TODO Retrieve and set to the current location of the patient.*/
+
+        getPatientLocation()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::showPatientOnMap,
+                        throwable -> Log.e(TAG, throwable.getMessage()));
     }
 
     /**
@@ -92,9 +117,17 @@ public class MapActivity extends FragmentActivity {
      * <p>
      * This method adds a marker for the patient on the map.
      */
-    public void showPatientOnMap(double patientCurrentLocationLat, double patientCurrentLocationLong) {
-        patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title("TestPatient"));
-        mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 1.0f));
+    private void showPatientOnMap(LatLng patientCurrentLocation) {
+        try {
+            if (patientMarker == null) {
+                patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
+            } else {
+                updatePatientLocationOnMap(patientMarker, patientCurrentLocation, false);
+            }
+            mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 15.0f));
+        } catch (Exception e) {
+            toast("A Marker could not be placed.");
+        }
     }
 
     /**
@@ -104,43 +137,45 @@ public class MapActivity extends FragmentActivity {
      */
     public void updatePatientLocationOnMap(final Marker marker, final LatLng toPosition,
                                            final boolean hideMarker) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = mMap.getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 30000;
+//        final Handler handler = new Handler();
+//        final long start = SystemClock.uptimeMillis();
+//        Projection proj = mMap.getProjection();
+//        Point startPoint = proj.toScreenLocation(marker.getPosition());
+//        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+//        final long INTERPOLATION_DURATION = 500;
+//        final Interpolator interpolator = new LinearInterpolator();
+//
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                long elapsed = SystemClock.uptimeMillis() - start;
+//                float t = interpolator.getInterpolation((float) elapsed
+//                        / INTERPOLATION_DURATION);
+//                double lng = t * toPosition.longitude + (1 - t)
+//                        * startLatLng.longitude;
+//                double lat = t * toPosition.latitude + (1 - t)
+//                        * startLatLng.latitude;
+//                marker.setPosition(new LatLng(lat, lng));
+//
+//                if (t < 1.0) {
+//                    // Post again 16ms later.
+//                    handler.postDelayed(this, 16);
+//                } else {
+//                    if (hideMarker) {
+//                        marker.setVisible(false);
+//                    } else {
+//                        marker.setVisible(true);
+//                    }
+//                }
+//            }
+//        });
 
-        final Interpolator interpolator = new LinearInterpolator();
-
-
-        //TODO: improve these to rx subscribe/observe pattern
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startLatLng.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
-                //mMap.moveCamera(newLatLng(patientMarker.getPosition()));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-            }
-        });
-
+        if (hideMarker) {
+            marker.setVisible(false);
+        } else {
+            marker.setVisible(true);
+            marker.setPosition(new LatLng(toPosition.latitude, toPosition.longitude));
+        }
     }
 
     /**
@@ -148,17 +183,59 @@ public class MapActivity extends FragmentActivity {
      * <p>
      * Countdown till the next patient location update.
      */
-    public void countdownToNextUpdate(int timeBetweenUpdates) {
-        new CountDownTimer(timeBetweenUpdates, 1000) {
+    private void countdownToNextUpdate(long timeBetweenUpdates) {
+        subscription = getPatientLocation()
+                .delay(timeBetweenUpdates, TimeUnit.MILLISECONDS)
+                .repeat()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(latLng -> {
+//                    toast("Update");
+                    updatePatientLocationOnMap(patientMarker, latLng, false);
+                });
 
-            public void onTick(long millisUntilFinished) {
-            }
+    }
 
-            public void onFinish() {
-                LatLng coordinates = new LatLng(0, 0);
-                updatePatientLocationOnMap(patientMarker, coordinates, false);
-            }
-        }.start();
+    /**
+     * Created by Tristan Dubois
+     * <p>
+     * His activates when the center button is pressed and centers the map on the patient.
+     */
+    public void centerPatientMarker(View view) {
+        try {
+            mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 15.0f));
+        } catch (Exception e) {
+
+            toast("Failed to center the map on the user.");
+
+        }
+    }
+
+    /**
+     * Created by Tristan Dubois
+     * <p>
+     * This gets the current location of the patient from the database.
+     */
+    private Observable<LatLng> getPatientLocation() {
+        return PatientLocation.getLatestPatientLocation(patient)
+                .filter(patientLocation1 -> patientLocation1 != null)
+                .map(PatientLocation::getLatLng);
+    }
+
+    /**
+     * Created by Tristan Dubois
+     * <p>
+     * This gets the name of the patient from the database.
+     */
+    private String getPatientName() {
+        patientMarkerName = "Bob";
+        return patientMarkerName;
+    }
+
+    private void toast(String toastMessage) {
+        try {
+            Toast.makeText(MapActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
+        } catch (Exception toast) {
+        }
     }
 }
-
