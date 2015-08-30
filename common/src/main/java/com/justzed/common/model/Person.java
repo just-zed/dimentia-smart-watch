@@ -84,7 +84,13 @@ public class Person implements Parcelable {
     }
 
     public ParseObject getParseObject() {
-        return parseObject;
+        if (parseObject != null) {
+            return parseObject;
+        } else if (objectId != null) {
+            return ParseObject.createWithoutData(KEY_PERSON, objectId);
+        } else {
+            return null;
+        }
     }
 
     @Type

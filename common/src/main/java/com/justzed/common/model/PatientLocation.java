@@ -1,6 +1,7 @@
 package com.justzed.common.model;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -35,7 +36,13 @@ public class PatientLocation {
     }
 
     public ParseObject getParseObject() {
-        return parseObject;
+        if (parseObject != null) {
+            return parseObject;
+        } else if (objectId != null) {
+            return ParseObject.createWithoutData(KEY_PERSONLOCATION, objectId);
+        } else {
+            return null;
+        }
     }
 
     public PatientLocation(Person patient, LatLng latLng) {
@@ -60,9 +67,9 @@ public class PatientLocation {
         return parseObject;
     }
 
-    public static PatientLocation deserialize(ParseObject parseObject) {
+    public static PatientLocation deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLocation(parseObject,
-                Person.deserialize(parseObject.getParseObject(KEY_PATIENT)),
+                Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
                 toLatLng(parseObject.getParseGeoPoint(KEY_LATLNG)));
     }
 
@@ -122,14 +129,18 @@ public class PatientLocation {
             query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
             query.orderByDescending("createdAt").setLimit(1);
             query.findInBackground((list, e) -> {
-                if (e == null && list.size() >= 1) {
-                    subscriber.onNext(deserialize(list.get(0)));
-                    subscriber.onCompleted();
-                } else if (list.size() == 0) {
-                    subscriber.onNext(null);
-                    subscriber.onCompleted();
-                } else {
-                    subscriber.onError(e);
+                try {
+                    if (e == null && list.size() >= 1) {
+                        subscriber.onNext(deserialize(list.get(0)));
+                        subscriber.onCompleted();
+                    } else if (list.size() == 0) {
+                        subscriber.onNext(null);
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(e);
+                    }
+                } catch (ParseException pe) {
+                    subscriber.onError(pe);
                 }
             });
         });

@@ -2,6 +2,7 @@ package com.justzed.common.model;
 
 import android.util.Log;
 
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -24,6 +25,17 @@ public class PatientLink {
 
     //this can only be set by internal operation
     private String objectId = null;
+
+    public ParseObject getParseObject() {
+        if (parseObject != null) {
+            return parseObject;
+        } else if (objectId != null) {
+            return ParseObject.createWithoutData(KEY_PATIENT_LINK, objectId);
+        } else {
+            return null;
+        }
+    }
+
     private ParseObject parseObject;
 
 
@@ -72,11 +84,11 @@ public class PatientLink {
     }
 
 
-    public static PatientLink deserialize(ParseObject parseObject) {
+    public static PatientLink deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLink(
                 parseObject,
-                Person.deserialize(parseObject.getParseObject(KEY_PATIENT)),
-                Person.deserialize(parseObject.getParseObject(KEY_CARETAKER))
+                Person.deserialize(parseObject.getParseObject(KEY_PATIENT).fetchIfNeeded()),
+                Person.deserialize(parseObject.getParseObject(KEY_CARETAKER).fetchIfNeeded())
         );
     }
 
@@ -123,15 +135,20 @@ public class PatientLink {
             query.whereEqualTo(KEY_CARETAKER, caretaker.getParseObject());
             query.setLimit(1);
             query.findInBackground((list, e) -> {
-                if (e == null && list.size() == 1) {
-                    subscriber.onNext(deserialize(list.get(0)));
-                    subscriber.onCompleted();
-                } else if (list.size() == 0) {
-                    subscriber.onNext(null);
-                    subscriber.onCompleted();
-                } else {
-                    subscriber.onError(e);
+                try {
+                    if (e == null && list.size() == 1) {
+                        subscriber.onNext(deserialize(list.get(0)));
+                        subscriber.onCompleted();
+                    } else if (list.size() == 0) {
+                        subscriber.onNext(null);
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(e);
+                    }
+                } catch (ParseException pe) {
+                    subscriber.onError(pe);
                 }
+
             });
         });
     }
@@ -150,14 +167,18 @@ public class PatientLink {
             query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
             query.setLimit(1);
             query.findInBackground((list, e) -> {
-                if (e == null && list.size() == 1) {
-                    subscriber.onNext(deserialize(list.get(0)));
-                    subscriber.onCompleted();
-                } else if (list.size() == 0) {
-                    subscriber.onNext(null);
-                    subscriber.onCompleted();
-                } else {
-                    subscriber.onError(e);
+                try {
+                    if (e == null && list.size() == 1) {
+                        subscriber.onNext(deserialize(list.get(0)));
+                        subscriber.onCompleted();
+                    } else if (list.size() == 0) {
+                        subscriber.onNext(null);
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(e);
+                    }
+                } catch (ParseException pe) {
+                    subscriber.onError(pe);
                 }
             });
         });
