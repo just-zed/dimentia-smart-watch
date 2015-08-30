@@ -30,7 +30,8 @@
         </activity>
         <service
             android:name=".PatientService"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/title_patient_service" />
         <activity
             android:name=".TokenSenderActivity"
             android:label="@string/title_activity_token_sender" />

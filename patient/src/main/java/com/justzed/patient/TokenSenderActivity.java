@@ -1,13 +1,14 @@
 package com.justzed.patient;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import com.justzed.common.model.Person;
 //import com.parse.ParseObject;
 //import com.parse.ParseClassName;
 
@@ -20,8 +21,6 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     //Private Variables
     private NfcAdapter mNfcAdapter;
 
-    public static final String INTENT_TOKEN_KEY = "token";
-
     private String myUniqueToken;
 
     /**
@@ -29,9 +28,14 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        myUniqueToken = intent.getStringExtra(INTENT_TOKEN_KEY);
-
+        Bundle data = getIntent().getExtras();
+        Person person = data.getParcelable(Person.PARCELABLE_KEY);
+        if (person != null) {
+            myUniqueToken = person.getUniqueToken();
+        } else {
+            //somethings wrong, just kill the activity
+            finishWithSuccess(false);
+        }
         sendPatientDataWithNFC();
     }
 
@@ -51,19 +55,19 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
             } catch (Exception Toast) {
             }
 
-            finish();
+            finishWithSuccess(false);
             return;
         }
 
         if (!checkNfc(mNfcAdapter)) {
-            finish();
+            finishWithSuccess(false);
             return;
         }
 
 
         //Send the data via NFC
-        mNfcAdapter.setNdefPushMessageCallback(this, this);
         mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
+        mNfcAdapter.setNdefPushMessageCallback(this, this);
     }
 
     //Helper Methods
@@ -121,6 +125,11 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     @Override
     public void onNdefPushComplete(NfcEvent event) {
         Toast.makeText(TokenSenderActivity.this, "Connection completed!", Toast.LENGTH_LONG).show();
+        finishWithSuccess(true);
+    }
+
+    private void finishWithSuccess(boolean status) {
+        this.setResult((status) ? RESULT_OK : RESULT_CANCELED);
         finish();
     }
 }

@@ -62,7 +62,6 @@ public class MainActivity extends Activity {
                         Editor editor = mPrefs.edit();
                         editor.putString(PREF_PERSON_KEY, person.getUniqueToken());
                         editor.apply();
-
                         //start token activity
                         startTokenSenderActivity();
                     });
@@ -78,12 +77,7 @@ public class MainActivity extends Activity {
                     .subscribe(
                             person -> {
                                 this.person = person;
-
-                                //start service
-                                Intent serviceIntent = new Intent(this, PatientService.class);
-                                serviceIntent.putExtra(PatientService.INTENT_PATIENT_KEY, uniqueToken);
-                                startService(serviceIntent);
-
+                                startPatientService();
                                 //start token activity
                                 startTokenSenderActivity();
                             },
@@ -96,6 +90,13 @@ public class MainActivity extends Activity {
 
     }
 
+    private void startPatientService() {
+        //start service
+        Intent serviceIntent = new Intent(this, PatientService.class);
+        serviceIntent.putExtra(Person.PARCELABLE_KEY, person);
+        startService(serviceIntent);
+    }
+
     private void startTokenSenderActivity() {
         if (person != null) {
             //TODO: move these to repository class
@@ -106,7 +107,7 @@ public class MainActivity extends Activity {
                     .subscribe(patientLink -> {
                         if (patientLink == null) {
                             Intent intent = new Intent(this, TokenSenderActivity.class);
-                            intent.putExtra(TokenSenderActivity.INTENT_TOKEN_KEY, person.getUniqueToken());
+                            intent.putExtra(Person.PARCELABLE_KEY, person);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivityForResult(intent, REQ_CODE_SEND_TOKEN);
                         }
@@ -125,11 +126,10 @@ public class MainActivity extends Activity {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 // The user picked a contact.
-                // The Intent's data Uri identifies which contact was selected.
-
-                // Do something with the contact here (bigger example below)
-
-
+                startPatientService();
+            } else {
+                //kill the app if tokenSender is returning error
+                finish();
             }
         }
     }
