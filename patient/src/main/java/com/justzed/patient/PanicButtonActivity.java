@@ -21,43 +21,31 @@ import com.parse.SaveCallback;
 public class PanicButtonActivity extends Activity {
     Button button;
     TextView textView;
-
+    private final ParsePush push = new ParsePush();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_panic_button);
 
-        //Add Parse API keys
-        Parse.initialize(this, ApiKeys.PARSE_API_TEST_APPLICATION_ID, ApiKeys.PARSE_API_TEST_CLIENT_KEY);
-        ParseInstallation.getCurrentInstallation().saveInBackground();
-
-        //Enable Push notifications
-        ParsePush.subscribeInBackground("", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
-                } else {
-                    Log.e("com.parse.push", "failed to subscribe for push", e);
-                }
-            }
-        });
-
         button = (Button) findViewById(R.id.button1);
         button.setOnClickListener( new OnClickListener() {
             public void onClick(View view) {
-                textView.setText("You clicked the button!");
-                NotificationMessage nm = new NotificationMessage();
+                textView.setText("Message is sent");
 
-                nm.setMessage("Test message from Hiroki");
-                nm.sendMessage();
-
+                sendMessage("Test message from PanicButtonActivity");
             }
         }
         );
         textView = (TextView) findViewById(R.id.textView1);
     }
+
+    public void sendMessage(String message) {
+        push.setMessage(message);
+        push.sendInBackground();
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
