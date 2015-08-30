@@ -18,25 +18,30 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import static com.google.android.gms.maps.CameraUpdateFactory.newLatLng;
+import com.justzed.common.model.PatientLocation;
+import com.justzed.common.model.Person;
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
 
 public class MapActivity extends FragmentActivity {
-    private final int UPDATE_TIMER_NORMAL= 5000;
-    private final int UPDATE_TIMER_PAUSE= 30000;
-    private final String patientMarkerName = "testPatient";
+    //Variables
+    private Person person;
+    private PatientLocation patientLocation;
 
+    private String patientMarkerName = "";
     private static GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker patientMarker;
+    boolean test = false;
 
-    private final double[] BRISBANE_LAT_LONG = new double[]{-27.471010,153.0333};
-    private final double[] TEST_LAT_LONG =  new double[]{-27.471050,153.0345};
+    //Constants
+
+    private final int UPDATE_TIMER_NORMAL= 10000;
+    private final int UPDATE_TIMER_PAUSE= 30000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mMap = null;
         setContentView(R.layout.activity_map);
         checkIfSetUpMapNeeded();
         countdownToNextUpdate(UPDATE_TIMER_NORMAL);
@@ -53,19 +58,17 @@ public class MapActivity extends FragmentActivity {
     protected void onPause(){
         super.onPause();
         countdownToNextUpdate(UPDATE_TIMER_PAUSE);
-
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         patientMarker.remove();
-
-
     }
 
     /**
+     * Created by Tristan Dubois
+     *
      * This checks if the map needs to be set up.
      */
     public void checkIfSetUpMapNeeded() {
@@ -86,10 +89,7 @@ public class MapActivity extends FragmentActivity {
             }
         }
         catch(Exception e){
-            try
-            {
-                Toast.makeText(MapActivity.this, "Map could not be loaded", Toast.LENGTH_LONG).show();
-            }catch(Exception Toast){}
+            toast("Map could not be loaded.");
         }
     }
 
@@ -100,7 +100,7 @@ public class MapActivity extends FragmentActivity {
      */
     private void setUpMap() {
         /* TODO Retrieve and set to the current location of the patient.*/
-        showPatientOnMap(BRISBANE_LAT_LONG[0],BRISBANE_LAT_LONG[1]);
+        showPatientOnMap(getPatientLocation());
     }
 
     /**
@@ -108,15 +108,12 @@ public class MapActivity extends FragmentActivity {
      *
      * This method adds a marker for the patient on the map.
      */
-    private void showPatientOnMap( double patientCurrentLocationLat, double patientCurrentLocationLong) {
+    private void showPatientOnMap( LatLng patientCurrentLocation) {
         try {
-            patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(patientCurrentLocationLat, patientCurrentLocationLong)).title(patientMarkerName));
+            patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
             mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 15.0f));
         } catch (Exception e) {
-            try {
-                Toast.makeText(MapActivity.this, "A Marker could not be placed", Toast.LENGTH_LONG).show();
-            } catch (Exception Toast) {
-            }
+            toast("A Marker could not be placed.");
         }
     }
 
@@ -133,7 +130,6 @@ public class MapActivity extends FragmentActivity {
         Point startPoint = proj.toScreenLocation(marker.getPosition());
         final LatLng startLatLng = proj.fromScreenLocation(startPoint);
         final long INTERPOLATION_DURATION = 500;
-
         final Interpolator interpolator = new LinearInterpolator();
 
         handler.post(new Runnable() {
@@ -174,22 +170,54 @@ public class MapActivity extends FragmentActivity {
             }
 
             public void onFinish() {
-                /* TODO Retrieve and set to the current location of the patient.*/
-                LatLng coordinates = new LatLng(TEST_LAT_LONG[0],TEST_LAT_LONG[1]);
-                updatePatientLocationOnMap(patientMarker,coordinates,false );
+                toast("Update");
+                //LatLng coordinates = getPatientLocation();
+                //updatePatientLocationOnMap(patientMarker,coordinates,false );
             }
         }.start();
     }
 
+    /**
+     * Created by Tristan Dubois
+     *
+     * His activates when the center button is pressed and centers the map on the patient.
+     */
     public void centerPatientMarker(View view){
         try {
             mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 15.0f));
         } catch (Exception e) {
-            try {
-                Toast.makeText(MapActivity.this, "Failed to center the map on the user.", Toast.LENGTH_LONG).show();
-            } catch (Exception Toast) {
-            }
+
+            toast("Failed to center the map on the user.");
+
         }
     }
-}
 
+    /**
+     * Created by Tristan Dubois
+     *
+     * This gets the current location of the patient from the database.
+     */
+    private LatLng getPatientLocation(){
+        //patientLocation = PatientLocation.getLatestPatientLocation(person).toBlocking().single();
+        //return patientLocation.getLatLng();
+
+        return new LatLng(0,0);
+
+    }
+
+    /**
+     * Created by Tristan Dubois
+     *
+     * This gets the name of the patient from the database.
+     */
+    private String getPatientName(){
+        patientMarkerName = "Bob";
+        return patientMarkerName;
+    }
+
+    private void toast(String toastMessage) {
+        try{
+            Toast.makeText(MapActivity.this, toastMessage, Toast.LENGTH_LONG).show();
+        }catch(Exception toast){}
+    }
+}
