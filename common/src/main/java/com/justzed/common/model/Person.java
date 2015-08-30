@@ -1,5 +1,7 @@
 package com.justzed.common.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.IntDef;
 import android.util.Log;
 
@@ -14,7 +16,9 @@ import rx.Observable;
 /**
  * Created by freeman on 8/16/15.
  */
-public class Person {
+public class Person implements Parcelable {
+
+    public static final String PARCELABLE_KEY = "person";
 
     private static final String TAG = "Person";
 
@@ -22,6 +26,41 @@ public class Person {
     private static final String KEY_PERSON = "Person";
     private static final String KEY_TYPE_ID = "typeId";
     private static final String KEY_UNIQUE_TOKEN = "uniqueToken";
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringArray(new String[]{
+                this.getObjectId(),
+                this.getUniqueToken()
+        });
+        dest.writeInt(this.getType());
+    }
+
+    protected Person(Parcel in) {
+        String[] data = new String[2];
+        in.readStringArray(data);
+        objectId = data[0];
+        type = parseType(in.readInt());
+        uniqueToken = data[1];
+    }
+
+    public static final Creator<Person> CREATOR = new Creator<Person>() {
+        @Override
+        public Person createFromParcel(Parcel in) {
+            return new Person(in);
+        }
+
+        @Override
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
 
 
     @IntDef({PATIENT, CARETAKER})
@@ -71,6 +110,7 @@ public class Person {
         this.type = type;
         this.uniqueToken = uniqueToken;
     }
+
 
     public Person(ParseObject parseObject, @Type int type, String uniqueToken) {
         this.objectId = parseObject.getObjectId();

@@ -1,5 +1,7 @@
 package com.justzed.common;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -50,6 +52,22 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person.getUniqueToken(), testToken);
         assertNotSame(person.getType(), Person.PATIENT);
         assertEquals(person.getType(), Person.CARETAKER);
+    }
+
+    @Test
+    public void testParcelable() {
+        Intent intent = new Intent();
+        intent.putExtra(Person.PARCELABLE_KEY, person);
+
+        //
+
+        Bundle data = intent.getExtras();
+        assertNotNull(data);
+
+        Person person1 = data.getParcelable(Person.PARCELABLE_KEY);
+        assertNotNull(person1);
+        assertEquals(person.getObjectId(), person1.getObjectId());
+
     }
 
     //create
