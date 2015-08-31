@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 import com.justzed.patient.Application;
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 
 import org.junit.After;
@@ -63,7 +64,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     }
 
     @Test
-    public void testClassConverters() {
+    public void testClassConverters() throws ParseException {
         double lat = -27d;
         double lng = 153d;
 

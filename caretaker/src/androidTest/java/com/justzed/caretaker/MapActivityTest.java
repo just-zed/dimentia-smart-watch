@@ -1,30 +1,20 @@
 package com.justzed.caretaker;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
-import android.support.test.uiautomator.Until;
-import android.test.ActivityTestCase;
-import static org.mockito.Mockito.mock;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.By;
 import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
-
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-
+import com.google.android.gms.maps.model.MarkerOptions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.mockito.Mockito.mock;
 
 /**
  * Created by Tristan on 14/08/2015.
@@ -41,27 +31,19 @@ public class MapActivityTest extends InstrumentationTestCase {
     UiDevice device;
 
     //Constants
-    private double[] BASIC_LAT_LONG_BRISBANE = new double[]{-27.471010, 153.0333};
-    private double[] NEGATIVE_LAT_LONG_BRISBANE = new double[]{-500, -500};
-    private double[] LARGE_LAT_LONG_BRISBANE = new double[]{10000, 10000};
-    private int NO_TIMER = 0;
-    private int LARGE_TIMER = 10000;
-    private int SMALL_TIMER = 10;
+    private LatLng START_LAT_LONG = new LatLng(0, 0);
+    private LatLng BASIC_LAT_LONG = new LatLng(-27.471010, 153.0333);
+    private LatLng NEGATIVE_LAT_LONG = new LatLng(-500, -500);
+    private LatLng LARGE_LAT_LONG = new LatLng(10000, 10000);
 
-
+    @Before
     public void setUp() {
+        mapActivity = new MapActivity();
+        device = UiDevice.getInstance(getInstrumentation());
 
     }
 
     @Test
-    public void testUiMapActivity() throws UiObjectNotFoundException {
-        device = UiDevice.getInstance(getInstrumentation());
-        UiObject marker =  device.findObject(new UiSelector().descriptionContains("testPatient"));
-        marker.click();
-    }
-
-
-    /*
     public void testCheckIfSetUpMapNeededNull() {
         mapActivity.checkIfSetUpMapNeeded();
     }
@@ -69,44 +51,34 @@ public class MapActivityTest extends InstrumentationTestCase {
     @Test
     public void testCheckIfSetUpMapNeededNotNull() {
         mapActivity.checkIfSetUpMapNeeded();
+
+    }
+
+    @Test
+    public void testUpdateatientLocationOnMapChangeLocationBasic() {
+
+        testPatientMarker = testMap.addMarker(new MarkerOptions().position(START_LAT_LONG).title("testPatient"));
+        mapActivity.updatePatientLocationOnMap(testPatientMarker, BASIC_LAT_LONG, false);
+    }
+
+    @Test
+    public void testUpdateatientLocationOnMapChangeLocationNegative() {
+        testPatientMarker = testMap.addMarker(new MarkerOptions().position(START_LAT_LONG).title("testPatient"));
+        mapActivity.updatePatientLocationOnMap(testPatientMarker, NEGATIVE_LAT_LONG, false);
+    }
+
+    @Test
+    public void testUpdateatientLocationOnMapChangeLocationSmall() {
+        testPatientMarker = testMap.addMarker(new MarkerOptions().position(START_LAT_LONG).title("testPatient"));
+        mapActivity.updatePatientLocationOnMap(testPatientMarker, LARGE_LAT_LONG, false);
+    }
+
+
+    @Test
+    public void testCenterPatientMarker() throws UiObjectNotFoundException {
         mapActivity.checkIfSetUpMapNeeded();
+        UiObject marker = device.findObject(new UiSelector().descriptionContains("testPatient"));
+        marker.click();
     }
-
-    @Test
-    public void testShowPatientOnMapBasicException() {
-        mapActivity.showPatientOnMap(BASIC_LAT_LONG_BRISBANE[0], BASIC_LAT_LONG_BRISBANE[1]);
-    }
-
-    @Test
-    public void testShowPatientOnNegativeException() {
-        mapActivity.showPatientOnMap(NEGATIVE_LAT_LONG_BRISBANE[0], NEGATIVE_LAT_LONG_BRISBANE[1]);
-    }
-
-    @Test
-    public void testShowPatientOnMapLargeException() {
-        mapActivity.showPatientOnMap(LARGE_LAT_LONG_BRISBANE[0], LARGE_LAT_LONG_BRISBANE[1]);
-    }
-
-
-    @Test
-    public void testUpdateatientLocationOnMapChangeLocation() {
-
-        //mapActivity.updatePatientLocationOnMap(patientMarker, position, false);
-    }
-
-    @Test
-    public void testcountdownToNextUpdateExceptionNoTimer() {
-        mapActivity.countdownToNextUpdate(NO_TIMER);
-    }
-
-    @Test
-    public void testcountdownToNextUpdateExceptionLargeTimer() {
-        mapActivity.countdownToNextUpdate(LARGE_TIMER);
-    }
-
-    @Test
-    public void testcountdownToNextUpdateExceptionSmallTimer() {
-        mapActivity.countdownToNextUpdate(SMALL_TIMER);
-    }*/
 }
 
