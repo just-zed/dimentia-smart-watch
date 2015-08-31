@@ -21,4 +21,5 @@
              AIzaSyDCyT08j8b_ZaTPTCgf9sRX2ncdV8B0NLk
     </string>
     <string name="title_activity_caretaker_nfc">CaretakerNfcActivity</string>
+    <string name="center_map_description">button to center the map on the patient.</string>
 </resources>
