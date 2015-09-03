@@ -23,7 +23,11 @@ import rx.schedulers.Schedulers;
 
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
-
+/**
+ * Created by Tristan on 21/08/2015.
+ *
+ * This class uses the google map API to display the location of the patient device by getting data from the parse.com database.
+ */
 public class MapActivity extends FragmentActivity {
     private static final String TAG = MapActivity.class.getSimpleName();
     //Variables
@@ -131,7 +135,7 @@ public class MapActivity extends FragmentActivity {
     }
 
     /**
-     * Created by Tristan Duboi
+     * Created by Tristan Dubois
      * <p>
      * This method updates the patient marker to a new location
      */
@@ -179,7 +183,7 @@ public class MapActivity extends FragmentActivity {
     }
 
     /**
-     * Created by Tristan Duboi
+     * Created by Tristan Dubois
      * <p>
      * Countdown till the next patient location update.
      */
@@ -232,6 +236,11 @@ public class MapActivity extends FragmentActivity {
         return patientMarkerName;
     }
 
+    /**
+     * Created by Tristan Dubois
+     * <p>
+     * This is used to create a toast message using a string.
+     */
     private void toast(String toastMessage) {
         try {
             Toast.makeText(MapActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
