@@ -15,7 +15,7 @@ import rx.Observable;
 
 /**
  * Person object + data access layer, implements parcelable
- * person object can be parceled and pass between activities through intent
+ * person object can be parceled and passed between activities through intent
  * <p>
  * Created by freeman on 8/16/15.
  */
