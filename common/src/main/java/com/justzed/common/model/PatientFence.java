@@ -12,6 +12,11 @@ import java.util.List;
 import rx.Observable;
 
 /**
+ * PatientFence object + data layer
+ * <p>
+ * Geo fences are saved in circles only.
+ * Each database row contains patient, center point and radius.
+ * <p>
  * Created by freeman on 8/23/15.
  */
 public class PatientFence {
@@ -88,7 +93,11 @@ public class PatientFence {
 
     }
 
-
+    /**
+     * save PatientFence
+     *
+     * @return PatientFence Observable
+     */
     public Observable<PatientFence> save() {
         return Observable.create(subscriber -> {
             ParseObject parseObject = this.serialize();
@@ -105,6 +114,11 @@ public class PatientFence {
         });
     }
 
+    /**
+     * delete PatientFence
+     *
+     * @return PatientFence Observable
+     */
     public Observable<PatientFence> delete() {
         return Observable.create(subscriber -> {
             if (objectId == null) {
@@ -130,6 +144,12 @@ public class PatientFence {
         });
     }
 
+    /**
+     * get whole list of geo fences by patient
+     *
+     * @param patient patient
+     * @return List of PatientFence Observable
+     */
     public static Observable<List<PatientFence>> getPatientFences(Person patient) {
         return Observable.create(subscriber -> {
             ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);

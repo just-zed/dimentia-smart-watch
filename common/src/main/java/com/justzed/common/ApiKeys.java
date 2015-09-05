@@ -1,5 +1,9 @@
 package com.justzed.common;
 
+/**
+ * This class contains hardcoded application id and client key for test and production parse.com databases
+ */
+
 public class ApiKeys {
     public static final String PARSE_API_TEST_APPLICATION_ID = "2TkyjUhZajx0P7wA7zAx6EOeucEV7WMU6J2QFU9P";
     public static final String PARSE_API_TEST_CLIENT_KEY = "05fmQpMVWkGU9yf8Q3LmMmoh9PDdygePdVdNjkc0";

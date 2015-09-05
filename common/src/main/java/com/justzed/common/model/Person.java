@@ -14,6 +14,9 @@ import java.lang.annotation.RetentionPolicy;
 import rx.Observable;
 
 /**
+ * Person object + data access layer, implements parcelable
+ * person object can be parceled and pass between activities through intent
+ * <p>
  * Created by freeman on 8/16/15.
  */
 public class Person implements Parcelable {
@@ -155,7 +158,7 @@ public class Person implements Parcelable {
      * // handle error
      * })
      *
-     * @return Observable<Person>
+     * @return Person Observable
      */
     public Observable<Person> save() {
         return Observable.create(subscriber -> {
@@ -189,7 +192,7 @@ public class Person implements Parcelable {
     }
 
     /**
-     * (static)
+     * (static) get person by unique token
      * usage:
      * Person.getByUniqueToken(token)
      * .subscribeOn(Scheduler.io())
@@ -228,6 +231,8 @@ public class Person implements Parcelable {
     }
 
     /**
+     * delete this person from database
+     * <p>
      * usage:
      * person.delete()
      * .subscribeOn(Scheduler.io())
@@ -238,7 +243,7 @@ public class Person implements Parcelable {
      * // handle error
      * })
      *
-     * @return Observable<Person>
+     * @return Person Observable (null for success)
      */
     public Observable<Person> delete() {
         return Observable.create(subscriber -> {
