@@ -25,10 +25,13 @@ import rx.android.schedulers.AndroidSchedulers;
 public class PatientService extends IntentService {
     private static final String TAG = PatientService.class.getName();
     private Subscription subscription;
+    GeofencingCheck geofenceCheck = new GeofencingCheck();
 
     private static final int INTERVAL = 5000;
     private static final int FASTEST_INTERVAL = 500;
     private static final int POLL_TIMER = 10000;
+
+
 
     public PatientService() {
         super(PatientService.class.getName());
@@ -49,6 +52,9 @@ public class PatientService extends IntentService {
                     @Override
                     public void onLocationChanged(Location location) {
                         // do that something
+                        double[] locationToBeChecked= new double[]{location.getLatitude(), location.getLongitude()};
+
+                        checkGeofenceStatus(locationToBeChecked);
                         subscriber.onNext(location);
                     }
 
@@ -72,6 +78,9 @@ public class PatientService extends IntentService {
                 String provider = locationManager.getBestProvider(criteria, true);
 
                 locationManager.requestLocationUpdates(provider, INTERVAL, 0, locationListener);
+
+
+
             } catch (SecurityException e) {
                 subscriber.onError(e);
             }
@@ -123,6 +132,37 @@ public class PatientService extends IntentService {
 //                }, throwable -> {
 //                    Log.e(TAG, throwable.getMessage());
 //                });
+
+    }
+
+    private void checkGeofenceStatus(double[] myLocation){
+        final int geofenceStatus;
+        final int EXITED_A_FENCE = 1;
+        final int REENTERED_A_FENCE = 2;
+        final int NOTHING_HAS_CHANGED = 0;
+        final int NO_GEOFENCES_FOUND = 3;
+
+        geofenceStatus = geofenceCheck.checkGeofence(myLocation);
+
+        switch(geofenceStatus) {
+            case NOTHING_HAS_CHANGED:
+                //Nothing
+
+                break;
+            case NO_GEOFENCES_FOUND:
+                //Nothing
+
+                break;
+            case EXITED_A_FENCE:
+                //Exited a fence notification
+
+                break;
+            case REENTERED_A_FENCE:
+                //The patient has re-entered a fence notification
+
+                break;
+        }
+
 
     }
 }

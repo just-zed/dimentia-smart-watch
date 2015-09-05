@@ -19,6 +19,7 @@ public class GeofencingCheck {
     private int EXITED_A_FENCE = 1;
     private int REENTERED_A_FENCE = 2;
     private int NOTHING_HAS_CHANGED = 0;
+    private int NO_GEOFENCES_FOUND = 3;
     //Location and Geofencing Indicies
     private int LATITUDE_INDEX = 0;
     private int LONGITUDE_INDEX = 1;
@@ -35,16 +36,16 @@ public class GeofencingCheck {
      *
      * Main method to check if a patient is in a geofence.
      */
-    public void checkGeofence(){
+    public int checkGeofence(double[] myLocation){
         getGeofencesFromDatabase();
 
         if(!geofenceList.isEmpty()) {
             getMyLocationFromDatabase();
             checkIfInsideGeofences(geofenceList, currentLocation);
-            checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
+            return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
         }
         else{
-
+            return NO_GEOFENCES_FOUND;
         }
     }
 
