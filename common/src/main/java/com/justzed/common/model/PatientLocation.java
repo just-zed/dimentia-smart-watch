@@ -9,6 +9,12 @@ import com.parse.ParseQuery;
 import rx.Observable;
 
 /**
+ * Patient Location object + data access layer
+ * <p>
+ * Database contains list of all saved patient location, data can be sorted by CreatedAt timestamp,
+ * the latest entry contains the patient's latest known location
+ * <p>
+ * <p>
  * Created by freeman on 8/23/15.
  */
 public class PatientLocation {
@@ -73,7 +79,11 @@ public class PatientLocation {
                 LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_LATLNG)));
     }
 
-
+    /**
+     * save this to database
+     *
+     * @return PatientLocation Observable
+     */
     public Observable<PatientLocation> save() {
         return Observable.create(subscriber -> {
             ParseObject parseObject = this.serialize();
@@ -90,6 +100,12 @@ public class PatientLocation {
         });
     }
 
+
+    /**
+     * delete from database
+     *
+     * @return PatientLocation Observable (null for success)
+     */
     public Observable<PatientLocation> delete() {
         return Observable.create(subscriber -> {
             if (objectId == null) {
@@ -114,6 +130,13 @@ public class PatientLocation {
             });
         });
     }
+
+    /**
+     * get latest location of patient
+     *
+     * @param patient patient as Person
+     * @return PatientLocation Observable
+     */
 
     public static Observable<PatientLocation> getLatestPatientLocation(Person patient) {
         return Observable.create(subscriber -> {
