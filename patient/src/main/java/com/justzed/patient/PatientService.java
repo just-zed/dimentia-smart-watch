@@ -52,9 +52,6 @@ public class PatientService extends IntentService {
                     @Override
                     public void onLocationChanged(Location location) {
                         // do that something
-                        double[] locationToBeChecked= new double[]{location.getLatitude(), location.getLongitude()};
-
-                        checkGeofenceStatus(locationToBeChecked);
                         subscriber.onNext(location);
                     }
 
@@ -104,9 +101,14 @@ public class PatientService extends IntentService {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientLocation -> {
                     Log.e(TAG, "location updated: " + patientLocation.getObjectId());
+
+                    //Checks if the device is within a geofence.
+                    double[] locationToBeChecked = new double[]{patientLocation.getLatLng().latitude, patientLocation.getLatLng().longitude};
+                    checkGeofenceStatus(locationToBeChecked);
                 }, throwable -> {
                     Log.e(TAG, throwable.getMessage());
                 });
+
 
 //
 //        LocationRequest request = LocationRequest.create() //standard GMS LocationRequest
@@ -135,6 +137,13 @@ public class PatientService extends IntentService {
 
     }
 
+    /**
+     * Created by Tristan Dubois.
+     *
+     * This method runs all the methods needed to check whether the device's status has changed.
+     * If leaves all geofences, a notification is sent to the other device once.
+     * If the device re-enters the geofences, a notification is sent to the other device once.
+     */
     private void checkGeofenceStatus(double[] myLocation){
         final int geofenceStatus;
         final int EXITED_A_FENCE = 1;
@@ -162,7 +171,5 @@ public class PatientService extends IntentService {
 
                 break;
         }
-
-
     }
 }
