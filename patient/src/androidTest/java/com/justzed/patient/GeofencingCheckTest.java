@@ -58,6 +58,27 @@ public class GeofencingCheckTest extends TestCase {
     /**
      * Created by Tristan Dubois.
      *
+     * Test passes no exceptions are thrown when running checkGeofence with an arbitrary
+     * location.
+     */
+    @Test
+    public void testCheckGeofenceExceptionTest(){
+        geofenceCheck.checkGeofence(POSITION_ONE);
+    }
+
+    /**
+     * Created by Tristan Dubois.
+     *
+     * Test passes no exceptions are thrown when running getGeofencesFromDatabase.
+     */
+    @Test
+    public void testGetGeofencesFromDatabaseExeption(){
+        geofenceCheck.getGeofencesFromDatabase();
+    }
+
+    /**
+     * Created by Tristan Dubois.
+     *
      * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE with only one
      * geofence.
      */
@@ -226,6 +247,7 @@ public class GeofencingCheckTest extends TestCase {
      * Test passes if checkIfStatusHasChanged returns NOTHING_HAS_CHANGED when both the current
      * and previous status are INSIDE_FENCE.
      */
+    @Test
     public void testCheckIfStatusHasChangedBothInside() {
         int currentStatus = INSIDE_FENCE;
         int previousStatus = INSIDE_FENCE;
@@ -241,6 +263,7 @@ public class GeofencingCheckTest extends TestCase {
      * Test passes if checkIfStatusHasChanged returns NOTHING_HAS_CHANGED when both the current
      * and previous status are OUTSIDE_FENCE.
      */
+    @Test
     public void testCheckIfStatusHasChangedBothOutside() {
         int currentStatus = OUTSIDE_FENCE;
         int previousStatus = OUTSIDE_FENCE;
@@ -256,6 +279,7 @@ public class GeofencingCheckTest extends TestCase {
      * Test passes if checkIfStatusHasChanged returns EXITED_A_FENCE when both the current status is
      * OUTSIDE_FENCE and previous status is INSIDE_FENCE.
      */
+    @Test
     public void testCheckIfStatusHasChangedBothInsideToOutside() {
         int currentStatus = OUTSIDE_FENCE;
         int previousStatus = INSIDE_FENCE;
@@ -271,6 +295,7 @@ public class GeofencingCheckTest extends TestCase {
      * Test passes if checkIfStatusHasChanged returns REENTERED_A_FENCE when both the current status is
      * INSIDE_FENCE and previous status is OUTSIDE_FENCE.
      */
+    @Test
     public void testCheckIfStatusHasChangedBothOutsideToInside() {
         int currentStatus = INSIDE_FENCE;
         int previousStatus = OUTSIDE_FENCE;

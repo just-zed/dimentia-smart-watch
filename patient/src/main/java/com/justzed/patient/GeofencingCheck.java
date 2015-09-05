@@ -40,8 +40,7 @@ public class GeofencingCheck {
         getGeofencesFromDatabase();
 
         if(!geofenceList.isEmpty()) {
-            getMyLocationFromDatabase();
-            checkIfInsideGeofences(geofenceList, currentLocation);
+            checkIfInsideGeofences(geofenceList, myLocation);
             return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
         }
         else{
@@ -49,11 +48,6 @@ public class GeofencingCheck {
         }
     }
 
-        //Get all the geofences from the database
-        //if geofences are found
-            //Get my location
-            //for each geofence, check wether i'm inside or outside.
-            //depending on wether i was inside or outside a geofence previously return a value
     /**
      * Created by Tristan Dubois.
      *
@@ -63,19 +57,11 @@ public class GeofencingCheck {
         geofenceList = new ArrayList<double[]>();
 
         for (int i = 0; i < 0; i++){
+            /* TODO get data from the database and add it to the list*/
+            double[] toAddToList = new double[]{0,0,0};
 
+            geofenceList.add(toAddToList);
         }
-    }
-        //Erase all data from the list
-        //get each geofence data relevant from the geofence table and store it in a list
-
-    /**
-     * Created by Tristan Dubois.
-     *
-     * //Get my current location and store it
-     */
-    public void getMyLocationFromDatabase(){
-
     }
 
     /**
