@@ -148,12 +148,16 @@ public class Person implements Parcelable {
     /**
      * this method automatically checks for duplicate and save the person object to database
      * <p>
+     * TODO: this will need to be fixed later
+     * currently if the type is changed (certain device is changed from patient to caretaker)
+     * it still saves correctly
+     * <p>
      * usage:
      * person.save()
      * .subscribeOn(Scheduler.io())
      * .observerOn(AndroidSchedulers.mainThread())
      * .subscribe(person->{
-     * // do something in UI thread with saved person object with new objectId already inside
+     * // do something in UI thread with saved person object with new objectId
      * },throwable->{
      * // handle error
      * })
@@ -193,6 +197,7 @@ public class Person implements Parcelable {
 
     /**
      * (static) get person by unique token
+     * <p>
      * usage:
      * Person.getByUniqueToken(token)
      * .subscribeOn(Scheduler.io())
@@ -204,7 +209,7 @@ public class Person implements Parcelable {
      * })
      *
      * @param uniqueToken generated token that's unique to device
-     * @return Observable<Person>
+     * @return Person Observable
      */
     public static Observable<Person> getByUniqueToken(String uniqueToken) {
 
@@ -231,7 +236,7 @@ public class Person implements Parcelable {
     }
 
     /**
-     * delete this person from database
+     * delete person from database, return null if success
      * <p>
      * usage:
      * person.delete()
