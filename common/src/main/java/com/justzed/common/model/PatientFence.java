@@ -6,26 +6,31 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import rx.Observable;
 
 /**
- * Patient Location object + data access layer
+ * PatientFence object + data layer
  * <p>
- * Database contains list of all saved patient location, data can be sorted by CreatedAt timestamp,
- * the latest entry contains the patient's latest known location
- * <p>
+ * Geo fences are saved in circles only.
+ * Each database row contains patient, center point and radius.
  * <p>
  * Created by freeman on 8/23/15.
  */
-public class PatientLocation {
+public class PatientFence {
 
 
-    private static final String KEY_PERSONLOCATION = "PatientLocation";
+    private static final String KEY_PERSONFENCE = "PatientFence";
     private static final String KEY_PATIENT = "patient";
-    private static final String KEY_LATLNG = "latLng";
+    private static final String KEY_CENTER = "center";
+    private static final String KEY_RADIUS = "radius";
 
     private Person patient;
-    private LatLng latLng;
+    private LatLng center;
+    private double radius;
+
     private String objectId = null;
     private ParseObject parseObject = null;
 
@@ -33,8 +38,12 @@ public class PatientLocation {
         return patient;
     }
 
-    public LatLng getLatLng() {
-        return latLng;
+    public LatLng getCenter() {
+        return center;
+    }
+
+    public double getRadius() {
+        return radius;
     }
 
     public String getObjectId() {
@@ -45,46 +54,51 @@ public class PatientLocation {
         if (parseObject != null) {
             return parseObject;
         } else if (objectId != null) {
-            return ParseObject.createWithoutData(KEY_PERSONLOCATION, objectId);
+            return ParseObject.createWithoutData(KEY_PERSONFENCE, objectId);
         } else {
             return null;
         }
     }
 
-    public PatientLocation(Person patient, LatLng latLng) {
+    public PatientFence(Person patient, LatLng center, double radius) {
         this.patient = patient;
-        this.latLng = latLng;
+        this.center = center;
+        this.radius = radius;
     }
 
-    public PatientLocation(ParseObject parseObject, Person patient, LatLng latLng) {
+    public PatientFence(ParseObject parseObject, Person patient, LatLng center, double radius) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.patient = patient;
-        this.latLng = latLng;
+        this.center = center;
+        this.radius = radius;
     }
 
     private ParseObject serialize() {
-        return serialize(new ParseObject(KEY_PERSONLOCATION));
+        return serialize(new ParseObject(KEY_PERSONFENCE));
     }
 
     private ParseObject serialize(ParseObject parseObject) {
         parseObject.put(KEY_PATIENT, patient.getParseObject());
-        parseObject.put(KEY_LATLNG, LocationHelper.toParseGeoPoint(latLng));
+        parseObject.put(KEY_CENTER, LocationHelper.toParseGeoPoint(center));
+        parseObject.put(KEY_RADIUS, radius);
         return parseObject;
     }
 
-    public static PatientLocation deserialize(ParseObject parseObject) throws ParseException {
-        return new PatientLocation(parseObject,
+    public static PatientFence deserialize(ParseObject parseObject) throws ParseException {
+        return new PatientFence(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
-                LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_LATLNG)));
+                LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
+                parseObject.getDouble(KEY_RADIUS));
+
     }
 
     /**
-     * save this to database
+     * save PatientFence
      *
-     * @return PatientLocation Observable
+     * @return PatientFence Observable
      */
-    public Observable<PatientLocation> save() {
+    public Observable<PatientFence> save() {
         return Observable.create(subscriber -> {
             ParseObject parseObject = this.serialize();
             parseObject.saveInBackground(e -> {
@@ -100,19 +114,18 @@ public class PatientLocation {
         });
     }
 
-
     /**
-     * delete from database
+     * delete PatientFence
      *
-     * @return PatientLocation Observable (null for success)
+     * @return PatientFence Observable
      */
-    public Observable<PatientLocation> delete() {
+    public Observable<PatientFence> delete() {
         return Observable.create(subscriber -> {
             if (objectId == null) {
                 // this should never happen in the app
                 subscriber.onError(new Exception("incorrect usage"));
             }
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);
             query.getInBackground(objectId, (parseObject, e) -> {
                 if (e == null) {
                     parseObject.deleteInBackground(e1 -> {
@@ -132,26 +145,23 @@ public class PatientLocation {
     }
 
     /**
-     * get latest location of patient
+     * get whole list of geo fences by patient
      *
-     * @param patient patient as Person
-     * @return PatientLocation Observable
+     * @param patient patient
+     * @return List of PatientFence Observable
      */
-
-    public static Observable<PatientLocation> getLatestPatientLocation(Person patient) {
+    public static Observable<List<PatientFence>> getPatientFences(Person patient) {
         return Observable.create(subscriber -> {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONLOCATION);
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);
             query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-            query.orderByDescending("createdAt").setLimit(1);
             query.findInBackground((list, e) -> {
                 try {
-                    if (e == null && list.size() >= 1) {
-                        if (list.get(0) != null) {
-                            subscriber.onNext(deserialize(list.get(0)));
+                    if (e == null && list != null && list.size() >= 1) {
+                        List<PatientFence> patientFences = new ArrayList<>();
+                        for (int i = 0; i < list.size(); i++) {
+                            patientFences.add(deserialize(list.get(i)));
                         }
-                        subscriber.onCompleted();
-                    } else if (list.size() == 0) {
-                        subscriber.onNext(null);
+                        subscriber.onNext(patientFences);
                         subscriber.onCompleted();
                     } else {
                         subscriber.onError(e);
