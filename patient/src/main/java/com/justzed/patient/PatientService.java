@@ -30,8 +30,10 @@ public class PatientService extends IntentService {
     private static final int INTERVAL = 5000;
     private static final int FASTEST_INTERVAL = 500;
     private static final int POLL_TIMER = 10000;
-
-
+    /*Todo uncomment*/
+    //private final ParsePush push = new ParsePush();
+    private String REENTERED_FENCE_MESSAGE = "@string/reentered_fence_notification";
+    private String EXIT_FENCE_MESSAGE = "@string/exited_fence_notification";
 
     public PatientService() {
         super(PatientService.class.getName());
@@ -138,6 +140,18 @@ public class PatientService extends IntentService {
     }
 
     /**
+     *   Created by Hiroki Takahashi.
+     *
+     * This method sends the parameter as a  push notification to the other device.*
+     */
+    private void sendPushNotification(String notificationMessage){
+        /*Todo uncomment*/
+        //push.sentMessage(notificationMesage);
+        //push.sendInBackground();
+
+    }
+
+    /**
      * Created by Tristan Dubois.
      *
      * This method runs all the methods needed to check whether the device's status has changed.
@@ -153,6 +167,7 @@ public class PatientService extends IntentService {
 
         geofenceStatus = geofenceCheck.checkGeofence(myLocation, person);
 
+
         switch(geofenceStatus) {
             case NOTHING_HAS_CHANGED:
                 //Nothing
@@ -164,12 +179,15 @@ public class PatientService extends IntentService {
                 break;
             case EXITED_A_FENCE:
                 //Exited a fence notification
+                /*Todo uncomment*/
+                //sendPushNotification(EXIT_FENCE_MESSAGE);
 
 
                 break;
             case REENTERED_A_FENCE:
                 //The patient has re-entered a fence notification
-
+                /*Todo uncomment*/
+                //sendPushNotification(REENTERED_FENCE_MESSAGE);
                 break;
         }
     }

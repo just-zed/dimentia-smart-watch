@@ -9,4 +9,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_patient_service">PatientService</string>
+    <string name="exited_fence_notificiation">Bob has left a safe zone. Consider sending him a message.</string>
+    <string name="reentered_fence_notificiation">Bob has re-entered a safe zone.</string>
+
 </resources>
