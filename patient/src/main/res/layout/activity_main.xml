@@ -7,12 +7,15 @@
 
 
     <Button
-        android:id="@+id/dummy_button"
+        android:id="@+id/panic_button"
         style="?metaButtonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="1"
-        android:text="@string/dummy_button" />
+        android:text="@string/panic_button"
+        android:textAllCaps="true"
+        android:textSize="36sp"
+        android:textStyle="bold" />
 
 </FrameLayout>
