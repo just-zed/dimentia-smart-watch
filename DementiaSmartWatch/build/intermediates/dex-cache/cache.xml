@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\exploded-aar\io.reactivex\rxandroid\1.0.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="aa81bfe8c5cc88c2472ca936ae71f0c3dd1766df">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\classes-ed57119b763ec146bda220448cfce5b26995c652.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-android\1.2.1\44780c2cf98f6a3cf4e77f1234d644758b329201\bolts-android-1.2.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="44780c2cf98f6a3cf4e77f1234d644758b329201">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\bolts-android-1.2.1-5b49ff97f93e8d055d4c1b86fd126ff4c2e266d5.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\.gradle\caches\modules-2\files-2.1\com.google.dagger\dagger\2.0.1\1261dfca5bae89a866a2855552da26feab7f8fad\dagger-2.0.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1261dfca5bae89a866a2855552da26feab7f8fad">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\dagger-2.0.1-ccc68921f10807bbf4912e45069d5a17a793ab24.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\.gradle\caches\modules-2\files-2.1\io.reactivex\rxjava\1.0.13\b8668706414b5936d38c8a9e4c2be16e3c999c62\rxjava-1.0.13.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="b8668706414b5936d38c8a9e4c2be16e3c999c62">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\rxjava-1.0.13-ff576a0dfb8cb943bc0ef1949b99a447ebfb2b67.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\22.2.1\support-annotations-22.2.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="61a0ff5c29295ec56d7e0bd3d25d95dbf71b4b2b">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\support-annotations-22.2.1-45a7cb095a5686d990e09a758414c8631261a76a.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\exploded-aar\DementiaSmartWatch\common\unspecified\jars\libs\Parse-1.10.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="4ac868f746cc1f50c3fd155110790cf80c1dd346">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\Parse-1.10.0-8b55e6cf7c5bf73b9066ac8f8899b4a22d4e536d.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="f8efd0096475e0daf054267b61544e10dc776503">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\classes-a59221a8e17421376ca1a6bedef11bc4235c64cd.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\.gradle\caches\modules-2\files-2.1\com.jakewharton\butterknife\7.0.1\d5d13ea991eab0252e3710e5df3d6a9d4b21d461\butterknife-7.0.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="d5d13ea991eab0252e3710e5df3d6a9d4b21d461">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\butterknife-7.0.1-ea9b8b814ca4cb59ac5a46ac7275c36dfa394fef.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\.gradle\caches\modules-2\files-2.1\javax.inject\javax.inject\1\6975da39a7040257bd51d21a231b76c915872d38\javax.inject-1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="6975da39a7040257bd51d21a231b76c915872d38">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\javax.inject-1-e8599aa835222bb28dacee6ab6419d6f7106e886.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.1\jars\libs\internal_impl-22.2.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="c471eaaba13ff64f6e0383d1c30a9cdc9a97efeb">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\internal_impl-22.2.1-80daf6797801b3be726cfffd4b9fba670f824b8b.jar" />
+    </item>
+    <item
+        jar="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\exploded-aar\DementiaSmartWatch\common\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="9deee76ddff99e7045eb5f176675026e82ab53e3">
+        <dex dex="C:\Users\takaha\Documents\dimentia-smart-watch\DementiaSmartWatch\caretaker\build\intermediates\pre-dexed\debug\classes-d3f09b8675c8a3d87c9f9b6061c49aa164af14b3.jar" />
+    </item>
+
+</items>
