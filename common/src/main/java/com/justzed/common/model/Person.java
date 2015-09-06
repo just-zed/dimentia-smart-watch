@@ -86,6 +86,13 @@ public class Person implements Parcelable {
         return objectId;
     }
 
+
+    /**
+     * if parseObject is empty but objectId is not, this creates an empty ParseObject("Person")
+     * with only objectId inside, and can be used for parse.com pointer relationship
+     *
+     * @return ParseObject of person
+     */
     public ParseObject getParseObject() {
         if (parseObject != null) {
             return parseObject;
