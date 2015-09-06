@@ -1,14 +1,17 @@
 package com.justzed.patient;
 
+import android.support.annotation.IntDef;
+import android.util.Log;
+
 import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.Person;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by Tristan Dubois on 03/09/2015.
@@ -16,22 +19,43 @@ import rx.schedulers.Schedulers;
  * This class checks wether the patient is in a geofence.
  */
 public class GeofencingCheck {
+
+    private static final String TAG = GeofencingCheck.class.getSimpleName();
+
     //Constants
     //Status
-    private int INSIDE_FENCE = 0;
-    private int OUTSIDE_FENCE = 1;
+    public static final int INSIDE_FENCE = 0;
+    public static final int OUTSIDE_FENCE = 1;
+
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({INSIDE_FENCE, OUTSIDE_FENCE})
+    public @interface Status {
+    }
+
+
     //Status Change
-    private int EXITED_A_FENCE = 1;
-    private int REENTERED_A_FENCE = 2;
-    private int NOTHING_HAS_CHANGED = 0;
-    private int NO_GEOFENCES_FOUND = 3;
+    public static final int EXITED_A_FENCE = 1;
+    public static final int REENTERED_A_FENCE = 2;
+    public static final int NOTHING_HAS_CHANGED = 0;
+    public static final int NO_GEOFENCES_FOUND = 3;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({NOTHING_HAS_CHANGED, EXITED_A_FENCE, REENTERED_A_FENCE, NO_GEOFENCES_FOUND})
+    public @interface StatusChange {
+    }
+
     //Location and Geofencing Indicies
-    private int LATITUDE_INDEX = 0;
-    private int LONGITUDE_INDEX = 1;
-    private int RADIUS_INDEX = 2;
+    //TODO: change it to use PatientFence class later
+    private static final int LATITUDE_INDEX = 0;
+    private static final int LONGITUDE_INDEX = 1;
+    private static final int RADIUS_INDEX = 2;
+
 
     //Variables
+    @Status
     private int previouslyInAFence = INSIDE_FENCE;
+    @Status
     private int currentlyInAFence = INSIDE_FENCE;
     private List<double[]> geofenceList;
     private double[] currentLocation;
@@ -42,6 +66,7 @@ public class GeofencingCheck {
      * <p>
      * Main method to check if a patient is in a geofence.
      */
+    @StatusChange
     public int checkGeofence(double[] myLocation, Person patient) {
         getGeofencesFromDatabase(patient);
 
@@ -59,21 +84,30 @@ public class GeofencingCheck {
      * This method gets the values of all geofences from the database and stores them in a list.
      */
     public void getGeofencesFromDatabase(Person person) {
-        geofenceList = new ArrayList<double[]>();
+        geofenceList = new ArrayList<>();
 
-        List<PatientFence> patientFences = PatientFence.getPatientFences(person)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .filter(patientFences1 -> patientFences1 != null && patientFences1.size() > 0)
-                .toBlocking().single();
+        List<PatientFence> patientFences = null;
 
-        for (int i = 0; i < patientFences.size(); i++) {
-            PatientFence patientFence = patientFences.get(i);
-            double[] toAddToList = new double[]{patientFence.getCenter().latitude, patientFence.getCenter().longitude, patientFence.getRadius()};
-
-            geofenceList.add(toAddToList);
-
+        try {
+            patientFences = PatientFence.getPatientFences(person)
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .filter(patientFences1 -> patientFences1 != null && patientFences1.size() > 0)
+//                    .timeout(5000, TimeUnit.MILLISECONDS)
+                    .toBlocking().single();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
         }
+
+        if (patientFences != null) {
+            for (int i = 0; i < patientFences.size(); i++) {
+                PatientFence patientFence = patientFences.get(i);
+                double[] toAddToList = new double[]{patientFence.getCenter().latitude, patientFence.getCenter().longitude, patientFence.getRadius()};
+
+                geofenceList.add(toAddToList);
+            }
+        }
+
 
     }
 
@@ -82,6 +116,9 @@ public class GeofencingCheck {
      * <p>
      * This uses the location of the device and all the geofence values to check wether the device is inside a geofence.
      */
+
+    //TODO: change to more type safe codes
+    @Status
     public int checkIfInsideGeofences(List<double[]> geofences, double[] deviceLocation) {
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
@@ -109,7 +146,8 @@ public class GeofencingCheck {
      * <p>
      * This checks if the patient has entered or exited a fence.
      */
-    public int checkIfStatusHasChanged(int currentStatus, int previousStatus) {
+    @StatusChange
+    public int checkIfStatusHasChanged(@Status int currentStatus, @Status int previousStatus) {
 
         if (previousStatus == INSIDE_FENCE && currentStatus == OUTSIDE_FENCE) {
             //if the patient was inside a fence and is now outside,

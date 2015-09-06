@@ -15,7 +15,6 @@ import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 /**
@@ -24,16 +23,9 @@ import rx.android.schedulers.AndroidSchedulers;
  */
 public class PatientService extends IntentService {
     private static final String TAG = PatientService.class.getName();
-    private Subscription subscription;
     GeofencingCheck geofenceCheck = new GeofencingCheck();
 
     private static final int INTERVAL = 5000;
-    private static final int FASTEST_INTERVAL = 500;
-    private static final int POLL_TIMER = 10000;
-    /*Todo uncomment*/
-    //private final ParsePush push = new ParsePush();
-    private String REENTERED_FENCE_MESSAGE = "@string/reentered_fence_notification";
-    private String EXIT_FENCE_MESSAGE = "@string/exited_fence_notification";
 
     public PatientService() {
         super(PatientService.class.getName());
@@ -79,7 +71,6 @@ public class PatientService extends IntentService {
                 locationManager.requestLocationUpdates(provider, INTERVAL, 0, locationListener);
 
 
-
             } catch (SecurityException e) {
                 subscriber.onError(e);
             }
@@ -112,82 +103,36 @@ public class PatientService extends IntentService {
                 });
 
 
-//
-//        LocationRequest request = LocationRequest.create() //standard GMS LocationRequest
-//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-//                .setNumUpdates(1)
-//                .setInterval(INTERVAL)
-//                .setFastestInterval(FASTEST_INTERVAL);
-//
-//        ReactiveLocationProvider locationProvider = new ReactiveLocationProvider(getApplication());
-//        subscription = locationProvider.getUpdatedLocation(request)
-////                .delay(POLL_TIMER, TimeUnit.MILLISECONDS)
-////                .repeat()
-//                .map(location -> {
-//                    return;
-//                })
-//                .flatMap(latLng -> {
-//                    return;
-//                })
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(patientLocation -> {
-//                    Log.e(TAG, "save location success" + patientLocation.getObjectId());
-//                }, throwable -> {
-//                    Log.e(TAG, throwable.getMessage());
-//                });
-
-    }
-
-    /**
-     *   Created by Hiroki Takahashi.
-     *
-     * This method sends the parameter as a  push notification to the other device.*
-     */
-    private void sendPushNotification(String notificationMessage){
-        /*Todo uncomment*/
-        //push.sentMessage(notificationMesage);
-        //push.sendInBackground();
-
     }
 
     /**
      * Created by Tristan Dubois.
-     *
+     * <p>
      * This method runs all the methods needed to check whether the device's status has changed.
      * If leaves all geofences, a notification is sent to the other device once.
      * If the device re-enters the geofences, a notification is sent to the other device once.
      */
-    private void checkGeofenceStatus(double[] myLocation, Person person){
-        final int geofenceStatus;
-        final int EXITED_A_FENCE = 1;
-        final int REENTERED_A_FENCE = 2;
-        final int NOTHING_HAS_CHANGED = 0;
-        final int NO_GEOFENCES_FOUND = 3;
+    private void checkGeofenceStatus(double[] myLocation, Person patient) {
 
-        geofenceStatus = geofenceCheck.checkGeofence(myLocation, person);
+        @GeofencingCheck.StatusChange
+        final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
 
+        String channelName = "patient-" + patient;
 
-        switch(geofenceStatus) {
-            case NOTHING_HAS_CHANGED:
+        switch (geofenceStatus) {
+            case GeofencingCheck.NOTHING_HAS_CHANGED:
                 //Nothing
-
                 break;
-            case NO_GEOFENCES_FOUND:
+            case GeofencingCheck.NO_GEOFENCES_FOUND:
                 //Nothing
-
                 break;
-            case EXITED_A_FENCE:
+            case GeofencingCheck.EXITED_A_FENCE:
                 //Exited a fence notification
-                /*Todo uncomment*/
-                //sendPushNotification(EXIT_FENCE_MESSAGE);
-
-
+                NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
                 break;
-            case REENTERED_A_FENCE:
+            case GeofencingCheck.REENTERED_A_FENCE:
                 //The patient has re-entered a fence notification
-                /*Todo uncomment*/
-                //sendPushNotification(REENTERED_FENCE_MESSAGE);
+                NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
                 break;
         }
     }
