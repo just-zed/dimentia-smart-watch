@@ -15,7 +15,7 @@ import rx.Observable;
 
 /**
  * Person object + data access layer, implements parcelable
- * person object can be parceled and pass between activities through intent
+ * person object can be parceled and passed between activities through intent
  * <p>
  * Created by freeman on 8/16/15.
  */
@@ -86,6 +86,13 @@ public class Person implements Parcelable {
         return objectId;
     }
 
+
+    /**
+     * if parseObject is empty but objectId is not, this creates an empty ParseObject("Person")
+     * with only objectId inside, and can be used for parse.com pointer relationship
+     *
+     * @return ParseObject of person
+     */
     public ParseObject getParseObject() {
         if (parseObject != null) {
             return parseObject;
@@ -148,12 +155,16 @@ public class Person implements Parcelable {
     /**
      * this method automatically checks for duplicate and save the person object to database
      * <p>
+     * TODO: this will need to be fixed later
+     * currently if the type is changed (certain device is changed from patient to caretaker)
+     * it still saves correctly
+     * <p>
      * usage:
      * person.save()
      * .subscribeOn(Scheduler.io())
      * .observerOn(AndroidSchedulers.mainThread())
      * .subscribe(person->{
-     * // do something in UI thread with saved person object with new objectId already inside
+     * // do something in UI thread with saved person object with new objectId
      * },throwable->{
      * // handle error
      * })
@@ -193,6 +204,7 @@ public class Person implements Parcelable {
 
     /**
      * (static) get person by unique token
+     * <p>
      * usage:
      * Person.getByUniqueToken(token)
      * .subscribeOn(Scheduler.io())
@@ -204,7 +216,7 @@ public class Person implements Parcelable {
      * })
      *
      * @param uniqueToken generated token that's unique to device
-     * @return Observable<Person>
+     * @return Person Observable
      */
     public static Observable<Person> getByUniqueToken(String uniqueToken) {
 
@@ -231,7 +243,7 @@ public class Person implements Parcelable {
     }
 
     /**
-     * delete this person from database
+     * delete person from database, return null if success
      * <p>
      * usage:
      * person.delete()

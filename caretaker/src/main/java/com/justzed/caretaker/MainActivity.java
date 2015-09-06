@@ -12,6 +12,7 @@ import android.view.View;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
+import com.parse.ParsePush;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -28,6 +29,8 @@ public class MainActivity extends Activity {
 
     public static final String PREF_PERSON_KEY = "PersonPref";
 
+    // temp token
+    private String token = "ffffffff-fcfb-6ccb-0033-c58700000000";
 
     @Bind(R.id.button)
     View button;
@@ -53,14 +56,19 @@ public class MainActivity extends Activity {
         //TODO: move these to a splash screen activity?
         getCaretaker()
                 .flatMap(PatientLink::getByCaretaker)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .map(patientLink -> {
                     this.patient = patientLink.getPatient();
                     return patientLink;
                 })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        patientLink -> finishActivityWithResult(),
+                        patientLink -> {
+                            // subscribe to patient's push channel
+                            String channelName = "patient-" + patientLink.getPatient().getUniqueToken();
+                            ParsePush.subscribeInBackground(channelName);
+                            finishActivityWithResult();
+                        },
                         throwable -> Log.e(TAG, throwable.getMessage()));
 
 
@@ -74,7 +82,7 @@ public class MainActivity extends Activity {
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
 
-            return new Person(Person.CARETAKER, generateToken())
+            return new Person(Person.CARETAKER, getToken())
                     .save()
                     .map(person1 -> {
                         this.caretaker = person1;
@@ -107,8 +115,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String generateToken() {
-        return new SaveSyncToken(this).findMyDeviceId();
+    private String getToken() {
+        if (token != null) {
+            return token;
+        } else {
+            return new SaveSyncToken(this).findMyDeviceId();
+        }
     }
-
 }

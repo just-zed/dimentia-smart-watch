@@ -8,19 +8,20 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.widget.Button;
 
-import com.google.gson.Gson;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends Activity {
-
-    private final Gson gson = new Gson();
 
     private Person person;
 
@@ -28,6 +29,22 @@ public class MainActivity extends Activity {
 
     private static final int REQ_CODE_SEND_TOKEN = 1;  // The request code
 
+    // temp token
+    private String token = "00000000-6c94-4036-0033-c58700000000";
+
+
+    @Bind(R.id.panic_button)
+    Button panicButton;
+
+    @OnClick(R.id.panic_button)
+    void onClickPanicButton() {
+        if (token != null) {
+            // push to channel, channel name is patient's unique id
+            // channel name must start with letter
+            String channelName = "patient-" + getToken();
+            NotificationMessage.sendMessage(channelName, getString(R.string.panic_message));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,15 +52,23 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
+        ButterKnife.bind(this);
+
+
+        token = getToken();
+
         View decorView = getWindow().getDecorView();
-// Hide the status bar.
+        // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-// Remember that you should never show the action bar if the
-// status bar is hidden, so hide that too if necessary.
+        // Remember that you should never show the action bar if the
+        // status bar is hidden, so hide that too if necessary.
         ActionBar actionBar = getActionBar();
         if (actionBar != null)
             actionBar.hide();
+
+
+        panicButton.setEnabled(false);
 
 
         //first run check if patient is already created. if not create it
@@ -52,13 +77,14 @@ public class MainActivity extends Activity {
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
 
-            new Person(Person.PATIENT, generateToken())
+            new Person(Person.PATIENT, getToken())
                     .save()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(person -> {
                         // save person in app
                         this.person = person;
+                        panicButton.setEnabled(true);
                         Editor editor = mPrefs.edit();
                         editor.putString(PREF_PERSON_KEY, person.getUniqueToken());
                         editor.apply();
@@ -77,6 +103,7 @@ public class MainActivity extends Activity {
                     .subscribe(
                             person -> {
                                 this.person = person;
+                                panicButton.setEnabled(true);
                                 startPatientService();
                                 //start token activity
                                 startTokenSenderActivity();
@@ -134,8 +161,12 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String generateToken() {
-        return new SaveSyncToken(this).findMyDeviceId();
+    private String getToken() {
+        if (token != null) {
+            return token;
+        } else {
+            return new SaveSyncToken(this).findMyDeviceId();
+        }
     }
 
 }
