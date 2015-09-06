@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -34,6 +36,7 @@ public class MapActivity extends FragmentActivity {
     private Marker patientMarker;
     boolean test = false;
 
+    Button add;
     //Constants
 
     private static final int UPDATE_TIMER_NORMAL = 10000;
@@ -41,12 +44,36 @@ public class MapActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         Bundle data = getIntent().getExtras();
         patient = data.getParcelable(Person.PARCELABLE_KEY);
 
         mMap = null;
         setContentView(R.layout.activity_map);
+
+        setupButton();
+
+    }
+
+    private void setupButton() {
+
+        add = (Button) findViewById(R.id.add);
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleEditMode(true);
+
+            }
+        });
+
+    }
+
+    private void toggleEditMode(boolean show) {
+        LinearLayout linearLayout;
+        linearLayout = (LinearLayout) findViewById(R.id.linear_layout);
+        linearLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        add.setVisibility(show? View.GONE: View.VISIBLE);
     }
 
     @Override
