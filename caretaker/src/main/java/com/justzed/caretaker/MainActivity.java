@@ -108,7 +108,8 @@ public class MainActivity extends Activity {
     }
 
     private String generateToken() {
-        return new SaveSyncToken(this).findMyDeviceId();
+        return "ffffffff-fcfb-6ccb-0033-c58700000000";
+        //new SaveSyncToken(this).findMyDeviceId();
     }
 
 }
