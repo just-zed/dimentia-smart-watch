@@ -104,7 +104,7 @@ public class PatientService extends IntentService {
 
                     //Checks if the device is within a geofence.
                     double[] locationToBeChecked = new double[]{patientLocation.getLatLng().latitude, patientLocation.getLatLng().longitude};
-                    checkGeofenceStatus(locationToBeChecked);
+                    checkGeofenceStatus(locationToBeChecked, person);
                 }, throwable -> {
                     Log.e(TAG, throwable.getMessage());
                 });
@@ -144,14 +144,14 @@ public class PatientService extends IntentService {
      * If leaves all geofences, a notification is sent to the other device once.
      * If the device re-enters the geofences, a notification is sent to the other device once.
      */
-    private void checkGeofenceStatus(double[] myLocation){
+    private void checkGeofenceStatus(double[] myLocation, Person person){
         final int geofenceStatus;
         final int EXITED_A_FENCE = 1;
         final int REENTERED_A_FENCE = 2;
         final int NOTHING_HAS_CHANGED = 0;
         final int NO_GEOFENCES_FOUND = 3;
 
-        geofenceStatus = geofenceCheck.checkGeofence(myLocation);
+        geofenceStatus = geofenceCheck.checkGeofence(myLocation, person);
 
         switch(geofenceStatus) {
             case NOTHING_HAS_CHANGED:
@@ -164,6 +164,7 @@ public class PatientService extends IntentService {
                 break;
             case EXITED_A_FENCE:
                 //Exited a fence notification
+
 
                 break;
             case REENTERED_A_FENCE:

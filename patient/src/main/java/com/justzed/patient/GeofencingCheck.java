@@ -1,13 +1,18 @@
 package com.justzed.patient;
 
-import android.widget.Toast;
+import com.justzed.common.model.PatientFence;
+import com.justzed.common.model.Person;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * Created by Tristan Dubois on 03/09/2015.
- *
+ * <p>
  * This class checks wether the patient is in a geofence.
  */
 public class GeofencingCheck {
@@ -31,49 +36,57 @@ public class GeofencingCheck {
     private List<double[]> geofenceList;
     private double[] currentLocation;
 
+
     /**
      * Created by Tristan Dubois.
-     *
+     * <p>
      * Main method to check if a patient is in a geofence.
      */
-    public int checkGeofence(double[] myLocation){
-        getGeofencesFromDatabase();
+    public int checkGeofence(double[] myLocation, Person patient) {
+        getGeofencesFromDatabase(patient);
 
-        if(!geofenceList.isEmpty()) {
+        if (!geofenceList.isEmpty()) {
             checkIfInsideGeofences(geofenceList, myLocation);
             return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
-        }
-        else{
+        } else {
             return NO_GEOFENCES_FOUND;
         }
     }
 
     /**
      * Created by Tristan Dubois.
-     *
+     * <p>
      * This method gets the values of all geofences from the database and stores them in a list.
      */
-    public void getGeofencesFromDatabase(){
+    public void getGeofencesFromDatabase(Person person) {
         geofenceList = new ArrayList<double[]>();
 
-        for (int i = 0; i < 0; i++){
-            /* TODO get data from the database and add it to the list*/
-            double[] toAddToList = new double[]{0,0,0};
+        List<PatientFence> patientFences = PatientFence.getPatientFences(person)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(patientFences1 -> patientFences1 != null && patientFences1.size() > 0)
+                .toBlocking().single();
+
+        for (int i = 0; i < patientFences.size(); i++) {
+            PatientFence patientFence = patientFences.get(i);
+            double[] toAddToList = new double[]{patientFence.getCenter().latitude, patientFence.getCenter().longitude, patientFence.getRadius()};
 
             geofenceList.add(toAddToList);
+
         }
+
     }
 
     /**
      * Created by Tristan Dubois.
-     *
+     * <p>
      * This uses the location of the device and all the geofence values to check wether the device is inside a geofence.
      */
-    public int checkIfInsideGeofences(List<double[]> geofences, double[] deviceLocation){
+    public int checkIfInsideGeofences(List<double[]> geofences, double[] deviceLocation) {
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
 
-        if(!geofences.isEmpty()) {
+        if (!geofences.isEmpty()) {
             currentlyInAFence = OUTSIDE_FENCE;
             for (int indexOfGeofences = 0; indexOfGeofences < geofences.size(); indexOfGeofences++) {
                 //Uses the equation Math.sqrt((lat2-lat1)*(lat2-lat1) + (long2-long1)*(long2-long1))to check if the distance between the two points is less than
@@ -88,12 +101,12 @@ public class GeofencingCheck {
                 }
             }
         }
-        return  currentlyInAFence;
+        return currentlyInAFence;
     }
 
     /**
      * Created by Tristan Dubois.
-     *
+     * <p>
      * This checks if the patient has entered or exited a fence.
      */
     public int checkIfStatusHasChanged(int currentStatus, int previousStatus) {
@@ -103,12 +116,10 @@ public class GeofencingCheck {
             //return 1 (patient has exited a fence)
             return EXITED_A_FENCE;
 
-        }
-        else if (previousStatus == OUTSIDE_FENCE && currentStatus == INSIDE_FENCE) {
+        } else if (previousStatus == OUTSIDE_FENCE && currentStatus == INSIDE_FENCE) {
             return REENTERED_A_FENCE;
 
-        }
-        else {
+        } else {
             return NOTHING_HAS_CHANGED;
         }
     }
