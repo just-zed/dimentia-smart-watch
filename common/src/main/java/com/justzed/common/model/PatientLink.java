@@ -9,6 +9,11 @@ import com.parse.ParseQuery;
 import rx.Observable;
 
 /**
+ * PatientLink object + data access layer
+ * <p>
+ * Database contains connection between 2 Persons, 1 as patient, 1 as caretaker
+ * <p>
+ * <p>
  * Created by freeman on 8/16/15.
  */
 public class PatientLink {
@@ -17,8 +22,6 @@ public class PatientLink {
 
 
     private static final String KEY_PATIENT_LINK = "PatientLink";
-    private static final String KEY_PATIENT_UNIQUE_TOKEN = "patientUniqueToken";
-    private static final String KEY_CARETAKER_UNIQUE_TOKEN = "caretakerUniqueToken";
     private static final String KEY_PATIENT = "patient";
     private static final String KEY_CARETAKER = "caretaker";
 
@@ -78,8 +81,6 @@ public class PatientLink {
     private ParseObject serialize(ParseObject link) {
         link.put(KEY_PATIENT, patient.getParseObject());
         link.put(KEY_CARETAKER, caretaker.getParseObject());
-        link.put(KEY_PATIENT_UNIQUE_TOKEN, patient.getUniqueToken());
-        link.put(KEY_CARETAKER_UNIQUE_TOKEN, caretaker.getUniqueToken());
         return link;
     }
 
@@ -95,7 +96,7 @@ public class PatientLink {
     /**
      * this method automatically checks for duplicate and save the personlink object to database
      *
-     * @return Observable<PatientLink>
+     * @return PatientLink Observable
      */
     public Observable<PatientLink> save() {
         return Observable.defer(() -> Observable.create(subscriber -> {
@@ -123,9 +124,11 @@ public class PatientLink {
     }
 
     /**
+     * get PatientLink by inputing both patient and caretaker, only used for checking duplicates
+     *
      * @param patient   patient
      * @param caretaker caretaker
-     * @return Observable<PatientLink>
+     * @return PatientLink Observable
      */
     public static Observable<PatientLink> getByPersons(Person patient, Person caretaker) {
 
@@ -154,10 +157,11 @@ public class PatientLink {
     }
 
     /**
-     * can be multiple
+     * get the first PatientLink by patient
+     * - can be extended to multiple
      *
      * @param patient patient
-     * @return Observable<PatientLink>
+     * @return PatientLink Observable
      */
     public static Observable<PatientLink> getByPatient(Person patient) {
 
@@ -185,10 +189,11 @@ public class PatientLink {
     }
 
     /**
-     * can be multiple
+     * get first PatientLink by caretaker
+     * - can be extended to multiple
      *
      * @param caretaker caretaker
-     * @return Observable<PatientLink>
+     * @return PatientLink Observable
      */
     public static Observable<PatientLink> getByCaretaker(Person caretaker) {
 
@@ -217,7 +222,9 @@ public class PatientLink {
     }
 
     /**
-     * @return Observable<PatientLink>
+     * delete PatientLink
+     *
+     * @return PatientLink Observable (null for success)
      */
     public Observable<PatientLink> delete() {
         return Observable.create(subscriber -> {

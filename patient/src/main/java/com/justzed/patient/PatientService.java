@@ -15,7 +15,6 @@ import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 
 /**
@@ -24,11 +23,8 @@ import rx.android.schedulers.AndroidSchedulers;
  */
 public class PatientService extends IntentService {
     private static final String TAG = PatientService.class.getName();
-    private Subscription subscription;
 
     private static final int INTERVAL = 5000;
-    private static final int FASTEST_INTERVAL = 500;
-    private static final int POLL_TIMER = 10000;
 
     public PatientService() {
         super(PatientService.class.getName());
@@ -98,31 +94,6 @@ public class PatientService extends IntentService {
                 }, throwable -> {
                     Log.e(TAG, throwable.getMessage());
                 });
-
-//
-//        LocationRequest request = LocationRequest.create() //standard GMS LocationRequest
-//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-//                .setNumUpdates(1)
-//                .setInterval(INTERVAL)
-//                .setFastestInterval(FASTEST_INTERVAL);
-//
-//        ReactiveLocationProvider locationProvider = new ReactiveLocationProvider(getApplication());
-//        subscription = locationProvider.getUpdatedLocation(request)
-////                .delay(POLL_TIMER, TimeUnit.MILLISECONDS)
-////                .repeat()
-//                .map(location -> {
-//                    return;
-//                })
-//                .flatMap(latLng -> {
-//                    return;
-//                })
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(patientLocation -> {
-//                    Log.e(TAG, "save location success" + patientLocation.getObjectId());
-//                }, throwable -> {
-//                    Log.e(TAG, throwable.getMessage());
-//                });
 
     }
 }
