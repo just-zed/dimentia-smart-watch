@@ -1,19 +1,22 @@
 package com.justzed.caretaker;
 
+import android.graphics.Canvas;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.graphics.Color;
 import android.view.View.OnClickListener;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -29,6 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -51,22 +55,35 @@ OnMapLongClickListener {
     private Marker patientMarker;
     boolean test = false;
 
-    Button btnAdd;
-    Button btnSave;
-    Button btnDelete;
-    TextView txvFenceMode;
-    EditText txtFenceTitle;
-    SeekBar skbFenceRadius;
 
-    ImageButton ibtnMapCenter;
-    boolean addMode = false;
-    boolean editMode = false;
-    Map<String, Circle> fences;
-    Circle circle;
-    Circle mCircle;
+    //==================== Brian Tran==============
+    private LinearLayout fenceLayout;
+    private LinearLayout fenceModeLayout;
+    private ImageButton ibtnMapCenter;
+    private Button btnSelect;
+    private Button btnAdd;
+    private Button btnSave;
+    private Button btnDelete;
+    private Button btnClear;
+    private TextView txvFenceMode;
+    private EditText txtFenceTitle;
+    private TextView txvFenceRadius;
+    private SeekBar skbFenceRadius;
+    private ListView ltvFencesList;
+
+    private boolean addMode = false;
+    private boolean editMode = false;
+    private Circle mCircle;
     private Marker mMarker;
 
+    private Map<String, FenceCircle> fencesList;
+
     private final static double RADIUS_DEFAULT = 200.0;
+
+    private final static double X = -27.596927;
+    private final static double Y = 153.081946;
+
+    // ===================== End Brian Tran ==================
 
     //Constants
 
@@ -83,15 +100,19 @@ OnMapLongClickListener {
         mMap = null;
         setContentView(R.layout.activity_map);
 
-        fences = new HashMap<String, Circle>();
-        ibtnMapCenter = (ImageButton) findViewById(R.id.mapCenterButton);
-        setupButton();
+        initFenceActivitySetup();
     }
+
+    // ==================== Functions Brian Tran =======================
 
     OnClickListener btnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
+                case R.id.select_button:
+                    //do stuff
+                    clickSelectButton();
+                    break;
                 case R.id.add_button:
                     //do stuff
                     clickAddButton();
@@ -104,75 +125,152 @@ OnMapLongClickListener {
                     //do stuff
                     clickDeleteButton();
                     break;
+                case R.id.clear_button:
+                    //do stuff
+                    clickClearButton();
+                    break;
                 default: break;
             }
         }
     };
 
-
+    OnSeekBarChangeListener skbChangeListener = new OnSeekBarChangeListener() {
         @Override
-        public void onMapClick(LatLng latLng) {
-            toast("onMapClick OK");
-            clickMap(latLng);
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            changedSeekBar(progress);
         }
 
-
         @Override
-        public void onMapLongClick(LatLng latLng) {
-            toggleEditMode(true);
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
         }
 
-    //init fences
-    private void initFences(){
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    };
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        clickMap(latLng);
+
     }
 
-    private void setupButton() {
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        LatLng center = mCircle.getCenter();
+        double radius = mCircle.getRadius();
+        float[] distance = new float[1];
+        Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
+        boolean clicked = distance[0] < radius;
+        if (clicked){
+            clickEditButton();
+        }
+    }
 
+    private void initFenceActivitySetup() {
+
+        ibtnMapCenter = (ImageButton) findViewById(R.id.mapCenterButton);
+
+        fenceLayout = (LinearLayout) findViewById(R.id.fence_layout);
+        fenceLayout.setVisibility(View.GONE);
+
+        fenceModeLayout = (LinearLayout) findViewById(R.id.fence_mode_layout);
+        fenceModeLayout.setVisibility(View.VISIBLE);
+
+        btnSelect = (Button) findViewById(R.id.select_button);
         btnAdd = (Button) findViewById(R.id.add_button);
         btnSave = (Button) findViewById(R.id.save_button);
         btnDelete = (Button) findViewById(R.id.delete_button);
+        btnClear = (Button) findViewById(R.id.clear_button);
         txvFenceMode = (TextView) findViewById(R.id.fence_mode_text_view);
         txtFenceTitle = (EditText) findViewById(R.id.fence_title_edit_text);
+        txvFenceRadius = (TextView) findViewById(R.id.fence_radius_text_view);
         skbFenceRadius = (SeekBar) findViewById(R.id.fence_seek_bar);
+        skbFenceRadius.setMax(1000);
 
+        ltvFencesList = (ListView) findViewById(R.id.fences_list_layout);
+        ltvFencesList.setVisibility(View.GONE);
 
+        btnSelect.setOnClickListener(btnClickListener);
         btnAdd.setOnClickListener(btnClickListener);
         btnSave.setOnClickListener(btnClickListener);
         btnDelete.setOnClickListener(btnClickListener);
+        btnClear.setOnClickListener(btnClickListener);
+        skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
+    }
 
+    // Initializing faked geofences list for test functions
+    private void initFencesList(){
+        fencesList.put("Number 1", new FenceCircle(new LatLng(-27.592782, 153.064673),200.0));
+        fencesList.put("Number 2", new FenceCircle(new LatLng(-27.607956, 153.061025),200.0));
+        fencesList.put("Number 3", new FenceCircle(new LatLng(-27.603906, 153.104520),200.0));
+        fencesList.put("Number 4", new FenceCircle(new LatLng(-27.589910, 153.101752),200.0));
+        fencesList.put("Number 5", new FenceCircle(new LatLng(-27.597213, 153.084070),200.0));
+    }
+
+    private void clickSelectButton(){
+        toast("Select Button");
     }
 
     private void clickAddButton(){
-        toggleAddMode(true);
+        fenceLayout.setVisibility(View.VISIBLE);
+        ibtnMapCenter.setVisibility(View.GONE);
+        fenceModeLayout.setVisibility(View.GONE);
+        txvFenceMode.setText("ADD MODE");
+        addMode = true;
+    }
+
+    private void clickEditButton(){
+        fenceLayout.setVisibility(View.VISIBLE);
+        ibtnMapCenter.setVisibility(View.GONE);
+        fenceModeLayout.setVisibility(View.GONE);
+        txvFenceMode.setText("EDIT MODE");
+        txtFenceTitle.setEnabled(false);
+        btnClear.setEnabled(false);
+        editMode = true;
     }
 
     private void clickSaveButton(){
+        if (addMode){
+            txtFenceTitle.setEnabled(true);
+            btnClear.setEnabled(false);
+            mMarker.setVisible(false);
+            fenceLayout.setVisibility(View.GONE);
+            ibtnMapCenter.setVisibility(View.VISIBLE);
+            fenceModeLayout.setVisibility(View.VISIBLE);
+            txvFenceMode.setText("");
+            addMode = false;
+            toast("Saved fence successfully.");
+            // Need to save GeoFence in database here.
+            // Need to draw all circle in List here.
+        }
 
+        if (editMode){
+            fenceLayout.setVisibility(View.GONE);
+            ibtnMapCenter.setVisibility(View.VISIBLE);
+            fenceModeLayout.setVisibility(View.VISIBLE);
+            txvFenceMode.setText("");
+            editMode = false;
+            toast("Edited fence successfully.");
+            // Need to save GeoFence in database here.
+            // Need to draw all circle in List here.
+        }
     }
 
-    private void clickDeleteButton(){
-
+    private void clickDeleteButton() {
+        toast("Delete Button");
     }
 
-    private void toggleEditMode(boolean show) {
-        LinearLayout linearLayout;
-        linearLayout = (LinearLayout) findViewById(R.id.linear_layout);
-        linearLayout.setVisibility(show ? View.VISIBLE : View.GONE);
-        ibtnMapCenter.setVisibility(show ? View.GONE : View.VISIBLE);
-        btnAdd.setVisibility(show ? View.GONE : View.VISIBLE);
-
+    private void clickClearButton(){
+        txtFenceTitle.setText("");
+        toast("Clear Button");
     }
 
-    private void toggleAddMode(boolean show) {
-        LinearLayout linearLayout;
-        linearLayout = (LinearLayout) findViewById(R.id.linear_layout);
-        linearLayout.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        ibtnMapCenter.setVisibility(show ? View.GONE : View.VISIBLE);
-        btnAdd.setVisibility(show ? View.GONE : View.VISIBLE);
-        addMode = true;
-        txvFenceMode.setText("ADD MODE");
-
+    private void changedSeekBar(int progress) {
+        mCircle.setRadius((double) progress);
+        txvFenceRadius.setText(Integer.toString(progress));
     }
 
     public void clickMap(LatLng latLng) {
@@ -184,38 +282,39 @@ OnMapLongClickListener {
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
             // Placing a marker on the touched position
-            drawMarker(mMap, latLng);
-            drawCircle(mMap, latLng, 500.0);
+            drawFence(mMap, latLng, 500.0);
+
+            int i = (int)mCircle.getRadius();
+            skbFenceRadius.setProgress(i);
+            String t = Integer.toString(i);
+            txvFenceRadius.setText(t);
 
             // Moving CameraPosition to touched position
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
         }
     }
 
-    // This method just draws a marker.
-    // All values of marker are gotten from fence.
+    // This method just draws the circle and marker.
+    // All values of circle and marker are gotten from fence.
     // Only one circle shows on Map View.
-    private void drawMarker(GoogleMap mMap, LatLng latLng){
-        mMarker = mMap.addMarker(new MarkerOptions()
-                .position(latLng));
-    }
-
-    // This method just draws the circle.
-    // All values of circle are gotten from fence.
-    // Only one circle shows on Map View.
-    private void drawCircle(GoogleMap mMap, LatLng latLng, double raDius){
+    private void drawFence(GoogleMap mMap, LatLng latLng, double radius){
         // Init value of raDius if there is no fence
-        if (raDius <= 0){
-            raDius = RADIUS_DEFAULT;
+        if (radius <= 0){
+            radius = RADIUS_DEFAULT;
         }
 
+        mMarker = mMap.addMarker(new MarkerOptions()
+                    .position(latLng));
+
         mCircle = mMap.addCircle(new CircleOptions()
-                .center(latLng)
-                .radius(raDius)
-                .fillColor(0x40ff0000)
-                .strokeColor(Color.TRANSPARENT)
-                .strokeWidth(2));
+                    .center(latLng)
+                    .radius(radius)
+                    .fillColor(0x40ff0000)
+                    .strokeColor(Color.TRANSPARENT)
+                    .strokeWidth(2));
     }
+
+    // ============== End Function Brian Tran ====================
 
 
     @Override
@@ -237,7 +336,7 @@ OnMapLongClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        patientMarker.remove();
+        //patientMarker.remove();
     }
 
     /**
@@ -260,8 +359,11 @@ OnMapLongClickListener {
             // Check if we were successful in obtaining the map.
             if (mMap == null || patientMarker == null) {
                 setUpMap();
+                //mFenceCircleList = new ArrayList<FenceCircle>();
+                //mFenceCircle = new FenceCircle();
                 mMap.setOnMapClickListener(this);
                 mMap.setOnMapLongClickListener(this);
+
 
             }
         } catch (Exception e) {
@@ -292,7 +394,8 @@ OnMapLongClickListener {
     private void showPatientOnMap(LatLng patientCurrentLocation) {
         try {
             if (patientMarker == null) {
-                patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
+                patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(X,Y)).title(getPatientName()));
+                //patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
             } else {
                 updatePatientLocationOnMap(patientMarker, patientCurrentLocation, false);
             }
