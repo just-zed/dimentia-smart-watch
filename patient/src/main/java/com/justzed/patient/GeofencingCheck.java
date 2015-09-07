@@ -1,5 +1,6 @@
 package com.justzed.patient;
 
+import android.location.Location;
 import android.support.annotation.IntDef;
 
 import com.justzed.common.model.PatientFence;
@@ -7,6 +8,7 @@ import com.justzed.common.model.Person;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,23 +105,35 @@ public class GeofencingCheck {
     //TODO: change to more type safe codes
     @Status
     public int checkIfInsideGeofences(List<double[]> geofences, double[] deviceLocation) {
+        float[] distance = new float[1];
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
 
         if (!geofences.isEmpty()) {
             currentlyInAFence = OUTSIDE_FENCE;
+
             for (int indexOfGeofences = 0; indexOfGeofences < geofences.size(); indexOfGeofences++) {
+                Location.distanceBetween(geofences.get(indexOfGeofences)[LATITUDE_INDEX],
+                        geofences.get(indexOfGeofences)[LONGITUDE_INDEX],
+                        deviceLocation[LATITUDE_INDEX],
+                        deviceLocation[LONGITUDE_INDEX],
+                        distance);
+
+                distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
+
                 //Uses the equation Math.sqrt((lat2-lat1)*(lat2-lat1) + (long2-long1)*(long2-long1))to check if the distance between the two points is less than
                 //the radius.
-                distanceBetweenTwoPoints = Math.sqrt((geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
-                        * (geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
-                        + (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX])
-                        * (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX]));
+                //distanceBetweenTwoPoints = Math.sqrt((geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
+                //       * (geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
+                //        + (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX])
+                //        * (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX]));
 
                 if (distanceBetweenTwoPoints < geofences.get(indexOfGeofences)[RADIUS_INDEX]) {
                     currentlyInAFence = INSIDE_FENCE;
                 }
             }
+
+
         }
         return currentlyInAFence;
     }

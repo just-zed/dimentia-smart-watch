@@ -33,18 +33,18 @@ public class GeofencingCheckTest extends TestCase {
     private int REENTERED_A_FENCE = 2;
     private int NOTHING_HAS_CHANGED = 0;
 
-    private double[] GEOFENCE_ONE = new double[]{1,2,3};
-    private double[] GEOFENCE_TWO = new double[]{10,5,1};
-    private double[] GEOFENCE_THREE = new double[]{41,23,2};
-    private double[] GEOFENCE_FOUR = new double[]{56,21,5};
-    private double[] GEOFENCE_HUGE = new double[]{1,1,100};
-    private double[] GEOFENCE_FAR = new double[]{100,100,1};
-    private double[] GEOFENCE_NEGATIVE = new double[]{-1,-2,3};
-    private double[] GEOFENCE_SMALL = new double[]{0.0000415,0.0000540,0.000100};
+    private double[] GEOFENCE_ONE = new double[]{27.471011,153.023449,3000};
+    private double[] GEOFENCE_TWO = new double[]{10,5,1000};
+    private double[] GEOFENCE_THREE = new double[]{41,23,2000};
+    private double[] GEOFENCE_FOUR = new double[]{56,21,5000};
+    private double[] GEOFENCE_HUGE = new double[]{27.471011,153.023449,10000000};
+    private double[] GEOFENCE_FAR = new double[]{100,100,1000};
+    private double[] GEOFENCE_NEGATIVE = new double[]{-27.471011,-153.023449,3000};
+    private double[] GEOFENCE_SMALL = new double[]{0.0000415,0.0000540,1000};
 
-    private double[] POSITION_ONE = new double[]{2,1};
+    private double[] POSITION_ONE = new double[]{27.471585,153.024713};
     private double[] POSITION_TWO = new double[]{100,2};
-    private double[] POSITION_NEGATIVE = new double[]{-3,-4};
+    private double[] POSITION_NEGATIVE = new double[]{-27.471011,-153.023449};
     private double[] POSITION_SMALL = new double[]{0.0000415,0.0001535};
 
 
