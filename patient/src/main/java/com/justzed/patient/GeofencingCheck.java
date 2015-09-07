@@ -1,7 +1,6 @@
 package com.justzed.patient;
 
 import android.support.annotation.IntDef;
-import android.util.Log;
 
 import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.Person;
@@ -10,8 +9,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
-
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by Tristan Dubois on 03/09/2015.
@@ -68,7 +65,6 @@ public class GeofencingCheck {
      */
     @StatusChange
     public int checkGeofence(double[] myLocation, Person patient) {
-        getGeofencesFromDatabase(patient);
 
         if (!geofenceList.isEmpty()) {
             checkIfInsideGeofences(geofenceList, myLocation);
@@ -83,21 +79,8 @@ public class GeofencingCheck {
      * <p>
      * This method gets the values of all geofences from the database and stores them in a list.
      */
-    public void getGeofencesFromDatabase(Person person) {
+    public List<double[]> getGeofencesFromDatabase(List<PatientFence> patientFences) {
         geofenceList = new ArrayList<>();
-
-        List<PatientFence> patientFences = null;
-
-        try {
-            patientFences = PatientFence.getPatientFences(person)
-                    .subscribeOn(AndroidSchedulers.mainThread())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .filter(patientFences1 -> patientFences1 != null && patientFences1.size() > 0)
-//                    .timeout(5000, TimeUnit.MILLISECONDS)
-                    .toBlocking().single();
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
-        }
 
         if (patientFences != null) {
             for (int i = 0; i < patientFences.size(); i++) {
@@ -107,7 +90,7 @@ public class GeofencingCheck {
                 geofenceList.add(toAddToList);
             }
         }
-
+        return geofenceList;
 
     }
 

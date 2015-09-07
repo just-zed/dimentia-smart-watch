@@ -8,9 +8,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
@@ -86,20 +86,24 @@ public class PatientService extends IntentService {
 
         Bundle data = intent.getExtras();
         final Person person = data.getParcelable(Person.PARCELABLE_KEY);
-        getLocationUpdates()
-                .filter(location1 -> location1 != null)
-                .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
-                .flatMap(latLng -> new PatientLocation(person, latLng).save())
+        Observable.combineLatest(
+                // get location updates observable
+                getLocationUpdates()
+                        .filter(location1 -> location1 != null)
+                        .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
+                        .flatMap(latLng -> new PatientLocation(person, latLng).save()),
+                // save geofence into geofenceCheck object
+                PatientFence.getPatientFences(person), (patientLocation, patientFences) -> {
+                    geofenceCheck.getGeofencesFromDatabase(patientFences);
+                    // pass on patientLocation
+                    return patientLocation;
+                })
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientLocation -> {
-                    Log.e(TAG, "location updated: " + patientLocation.getObjectId());
-
-                    //Checks if the device is within a geofence.
-                    double[] locationToBeChecked = new double[]{patientLocation.getLatLng().latitude, patientLocation.getLatLng().longitude};
-                    checkGeofenceStatus(locationToBeChecked, person);
-                }, throwable -> {
-                    Log.e(TAG, throwable.getMessage());
+                    checkGeofenceStatus(
+                            new double[]{patientLocation.getLatLng().latitude,
+                                    patientLocation.getLatLng().longitude}, patientLocation.getPatient());
                 });
 
 
@@ -117,7 +121,7 @@ public class PatientService extends IntentService {
         @GeofencingCheck.StatusChange
         final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
 
-        String channelName = "patient-" + patient;
+        String channelName = "patient-" + patient.getUniqueToken();
 
         switch (geofenceStatus) {
             case GeofencingCheck.NOTHING_HAS_CHANGED:
