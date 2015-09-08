@@ -37,6 +37,7 @@ public class TokenSenderActivityTest extends ActivityTestCase{
             +"Jenny Of the woods who also likes to be called bob during her birthdays,"
             +"Patient,"
             +"f07a13984f6d116a010101000010101010101010010101010101010101010101010101010";
+
     @Before
     public void createTokenSenderActivity(){
         sendToken = new TokenSenderActivity();
@@ -45,6 +46,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
 
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if any exceptions occur.
      */
     @Test
@@ -54,6 +57,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
 
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if any exceptions occur.
      */
     @Test
@@ -62,6 +67,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if any exceptions occur.
      */
     @Test
@@ -71,6 +78,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if a normal string cannot be retrieved from the magic or does not equal the
      * expected value.
      */
@@ -83,6 +92,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if the message is null when it is retrieved.
      */
     @Test
@@ -94,6 +105,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if a Small string cannot be retrieved from the magic or does not equal the
      * expected value.
      */
@@ -106,6 +119,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if a Large string cannot be retrieved from the magic or does not equal the
      * expected value.
      */
@@ -118,6 +133,8 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
+     * Created by Tristan Dubois.
+     *
      * Fail the test if an Empty string cannot be retrieved from the magic or does not equal the
      * expected value.
      */

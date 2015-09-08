@@ -8,9 +8,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
@@ -23,6 +23,7 @@ import rx.android.schedulers.AndroidSchedulers;
  */
 public class PatientService extends IntentService {
     private static final String TAG = PatientService.class.getName();
+    GeofencingCheck geofenceCheck = new GeofencingCheck();
 
     private static final int INTERVAL = 5000;
 
@@ -68,6 +69,8 @@ public class PatientService extends IntentService {
                 String provider = locationManager.getBestProvider(criteria, true);
 
                 locationManager.requestLocationUpdates(provider, INTERVAL, 0, locationListener);
+
+
             } catch (SecurityException e) {
                 subscriber.onError(e);
             }
@@ -83,17 +86,58 @@ public class PatientService extends IntentService {
 
         Bundle data = intent.getExtras();
         final Person person = data.getParcelable(Person.PARCELABLE_KEY);
-        getLocationUpdates()
-                .filter(location1 -> location1 != null)
-                .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
-                .flatMap(latLng -> new PatientLocation(person, latLng).save())
+        Observable.combineLatest(
+                // get location updates observable
+                getLocationUpdates()
+                        .filter(location1 -> location1 != null)
+                        .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
+                        .flatMap(latLng -> new PatientLocation(person, latLng).save()),
+                // save geofence into geofenceCheck object
+                PatientFence.getPatientFences(person), (patientLocation, patientFences) -> {
+                    geofenceCheck.getGeofencesFromDatabase(patientFences);
+                    // pass on patientLocation
+                    return patientLocation;
+                })
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientLocation -> {
-                    Log.e(TAG, "location updated: " + patientLocation.getObjectId());
-                }, throwable -> {
-                    Log.e(TAG, throwable.getMessage());
+                    checkGeofenceStatus(
+                            new double[]{patientLocation.getLatLng().latitude,
+                                    patientLocation.getLatLng().longitude}, patientLocation.getPatient());
                 });
 
+
+    }
+
+    /**
+     * Created by Tristan Dubois.
+     * <p>
+     * This method runs all the methods needed to check whether the device's status has changed.
+     * If leaves all geofences, a notification is sent to the other device once.
+     * If the device re-enters the geofences, a notification is sent to the other device once.
+     */
+    private void checkGeofenceStatus(double[] myLocation, Person patient) {
+
+        @GeofencingCheck.StatusChange
+        final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
+
+        String channelName = "patient-" + patient.getUniqueToken();
+
+        switch (geofenceStatus) {
+            case GeofencingCheck.NOTHING_HAS_CHANGED:
+                //Nothing
+                break;
+            case GeofencingCheck.NO_GEOFENCES_FOUND:
+                //Nothing
+                break;
+            case GeofencingCheck.EXITED_A_FENCE:
+                //Exited a fence notification
+                NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
+                break;
+            case GeofencingCheck.REENTERED_A_FENCE:
+                //The patient has re-entered a fence notification
+                NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
+                break;
+        }
     }
 }
