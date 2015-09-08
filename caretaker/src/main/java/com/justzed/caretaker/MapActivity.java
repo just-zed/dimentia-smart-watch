@@ -177,7 +177,7 @@ OnMapLongClickListener {
                 //LatLng latLng= fencesList.get(position).getLatLng();
                 //double radius = fencesList.get(position).getRadius();
 
-                ltvFencesList.setVisibility(View.GONE);
+                //ltvFencesList.setVisibility(View.GONE);
 
                 selectMode = false;
 
@@ -237,7 +237,7 @@ OnMapLongClickListener {
         skbFenceRadius.setMax(RADIUS_MAX);
 
         ltvFencesList = (ListView) findViewById(R.id.fences_List_Layout);
-        //ltvFencesList.setVisibility(View.VISIBLE);
+        ltvFencesList.setVisibility(View.GONE);
 
         btnSelect.setOnClickListener(btnClickListener);
         btnAdd.setOnClickListener(btnClickListener);
