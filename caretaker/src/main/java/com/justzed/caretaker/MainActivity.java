@@ -1,145 +1,125 @@
 package com.justzed.caretaker;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 
-public class MainActivity extends Activity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+import com.justzed.common.SaveSyncToken;
+import com.justzed.common.model.PatientLink;
+import com.justzed.common.model.Person;
+import com.parse.ParsePush;
 
-    private static final String TAG = MainActivity.class.getName();
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
+public class MainActivity extends Activity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private Person caretaker;
+    private Person patient;
+
+    public static final String PREF_PERSON_KEY = "PersonPref";
+
+    // temp token
+    private String token = "ffffffff-fcfb-6ccb-0033-c58700000000";
+
+    @Bind(R.id.button)
+    View button;
+
+    @OnClick(R.id.button)
+    void mapButtonClick() {
+        if (patient != null) {
+            Intent intent = new Intent(this, MapActivity.class);
+            intent.putExtra(Person.PARCELABLE_KEY, patient);
+            startActivity(intent);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        ButterKnife.bind(this);
+        button.setEnabled(false);
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        //TODO: move these to a splash screen activity?
+        getCaretaker()
+                .flatMap(PatientLink::getByCaretaker)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(patientLink -> {
+                    this.patient = patientLink.getPatient();
+                    return patientLink;
+                })
+                .subscribe(
+                        patientLink -> {
+                            // subscribe to patient's push channel
+                            String channelName = "patient-" + patientLink.getPatient().getUniqueToken();
+                            ParsePush.subscribeInBackground(channelName);
+                            finishActivityWithResult();
+                        },
+                        throwable -> Log.e(TAG, throwable.getMessage()));
 
 
     }
 
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
-    }
+    @NonNull
+    private Observable<Person> getCaretaker() {
+        //first run check if patient is already created. if not create it
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
+        if (!mPrefs.contains(PREF_PERSON_KEY)) {
+            //create patient and save
+
+            return new Person(Person.CARETAKER, getToken())
+                    .save()
+                    .map(person1 -> {
+                        this.caretaker = person1;
+                        SharedPreferences.Editor editor = mPrefs.edit();
+                        editor.putString(PREF_PERSON_KEY, person1.getUniqueToken());
+                        editor.apply();
+                        return person1;
+                    });
+        } else {
+            //get patient token from app data,
+            // get person object from database and start service
+            String uniqueToken = mPrefs.getString(PREF_PERSON_KEY, "");
+
+            return Person.getByUniqueToken(uniqueToken)
+                    .map(person1 -> {
+                        this.caretaker = person1;
+                        return person1;
+                    });
         }
     }
 
-    public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+    private void finishActivityWithResult() {
+        button.setEnabled(true);
+        // if activity is called by NfcActivity, close and return result
+        if (getCallingActivity() != null && caretaker != null) {
+            Intent result = new Intent();
+            result.putExtra(Person.PARCELABLE_KEY, caretaker);
+            setResult(RESULT_OK, result);
+            finish();
         }
     }
 
+    private String getToken() {
+        if (token != null) {
+            return token;
+        } else {
+            return new SaveSyncToken(this).findMyDeviceId();
+        }
+    }
 }

@@ -1,10 +1,12 @@
 package com.justzed.common;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import com.justzed.caretaker.CaretakerApplication;
+import com.justzed.caretaker.Application;
 import com.justzed.common.model.Person;
 
 import org.junit.After;
@@ -18,7 +20,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
+public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 
     private final String testToken = "someyadayadahardcodedtoken";
@@ -26,7 +28,7 @@ public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
     private Person person;
 
     public PersonTest() {
-        super(CaretakerApplication.class);
+        super(Application.class);
     }
 
     @Before
@@ -52,6 +54,22 @@ public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
         assertEquals(person.getType(), Person.CARETAKER);
     }
 
+    @Test
+    public void testParcelable() {
+        Intent intent = new Intent();
+        intent.putExtra(Person.PARCELABLE_KEY, person);
+
+        //
+
+        Bundle data = intent.getExtras();
+        assertNotNull(data);
+
+        Person person1 = data.getParcelable(Person.PARCELABLE_KEY);
+        assertNotNull(person1);
+        assertEquals(person.getObjectId(), person1.getObjectId());
+
+    }
+
     //create
     @Test
     public void testCreate() {
@@ -62,6 +80,26 @@ public class PersonTest extends ApplicationTestCase<CaretakerApplication> {
                 .first();
         assertNotNull(person1.getObjectId());
         assertEquals(person.getObjectId(), person1.getObjectId());
+        assertEquals(person1.getType(), Person.PATIENT);
+
+        //test if person is updated to caretaker
+        Person person2 = new Person(Person.CARETAKER, testToken)
+                .save()
+                .toBlocking()
+                .first();
+        assertNotNull(person2.getObjectId());
+        assertEquals(person2.getType(), Person.CARETAKER);
+
+        //set it back to patient
+        Person person3 = new Person(Person.PATIENT, testToken)
+                .save()
+                .toBlocking()
+                .first();
+        assertEquals(person3.getType(), Person.PATIENT);
+        assertNotNull(person3.getObjectId());
+        assertEquals(person3.getType(), Person.PATIENT);
+
+
     }
 
     //read
