@@ -8,13 +8,23 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class FenceCircle {
 
-    LatLng latLng;
-    double radius;
+    private String title;
+    private LatLng latLng;
+    private double radius;
 
-    public FenceCircle(LatLng latLng, double radius){
+    public FenceCircle(String title, LatLng latLng, double radius){
         super();
+        this.title = title;
         this.latLng = latLng;
         this.radius = radius;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public void setLatLng(LatLng latLng) {

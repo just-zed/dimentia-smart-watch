@@ -115,12 +115,18 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="456dp"
-        android:id="@+id/fences_list_layout"
-        android:layout_alignParentLeft="true" >
-    </ListView>
+        android:layout_height="405dp"
+        android:id="@+id/fences_List_Layout"
+        android:layout_gravity="center" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -147,6 +153,14 @@
             android:text="@string/delete"
             android:id="@+id/delete_button" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:id="@+id/cancel_button"
+            android:enabled="false" />
+
     </LinearLayout>
+
 
 </FrameLayout>

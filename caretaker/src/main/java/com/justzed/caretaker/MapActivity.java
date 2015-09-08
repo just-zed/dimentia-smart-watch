@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,7 +34,9 @@ import com.justzed.common.model.Person;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -65,6 +70,7 @@ OnMapLongClickListener {
     private Button btnSave;
     private Button btnDelete;
     private Button btnClear;
+    private Button btnCancel;
     private TextView txvFenceMode;
     private EditText txtFenceTitle;
     private TextView txvFenceRadius;
@@ -73,12 +79,19 @@ OnMapLongClickListener {
 
     private boolean addMode = false;
     private boolean editMode = false;
+    private boolean selectMode = false;
+    private boolean deleteMode = false;
+
     private Circle mCircle;
     private Marker mMarker;
 
-    private Map<String, FenceCircle> fencesList;
+
+    private ArrayAdapter<String> arrFenceListAdapter;
+    //private List<FenceCircle> fencesList;
+    //private ArrayAdapter<FenceCircle> arrFenceListAdapter;
 
     private final static double RADIUS_DEFAULT = 200.0;
+    private final static int RADIUS_MAX = 1000;
 
     private final static double X = -27.596927;
     private final static double Y = 153.081946;
@@ -101,6 +114,7 @@ OnMapLongClickListener {
         setContentView(R.layout.activity_map);
 
         initFenceActivitySetup();
+        initFencesList();
     }
 
     // ==================== Functions Brian Tran =======================
@@ -129,6 +143,10 @@ OnMapLongClickListener {
                     //do stuff
                     clickClearButton();
                     break;
+                case R.id.cancel_button:
+                    //do stuff
+                    clickClearButton();
+                    break;
                 default: break;
             }
         }
@@ -148,6 +166,33 @@ OnMapLongClickListener {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
 
+        }
+    };
+
+    OnItemLongClickListener ltvItemLongClickListener = new OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if (selectMode){
+                //String title = fencesList.get(position).getTitle();
+                //LatLng latLng= fencesList.get(position).getLatLng();
+                //double radius = fencesList.get(position).getRadius();
+
+                ltvFencesList.setVisibility(View.GONE);
+
+                selectMode = false;
+
+                btnSelect.setEnabled(true);
+                btnAdd.setEnabled(true);
+                btnDelete.setEnabled(true);
+                btnCancel.setEnabled(false);
+
+                //drawFence(mMap, latLng, radius);
+            }
+
+            if (deleteMode){
+
+            }
+            return false;
         }
     };
 
@@ -184,33 +229,64 @@ OnMapLongClickListener {
         btnSave = (Button) findViewById(R.id.save_button);
         btnDelete = (Button) findViewById(R.id.delete_button);
         btnClear = (Button) findViewById(R.id.clear_button);
+        btnCancel = (Button) findViewById(R.id.cancel_button);
         txvFenceMode = (TextView) findViewById(R.id.fence_mode_text_view);
         txtFenceTitle = (EditText) findViewById(R.id.fence_title_edit_text);
         txvFenceRadius = (TextView) findViewById(R.id.fence_radius_text_view);
         skbFenceRadius = (SeekBar) findViewById(R.id.fence_seek_bar);
-        skbFenceRadius.setMax(1000);
+        skbFenceRadius.setMax(RADIUS_MAX);
 
-        ltvFencesList = (ListView) findViewById(R.id.fences_list_layout);
-        ltvFencesList.setVisibility(View.GONE);
+        ltvFencesList = (ListView) findViewById(R.id.fences_List_Layout);
+        //ltvFencesList.setVisibility(View.VISIBLE);
 
         btnSelect.setOnClickListener(btnClickListener);
         btnAdd.setOnClickListener(btnClickListener);
         btnSave.setOnClickListener(btnClickListener);
         btnDelete.setOnClickListener(btnClickListener);
         btnClear.setOnClickListener(btnClickListener);
+        btnCancel.setOnClickListener(btnClickListener);
         skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
+
+        ltvFencesList.setOnItemLongClickListener(ltvItemLongClickListener);
     }
 
     // Initializing faked geofences list for test functions
     private void initFencesList(){
-        fencesList.put("Number 1", new FenceCircle(new LatLng(-27.592782, 153.064673),200.0));
-        fencesList.put("Number 2", new FenceCircle(new LatLng(-27.607956, 153.061025),200.0));
-        fencesList.put("Number 3", new FenceCircle(new LatLng(-27.603906, 153.104520),200.0));
-        fencesList.put("Number 4", new FenceCircle(new LatLng(-27.589910, 153.101752),200.0));
-        fencesList.put("Number 5", new FenceCircle(new LatLng(-27.597213, 153.084070),200.0));
+
+        List<String> arr = new ArrayList<>();
+
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>
+                (this, android.R.layout.simple_list_item_1, arr);
+        ltvFencesList.setAdapter(adapter);
+
+        arr.add("AAA");
+        arr.add("BBB");
+
+        adapter.notifyDataSetChanged();
+
+
+        //fencesList = new ArrayList<FenceCircle>();
+        //arrFenceListAdapter = new ArrayAdapter<FenceCircle>(this, android.R.layout.simple_list_item_1);
+        //ltvFencesList.setAdapter(arrFenceListAdapter);
+
+        //fencesList.add(new FenceCircle("Number 1", new LatLng(-27.592782, 153.064673),200.0));
+        //fencesList.add(new FenceCircle("Number 2", new LatLng(-27.607956, 153.061025), 200.0));
+        //fencesList.add(new FenceCircle("Number 3", new LatLng(-27.603906, 153.104520), 200.0));
+        //fencesList.add(new FenceCircle("Number 4", new LatLng(-27.589910, 153.101752), 200.0));
+        //fencesList.add(new FenceCircle("Number 5", new LatLng(-27.597213, 153.084070), 200.0));
+        //arrFenceListAdapter.notifyDataSetChanged();
     }
 
     private void clickSelectButton(){
+        ltvFencesList.setVisibility(View.VISIBLE);
+        //ltvFencesList.setEnabled(true);
+        btnCancel.setEnabled(true);
+        selectMode = true;
+
+        btnSelect.setEnabled(false);
+        btnAdd.setEnabled(false);
+        btnDelete.setEnabled(false);
+
         toast("Select Button");
     }
 
@@ -227,15 +303,11 @@ OnMapLongClickListener {
         ibtnMapCenter.setVisibility(View.GONE);
         fenceModeLayout.setVisibility(View.GONE);
         txvFenceMode.setText("EDIT MODE");
-        txtFenceTitle.setEnabled(false);
-        btnClear.setEnabled(false);
         editMode = true;
     }
 
     private void clickSaveButton(){
         if (addMode){
-            txtFenceTitle.setEnabled(true);
-            btnClear.setEnabled(false);
             mMarker.setVisible(false);
             fenceLayout.setVisibility(View.GONE);
             ibtnMapCenter.setVisibility(View.VISIBLE);

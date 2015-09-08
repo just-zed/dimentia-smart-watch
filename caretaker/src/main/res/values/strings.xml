@@ -28,5 +28,5 @@
     <string name="clear">clear</string>
     <string name="select">select</string>
     <string name="edit">edit</string>
-    <string name="text">text</string>
+    <string name="cancel">cancel</string>
 </resources>
