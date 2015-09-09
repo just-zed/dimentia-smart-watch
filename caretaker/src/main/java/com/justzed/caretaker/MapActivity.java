@@ -1,19 +1,16 @@
 package com.justzed.caretaker;
 
-import android.graphics.Canvas;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,10 +32,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -47,7 +40,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
-
 
 public class MapActivity extends FragmentActivity implements OnMapClickListener,
 OnMapLongClickListener {
@@ -65,7 +57,6 @@ OnMapLongClickListener {
     private LinearLayout fenceLayout;
     private LinearLayout fenceModeLayout;
     private ImageButton ibtnMapCenter;
-    private Button btnSelect;
     private Button btnAdd;
     private Button btnSave;
     private Button btnDelete;
@@ -75,23 +66,26 @@ OnMapLongClickListener {
     private EditText txtFenceTitle;
     private TextView txvFenceRadius;
     private SeekBar skbFenceRadius;
-    private ListView ltvFencesList;
 
     private boolean addMode = false;
     private boolean editMode = false;
-    private boolean selectMode = false;
-    private boolean deleteMode = false;
 
-    private Circle mCircle;
-    private Marker mMarker;
+    private Circle mTempCircle;
+    private Marker mTempMarker;
 
+    private ArrayList<String> strFencesList;
+    private ArrayList<Circle> circlesList;
+    private ArrayList<Marker> markerList;
 
-    private ArrayAdapter<String> arrFenceListAdapter;
-    //private List<FenceCircle> fencesList;
-    //private ArrayAdapter<FenceCircle> arrFenceListAdapter;
+    private int curPosFence;
+    private String curTitleFence;
+    private LatLng curCenFence;
+    private double curRadFence;
 
+    private final static String TITLE_DEFAULT = "";
     private final static double RADIUS_DEFAULT = 200.0;
     private final static int RADIUS_MAX = 1000;
+    private final static int RADIUS_MIN = 0;
 
     private final static double X = -27.596927;
     private final static double Y = 153.081946;
@@ -123,10 +117,6 @@ OnMapLongClickListener {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
-                case R.id.select_button:
-                    //do stuff
-                    clickSelectButton();
-                    break;
                 case R.id.add_button:
                     //do stuff
                     clickAddButton();
@@ -145,7 +135,7 @@ OnMapLongClickListener {
                     break;
                 case R.id.cancel_button:
                     //do stuff
-                    clickClearButton();
+                    clickCancelButton();
                     break;
                 default: break;
             }
@@ -169,53 +159,31 @@ OnMapLongClickListener {
         }
     };
 
-    OnItemLongClickListener ltvItemLongClickListener = new OnItemLongClickListener() {
-        @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            if (selectMode){
-                //String title = fencesList.get(position).getTitle();
-                //LatLng latLng= fencesList.get(position).getLatLng();
-                //double radius = fencesList.get(position).getRadius();
-
-                //ltvFencesList.setVisibility(View.GONE);
-
-                selectMode = false;
-
-                btnSelect.setEnabled(true);
-                btnAdd.setEnabled(true);
-                btnDelete.setEnabled(true);
-                btnCancel.setEnabled(false);
-
-                //drawFence(mMap, latLng, radius);
-            }
-
-            if (deleteMode){
-
-            }
-            return false;
-        }
-    };
-
     @Override
     public void onMapClick(LatLng latLng) {
         clickMap(latLng);
-
     }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        LatLng center = mCircle.getCenter();
-        double radius = mCircle.getRadius();
-        float[] distance = new float[1];
-        Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
-        boolean clicked = distance[0] < radius;
-        if (clicked){
-            clickEditButton();
+        if (!editMode) {
+            int size = circlesList.size();
+            for (int i = 0; i < size; i++) {
+                LatLng center = circlesList.get(i).getCenter();
+                double radius = circlesList.get(i).getRadius();
+                float[] distance = new float[1];
+                Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
+
+                boolean clicked = distance[0] < radius;
+                if (clicked) {
+                    clickEditButton(i);
+                    break;
+                }
+            }
         }
     }
 
     private void initFenceActivitySetup() {
-
         ibtnMapCenter = (ImageButton) findViewById(R.id.mapCenterButton);
 
         fenceLayout = (LinearLayout) findViewById(R.id.fence_layout);
@@ -224,7 +192,6 @@ OnMapLongClickListener {
         fenceModeLayout = (LinearLayout) findViewById(R.id.fence_mode_layout);
         fenceModeLayout.setVisibility(View.VISIBLE);
 
-        btnSelect = (Button) findViewById(R.id.select_button);
         btnAdd = (Button) findViewById(R.id.add_button);
         btnSave = (Button) findViewById(R.id.save_button);
         btnDelete = (Button) findViewById(R.id.delete_button);
@@ -236,103 +203,218 @@ OnMapLongClickListener {
         skbFenceRadius = (SeekBar) findViewById(R.id.fence_seek_bar);
         skbFenceRadius.setMax(RADIUS_MAX);
 
-        ltvFencesList = (ListView) findViewById(R.id.fences_List_Layout);
-        ltvFencesList.setVisibility(View.GONE);
-
-        btnSelect.setOnClickListener(btnClickListener);
         btnAdd.setOnClickListener(btnClickListener);
         btnSave.setOnClickListener(btnClickListener);
         btnDelete.setOnClickListener(btnClickListener);
         btnClear.setOnClickListener(btnClickListener);
         btnCancel.setOnClickListener(btnClickListener);
         skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
-
-        ltvFencesList.setOnItemLongClickListener(ltvItemLongClickListener);
     }
 
     // Initializing faked geofences list for test functions
     private void initFencesList(){
-
-        List<String> arr = new ArrayList<>();
-
-        ArrayAdapter<String> adapter=new ArrayAdapter<String>
-                (this, android.R.layout.simple_list_item_1, arr);
-        ltvFencesList.setAdapter(adapter);
-
-        arr.add("AAA");
-        arr.add("BBB");
-
-        adapter.notifyDataSetChanged();
-
-
-        //fencesList = new ArrayList<FenceCircle>();
-        //arrFenceListAdapter = new ArrayAdapter<FenceCircle>(this, android.R.layout.simple_list_item_1);
-        //ltvFencesList.setAdapter(arrFenceListAdapter);
-
-        //fencesList.add(new FenceCircle("Number 1", new LatLng(-27.592782, 153.064673),200.0));
-        //fencesList.add(new FenceCircle("Number 2", new LatLng(-27.607956, 153.061025), 200.0));
-        //fencesList.add(new FenceCircle("Number 3", new LatLng(-27.603906, 153.104520), 200.0));
-        //fencesList.add(new FenceCircle("Number 4", new LatLng(-27.589910, 153.101752), 200.0));
-        //fencesList.add(new FenceCircle("Number 5", new LatLng(-27.597213, 153.084070), 200.0));
-        //arrFenceListAdapter.notifyDataSetChanged();
-    }
-
-    private void clickSelectButton(){
-        ltvFencesList.setVisibility(View.VISIBLE);
-        //ltvFencesList.setEnabled(true);
-        btnCancel.setEnabled(true);
-        selectMode = true;
-
-        btnSelect.setEnabled(false);
-        btnAdd.setEnabled(false);
-        btnDelete.setEnabled(false);
-
-        toast("Select Button");
+        strFencesList = new ArrayList<String>();
+        markerList = new ArrayList<Marker>();
+        circlesList = new ArrayList<Circle>();
     }
 
     private void clickAddButton(){
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
-        fenceModeLayout.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.GONE);
+        btnAdd.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.VISIBLE);
         txvFenceMode.setText("ADD MODE");
+        txtFenceTitle.setText("");
+        skbFenceRadius.setProgress(RADIUS_MIN);
+        skbFenceRadius.setEnabled(false);
         addMode = true;
+
+        showMarkers(true);
     }
 
-    private void clickEditButton(){
+    private void showMarkers(boolean flag){
+        int size = markerList.size();
+        for (int i = 0; i < size; i++){
+            markerList.get(i).setVisible(flag);
+        }
+    }
+
+    private boolean checkTitleFence(String title){
+        if ((title.trim().length() == 0) || (strFencesList.contains(title))) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void clickEditButton(int pos){
+
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
-        fenceModeLayout.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.VISIBLE);
         txvFenceMode.setText("EDIT MODE");
         editMode = true;
+
+        curPosFence = pos;
+        curTitleFence = strFencesList.get(pos);
+        curCenFence = circlesList.get(pos).getCenter();
+        curRadFence = circlesList.get(pos).getRadius();
+
+        drawTempMarker(mMap, curCenFence, curTitleFence);
+        drawTempFence(mMap, curCenFence, curRadFence);
+
+        // Animating to the touched position
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(curCenFence));
+
+        txtFenceTitle.setText(curTitleFence);
+        int i = (int) curRadFence;
+        skbFenceRadius.setProgress(i);
+        String t = Integer.toString(i);
+        txvFenceRadius.setText(t);
+
+        // Moving CameraPosition to touched position
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curCenFence, 14));
+
+        showMarkers(true);
     }
 
     private void clickSaveButton(){
         if (addMode){
-            mMarker.setVisible(false);
-            fenceLayout.setVisibility(View.GONE);
-            ibtnMapCenter.setVisibility(View.VISIBLE);
-            fenceModeLayout.setVisibility(View.VISIBLE);
-            txvFenceMode.setText("");
-            addMode = false;
-            toast("Saved fence successfully.");
-            // Need to save GeoFence in database here.
-            // Need to draw all circle in List here.
+            try {
+                if ((checkTitleFence(txtFenceTitle.getText().toString()) == true)
+                        && (skbFenceRadius.isEnabled())){
+
+                    strFencesList.add(txtFenceTitle.getText().toString());
+
+                    Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(mTempMarker.getPosition())
+                            .title(txtFenceTitle.getText().toString()));
+
+                    Circle circle = mMap.addCircle(new CircleOptions()
+                                    .center(mTempCircle.getCenter())
+                                    .radius(mTempCircle.getRadius())
+                                    .fillColor(0x20ff0000)
+                                    .strokeColor(Color.TRANSPARENT)
+                                    .strokeWidth(2)
+                    );
+
+                    markerList.add(marker);
+                    circlesList.add(circle);
+
+                    mTempMarker.remove();
+                    mTempCircle.remove();
+
+                    fenceLayout.setVisibility(View.GONE);
+                    ibtnMapCenter.setVisibility(View.VISIBLE);
+                    btnAdd.setVisibility(View.VISIBLE);
+                    btnCancel.setVisibility(View.GONE);
+                    addMode = false;
+
+                    toast("Saved fence successfully.");
+                    // Need to save GeoFence in database here.
+                    // Need to draw all circle in List here.
+                } else {
+                    toast("The title is blank or already. Please type another title of the fence.");
+                }
+            } catch (Exception e){
+                Log.e(TAG, "clickSaveButton: addMode is wrong.");
+            }
         }
 
         if (editMode){
-            fenceLayout.setVisibility(View.GONE);
-            ibtnMapCenter.setVisibility(View.VISIBLE);
-            fenceModeLayout.setVisibility(View.VISIBLE);
-            txvFenceMode.setText("");
-            editMode = false;
-            toast("Edited fence successfully.");
-            // Need to save GeoFence in database here.
-            // Need to draw all circle in List here.
+            try {
+                if (txtFenceTitle.getText().toString() == curTitleFence) {
+
+                    saveEditMode();
+                    toast("txtFenceTitle.getText().toString() == curTitleFence");
+                } else {
+                    toast("txtFenceTitle.getText().toString() == curTitleFence");
+                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
+                        toast("checkTitleFence(txtFenceTitle.getText().toString()) == true");
+                        saveEditMode();
+                    } else {
+                        toast("The title is blank or already. Please type another title of the fence.");
+                    }
+                }
+            } catch (Exception e){
+                Log.e(TAG, "clickSaveButton: editMode is wrong.");
+            }
         }
+
+        showMarkers(false);
+    }
+
+    private void saveEditMode(){
+        toast("saveEditMode");
+        strFencesList.set(curPosFence, txtFenceTitle.getText().toString());
+        markerList.get(curPosFence).setPosition(mTempMarker.getPosition());
+        markerList.get(curPosFence).setTitle(mTempMarker.getTitle());
+        circlesList.get(curPosFence).setCenter(mTempCircle.getCenter());
+        circlesList.get(curPosFence).setRadius(mTempCircle.getRadius());
+
+        mTempMarker.remove();
+        mTempCircle.remove();
+
+        fenceLayout.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        btnCancel.setVisibility(View.GONE);
+        editMode = false;
+
+        toast("Edited fence successfully.");
+        // Need to save GeoFence in database here.
+        // Need to draw all circle in List here.
     }
 
     private void clickDeleteButton() {
-        toast("Delete Button");
+        try {
+            AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
+
+            b.setTitle("Delete fence");
+            b.setMessage("Are you sure you want to delete this fence?");
+            b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    mTempMarker.remove();
+                    mTempCircle.remove();
+
+                    markerList.get(curPosFence).remove();
+                    circlesList.get(curPosFence).remove();
+
+                    markerList.remove(curPosFence);
+                    circlesList.remove(curPosFence);
+
+                    strFencesList.remove(curPosFence);
+
+                    fenceLayout.setVisibility(View.GONE);
+                    ibtnMapCenter.setVisibility(View.VISIBLE);
+                    btnAdd.setVisibility(View.VISIBLE);
+                    btnCancel.setVisibility(View.GONE);
+                    editMode = false;
+
+                    toast("Deleted successfully.");
+
+                    showMarkers(false);
+                }});
+
+            b.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    dialog.cancel();
+                }
+
+            });
+
+            b.create().show();
+
+        } catch (Exception e){
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     private void clickClearButton(){
@@ -340,50 +422,91 @@ OnMapLongClickListener {
         toast("Clear Button");
     }
 
+    private void clickCancelButton(){
+        fenceLayout.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        btnCancel.setVisibility(View.GONE);
+        addMode = false;
+        editMode = false;
+
+        if (mTempMarker != null){
+            mTempMarker.remove();
+        }
+
+        if (mTempCircle != null) {
+            mTempCircle.remove();
+        }
+
+        btnCancel.setVisibility(View.GONE);
+        showMarkers(false);
+    }
+
     private void changedSeekBar(int progress) {
-        mCircle.setRadius((double) progress);
-        txvFenceRadius.setText(Integer.toString(progress));
+        mTempCircle.setRadius((double) progress);
+        txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
     }
 
     public void clickMap(LatLng latLng) {
+        if (mTempMarker != null){
+            mTempMarker.remove();
+        }
+
+        if (mTempCircle != null) {
+            mTempCircle.remove();
+        }
+        // Animating to the touched position
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        // Moving CameraPosition to touched position
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
         if (addMode) {
-            // Clears the previously touched position
-            mMap.clear();
+            try {
+                skbFenceRadius.setEnabled(true);
 
-            // Animating to the touched position
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                drawTempMarker(mMap, latLng, TITLE_DEFAULT);
+                drawTempFence(mMap, latLng, RADIUS_DEFAULT);
 
-            // Placing a marker on the touched position
-            drawFence(mMap, latLng, 500.0);
+                int i = (int) mTempCircle.getRadius();
+                skbFenceRadius.setProgress(i);
+                String t = Integer.toString(i);
+                txvFenceRadius.setText("Radius of fence : " + t);
+            }
+            catch (Exception e){
+                Log.e(TAG,"clickMap: addMode is Wrong.");
+            }
+        }
 
-            int i = (int)mCircle.getRadius();
-            skbFenceRadius.setProgress(i);
-            String t = Integer.toString(i);
-            txvFenceRadius.setText(t);
+        if (editMode) {
+            try {
+                drawTempMarker(mMap, latLng, curTitleFence);
+                drawTempFence(mMap, latLng, curRadFence);
 
-            // Moving CameraPosition to touched position
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+                int i = (int) mTempCircle.getRadius();
+                skbFenceRadius.setProgress(i);
+                String t = Integer.toString(i);
+                txvFenceRadius.setText(t);
+            }
+            catch (Exception e){
+                Log.e(TAG,"clickMap: editMode is Wrong.");
+            }
+
         }
     }
 
-    // This method just draws the circle and marker.
-    // All values of circle and marker are gotten from fence.
-    // Only one circle shows on Map View.
-    private void drawFence(GoogleMap mMap, LatLng latLng, double radius){
-        // Init value of raDius if there is no fence
-        if (radius <= 0){
-            radius = RADIUS_DEFAULT;
-        }
+    private void drawTempMarker(GoogleMap mMap, LatLng latLng, String title){
+        mTempMarker = mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title(title));
+    }
 
-        mMarker = mMap.addMarker(new MarkerOptions()
-                    .position(latLng));
-
-        mCircle = mMap.addCircle(new CircleOptions()
-                    .center(latLng)
-                    .radius(radius)
-                    .fillColor(0x40ff0000)
-                    .strokeColor(Color.TRANSPARENT)
-                    .strokeWidth(2));
+    private void drawTempFence(GoogleMap mMap, LatLng latLng, double radius){
+        mTempCircle = mMap.addCircle(new CircleOptions()
+                .center(latLng)
+                .radius(radius)
+                .fillColor(0x70ff0000)
+                .strokeColor(Color.TRANSPARENT)
+                .strokeWidth(2));
     }
 
     // ============== End Function Brian Tran ====================
@@ -427,16 +550,11 @@ OnMapLongClickListener {
                         .getMap();
             }
 
-
             // Check if we were successful in obtaining the map.
             if (mMap == null || patientMarker == null) {
                 setUpMap();
-                //mFenceCircleList = new ArrayList<FenceCircle>();
-                //mFenceCircle = new FenceCircle();
                 mMap.setOnMapClickListener(this);
                 mMap.setOnMapLongClickListener(this);
-
-
             }
         } catch (Exception e) {
             toast("Map could not be loaded.");
@@ -466,8 +584,8 @@ OnMapLongClickListener {
     private void showPatientOnMap(LatLng patientCurrentLocation) {
         try {
             if (patientMarker == null) {
-                patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(X,Y)).title(getPatientName()));
-                //patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
+                //patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(X,Y)).title(getPatientName()));
+                patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
             } else {
                 updatePatientLocationOnMap(patientMarker, patientCurrentLocation, false);
             }

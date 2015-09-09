@@ -67,28 +67,35 @@
                 android:layout_height="wrap_content"
                 android:textSize="25sp"
                 android:textAlignment="center"
-                android:id="@+id/fence_mode_text_view" />
+                android:id="@+id/fence_mode_text_view"
+                android:background="#f0ffffff" />
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/fence_title_edit_text"
-                android:hint="Title of the fence"
-                android:textAlignment="center" />
+                android:text=""
+                android:hint="Type title of fence here..."
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:background="#f0ffffff" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="25sp"
+                android:textSize="14sp"
                 android:textAlignment="center"
-                android:id="@+id/fence_radius_text_view" />
+                android:id="@+id/fence_radius_text_view"
+                android:background="#f0ffffff"
+                android:text="Radius of fence : " />
 
             <SeekBar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/fence_seek_bar"
-                android:splitTrack="false" />
+                android:splitTrack="false"
+                android:background="#f0ffffff" />
 
         </LinearLayout>
 
@@ -110,21 +117,13 @@
                 android:id="@+id/clear_button"
                 android:layout_gravity="right" />
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:id="@+id/delete_button" />
 
         </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="405dp"
-        android:id="@+id/fences_List_Layout"
-        android:layout_gravity="center" />
 
     </LinearLayout>
 
@@ -133,13 +132,8 @@
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:id="@+id/fence_mode_layout">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/select"
-            android:id="@+id/select_button" />
+        android:id="@+id/fence_mode_layout"
+        android:background="#80ffffff" >
 
         <Button
             android:layout_width="wrap_content"
@@ -150,15 +144,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/delete"
-            android:id="@+id/delete_button" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/cancel"
             android:id="@+id/cancel_button"
-            android:enabled="false" />
+            android:visibility="gone" />
 
     </LinearLayout>
 
