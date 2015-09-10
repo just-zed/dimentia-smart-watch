@@ -52,7 +52,11 @@ OnMapLongClickListener {
     private Marker patientMarker;
     boolean test = false;
 
-
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Declare variables for my functions.
+    * */
     //==================== Brian Tran==============
     private LinearLayout fenceLayout;
     private LinearLayout fenceModeLayout;
@@ -113,6 +117,11 @@ OnMapLongClickListener {
 
     // ==================== Functions Brian Tran =======================
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Set ClickListener for buttons.
+    * */
     OnClickListener btnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -142,6 +151,11 @@ OnMapLongClickListener {
         }
     };
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Set ChangeListener for Seek Bar (adjusting radius of fence).
+    * */
     OnSeekBarChangeListener skbChangeListener = new OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -159,11 +173,21 @@ OnMapLongClickListener {
         }
     };
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Set MapClickListener for Adding and Editing Fences.
+    * */
     @Override
     public void onMapClick(LatLng latLng) {
         clickMap(latLng);
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Set MapLongClickListener for going to EDIT AND DELETE FENCE MODE.
+    * */
     @Override
     public void onMapLongClick(LatLng latLng) {
         if (!editMode) {
@@ -183,6 +207,11 @@ OnMapLongClickListener {
         }
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Set ChangeListener for Seek Bar (adjust radius of fence).
+    * */
     private void initFenceActivitySetup() {
         ibtnMapCenter = (ImageButton) findViewById(R.id.mapCenterButton);
 
@@ -211,13 +240,25 @@ OnMapLongClickListener {
         skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
     }
 
-    // Initializing faked geofences list for test functions
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Initializing some lists for needed fence functions.
+    * */
     private void initFencesList(){
         strFencesList = new ArrayList<String>();
         markerList = new ArrayList<Marker>();
         circlesList = new ArrayList<Circle>();
+        // Load existing geofences from database here
+        // DO stuff
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of clicking Add button.
+    * Going to Add mode.
+    * */
     private void clickAddButton(){
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
@@ -233,6 +274,11 @@ OnMapLongClickListener {
         showMarkers(true);
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Show or hide all markers on the Map.
+    * */
     private void showMarkers(boolean flag){
         int size = markerList.size();
         for (int i = 0; i < size; i++){
@@ -240,6 +286,12 @@ OnMapLongClickListener {
         }
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Checking title of fence is existed.
+    * Checking title of fence is blank.
+    * */
     private boolean checkTitleFence(String title){
         if ((title.trim().length() == 0) || (strFencesList.contains(title))) {
             return false;
@@ -248,6 +300,12 @@ OnMapLongClickListener {
         }
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Edit Mode.
+    * Editing fences.
+    * */
     private void clickEditButton(int pos){
 
         fenceLayout.setVisibility(View.VISIBLE);
@@ -281,6 +339,12 @@ OnMapLongClickListener {
         showMarkers(true);
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Save Button.
+    * Saving fence. There are 2 mode: Add mode and Edit mode.
+    * */
     private void clickSaveButton(){
         if (addMode){
             try {
@@ -326,19 +390,16 @@ OnMapLongClickListener {
 
         if (editMode){
             try {
-                if (txtFenceTitle.getText().toString() == curTitleFence) {
-
+                if (txtFenceTitle.getText().toString().trim().contentEquals(curTitleFence.toString())){
                     saveEditMode();
-                    toast("txtFenceTitle.getText().toString() == curTitleFence");
                 } else {
-                    toast("txtFenceTitle.getText().toString() == curTitleFence");
-                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
-                        toast("checkTitleFence(txtFenceTitle.getText().toString()) == true");
+                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true){
                         saveEditMode();
                     } else {
                         toast("The title is blank or already. Please type another title of the fence.");
                     }
                 }
+
             } catch (Exception e){
                 Log.e(TAG, "clickSaveButton: editMode is wrong.");
             }
@@ -347,6 +408,12 @@ OnMapLongClickListener {
         showMarkers(false);
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Save Button.
+    * Saving fence in Edit mode.
+    * */
     private void saveEditMode(){
         toast("saveEditMode");
         strFencesList.set(curPosFence, txtFenceTitle.getText().toString());
@@ -369,6 +436,12 @@ OnMapLongClickListener {
         // Need to draw all circle in List here.
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Delete Button.
+    * Deleting fence in Edit mode.
+    * */
     private void clickDeleteButton() {
         try {
             AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
@@ -417,11 +490,23 @@ OnMapLongClickListener {
         }
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Clear Button.
+    * Clearing content of fence title.
+    * */
     private void clickClearButton(){
         txtFenceTitle.setText("");
         toast("Clear Button");
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Cancel Button.
+    * Canceling Add mode and Edit mode to go back the Map View.
+    * */
     private void clickCancelButton(){
         fenceLayout.setVisibility(View.GONE);
         ibtnMapCenter.setVisibility(View.VISIBLE);
@@ -442,11 +527,23 @@ OnMapLongClickListener {
         showMarkers(false);
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of Radius Seek Bar.
+    * Changing radius and title of fence when seek bar changes.
+    * */
     private void changedSeekBar(int progress) {
         mTempCircle.setRadius((double) progress);
         txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Implementing actions of clicking on map.
+    * Set location to draw or edit fence.
+    * */
     public void clickMap(LatLng latLng) {
         if (mTempMarker != null){
             mTempMarker.remove();
@@ -494,12 +591,22 @@ OnMapLongClickListener {
         }
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Drawing temporary marker for adding and editing fence.
+    * */
     private void drawTempMarker(GoogleMap mMap, LatLng latLng, String title){
         mTempMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(title));
     }
 
+    /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Drawing temporary circle for adding and editing fence.
+    * */
     private void drawTempFence(GoogleMap mMap, LatLng latLng, double radius){
         mTempCircle = mMap.addCircle(new CircleOptions()
                 .center(latLng)
