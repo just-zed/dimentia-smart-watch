@@ -4,6 +4,7 @@ import android.location.Location;
 import android.support.annotation.IntDef;
 
 import com.justzed.common.model.PatientFence;
+import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
 import java.lang.annotation.Retention;
@@ -32,7 +33,6 @@ public class GeofencingCheck {
     public @interface Status {
     }
 
-
     //Status Change
     public static final int EXITED_A_FENCE = 1;
     public static final int REENTERED_A_FENCE = 2;
@@ -44,19 +44,12 @@ public class GeofencingCheck {
     public @interface StatusChange {
     }
 
-    //Location and Geofencing Indicies
-    //TODO: change it to use PatientFence class later
-    private static final int LATITUDE_INDEX = 0;
-    private static final int LONGITUDE_INDEX = 1;
-    private static final int RADIUS_INDEX = 2;
-
-
     //Variables
     @Status
     private int previouslyInAFence = INSIDE_FENCE;
     @Status
     private int currentlyInAFence = INSIDE_FENCE;
-    private List<double[]> geofenceList;
+    private List<PatientFence> geofenceList;
     private double[] currentLocation;
 
 
@@ -66,7 +59,7 @@ public class GeofencingCheck {
      * Main method to check if a patient is in a geofence.
      */
     @StatusChange
-    public int checkGeofence(double[] myLocation, Person patient,List<PatientFence> patientFences) {
+    public int checkGeofence(PatientLocation myLocation, Person patient) {
 
         if (!geofenceList.isEmpty()) {
             checkIfInsideGeofences(geofenceList, myLocation);
@@ -81,14 +74,12 @@ public class GeofencingCheck {
      * <p>
      * This method gets the values of all geofences from the database and stores them in a list.
      */
-    public List<double[]> getGeofencesFromDatabase(List<PatientFence> patientFences) {
+    public List<PatientFence> getGeofencesFromDatabase(List<PatientFence> patientFences) {
         geofenceList = new ArrayList<>();
 
         if (patientFences != null) {
             for (int i = 0; i < patientFences.size(); i++) {
-                PatientFence patientFence = patientFences.get(i);
-                double[] toAddToList = new double[]{patientFence.getCenter().latitude, patientFence.getCenter().longitude, patientFence.getRadius()};
-
+                PatientFence toAddToList = patientFences.get(i);
                 geofenceList.add(toAddToList);
             }
         }
@@ -102,9 +93,8 @@ public class GeofencingCheck {
      * This uses the location of the device and all the geofence values to check wether the device is inside a geofence.
      */
 
-    //TODO: change to more type safe codes
     @Status
-    public int checkIfInsideGeofences(List<PatientFence> patientFences, double[] deviceLocation) {
+    public int checkIfInsideGeofences(List<PatientFence> patientFences, PatientLocation deviceLocation) {
         float[] distance = new float[1];
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
@@ -115,8 +105,8 @@ public class GeofencingCheck {
             for (int indexOfGeofences = 0; indexOfGeofences < patientFences.size(); indexOfGeofences++) {
                 Location.distanceBetween(patientFences.get(indexOfGeofences).getCenter().latitude,
                         patientFences.get(indexOfGeofences).getCenter().longitude,
-                        deviceLocation[LATITUDE_INDEX],
-                        deviceLocation[LONGITUDE_INDEX],
+                        deviceLocation.getLatLng().latitude,
+                        deviceLocation.getLatLng().longitude,
                         distance);
 
                 distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
@@ -128,7 +118,7 @@ public class GeofencingCheck {
                 //        + (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX])
                 //        * (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX]));
 
-                if (distanceBetweenTwoPoints < geofences.get(indexOfGeofences)[RADIUS_INDEX]) {
+                if (distanceBetweenTwoPoints < patientFences.get(indexOfGeofences).getRadius()) {
                     currentlyInAFence = INSIDE_FENCE;
                 }
             }
