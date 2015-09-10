@@ -66,7 +66,7 @@ public class GeofencingCheck {
      * Main method to check if a patient is in a geofence.
      */
     @StatusChange
-    public int checkGeofence(double[] myLocation, Person patient) {
+    public int checkGeofence(double[] myLocation, Person patient,List<PatientFence> patientFences) {
 
         if (!geofenceList.isEmpty()) {
             checkIfInsideGeofences(geofenceList, myLocation);
@@ -104,17 +104,17 @@ public class GeofencingCheck {
 
     //TODO: change to more type safe codes
     @Status
-    public int checkIfInsideGeofences(List<double[]> geofences, double[] deviceLocation) {
+    public int checkIfInsideGeofences(List<PatientFence> patientFences, double[] deviceLocation) {
         float[] distance = new float[1];
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
 
-        if (!geofences.isEmpty()) {
+        if (!patientFences.isEmpty()) {
             currentlyInAFence = OUTSIDE_FENCE;
 
-            for (int indexOfGeofences = 0; indexOfGeofences < geofences.size(); indexOfGeofences++) {
-                Location.distanceBetween(geofences.get(indexOfGeofences)[LATITUDE_INDEX],
-                        geofences.get(indexOfGeofences)[LONGITUDE_INDEX],
+            for (int indexOfGeofences = 0; indexOfGeofences < patientFences.size(); indexOfGeofences++) {
+                Location.distanceBetween(patientFences.get(indexOfGeofences).getCenter().latitude,
+                        patientFences.get(indexOfGeofences).getCenter().longitude,
                         deviceLocation[LATITUDE_INDEX],
                         deviceLocation[LONGITUDE_INDEX],
                         distance);
