@@ -28,6 +28,7 @@ public class GeofencingCheckTest extends TestCase {
     //Variables
     GeofencingCheck geofenceCheck;
     List<PatientFence> geofences = new ArrayList<PatientFence>();
+    List<PatientFence> geofencesTwo = new ArrayList<PatientFence>();
     double[] currentLocation;
     Person patient =  new Person(Person.PATIENT,"averyuniqueid");
 
@@ -51,7 +52,7 @@ public class GeofencingCheckTest extends TestCase {
     public void setUp(){
         geofenceCheck = new GeofencingCheck();
         geofences = new ArrayList<PatientFence>();
-
+        geofencesTwo = new ArrayList<PatientFence>();
     }
 
     /**
@@ -60,20 +61,54 @@ public class GeofencingCheckTest extends TestCase {
      * Test passes no exceptions are thrown when running checkGeofence with an arbitrary
      * location.
      */
-    /*@Test
+    @Test
     public void testCheckGeofenceExceptionTest(){
-        geofenceCheck.checkGeofence(POSITION_ONE);
-    }*/
+        geofenceCheck.checkGeofence(createALocation(POSITION_ONE), patient);
+    }
+    /**
+     * Created by Tristan Dubois.
+     *
+     * Test passes no exceptions are thrown when running getGeofencesFromDatabase
+     * with One item.
+     */
+    @Test
+    public void testGetGeofencesFromDatabaseOneItemExeption(){
+        geofences.add(createAGeofence(GEOFENCE_ONE));
+
+        geofencesTwo = geofenceCheck.getGeofencesFromDatabase(geofences);
+
+        assertTrue(geofences == geofencesTwo);
+    }
 
     /**
      * Created by Tristan Dubois.
      *
-     * Test passes no exceptions are thrown when running getGeofencesFromDatabase.
+     * Test passes no exceptions are thrown when running getGeofencesFromDatabase
+     * with many items.
      */
-  /*  @Test
-    public void testGetGeofencesFromDatabaseExeption(){
-        geofenceCheck.getGeofencesFromDatabase();
-    }*/
+    @Test
+    public void testGetGeofencesFromDatabaseManyItemsExeption(){
+        geofences.add(createAGeofence(GEOFENCE_ONE));
+        geofences.add(createAGeofence(GEOFENCE_TWO));
+        geofences.add(createAGeofence(GEOFENCE_FOUR));
+
+        geofencesTwo = geofenceCheck.getGeofencesFromDatabase(geofences);
+
+        assertTrue(geofences == geofencesTwo);
+    }
+
+    /**
+     * Created by Tristan Dubois.
+     *
+     * Test passes no exceptions are thrown when running getGeofencesFromDatabase
+     * with no items.
+     */
+    @Test
+    public void testGetGeofencesFromDatabaseNoItemsExeption(){
+        geofencesTwo = geofenceCheck.getGeofencesFromDatabase(geofences);
+
+        assertTrue(geofences == geofencesTwo);
+    }
 
     /**
      * Created by Tristan Dubois.
@@ -321,9 +356,6 @@ public class GeofencingCheckTest extends TestCase {
         final int LONGITUDE = 1;
 
         return new PatientLocation(patient, new LatLng(locationData[LATITUDE], locationData[LONGITUDE]));
-
-
-
     }
 }
 

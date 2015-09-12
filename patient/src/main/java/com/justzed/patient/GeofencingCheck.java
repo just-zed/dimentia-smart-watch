@@ -27,7 +27,6 @@ public class GeofencingCheck {
     public static final int INSIDE_FENCE = 0;
     public static final int OUTSIDE_FENCE = 1;
 
-
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({INSIDE_FENCE, OUTSIDE_FENCE})
     public @interface Status {
@@ -60,13 +59,14 @@ public class GeofencingCheck {
      */
     @StatusChange
     public int checkGeofence(PatientLocation myLocation, Person patient) {
-
-        if (!geofenceList.isEmpty()) {
-            checkIfInsideGeofences(geofenceList, myLocation);
-            return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
-        } else {
-            return NO_GEOFENCES_FOUND;
-        }
+        if(geofenceList != null){
+            if ( !geofenceList.isEmpty()) {
+                checkIfInsideGeofences(geofenceList, myLocation);
+                return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
+            } else {
+                return NO_GEOFENCES_FOUND;}
+        }else {
+            return NO_GEOFENCES_FOUND;}
     }
 
     /**
@@ -76,13 +76,14 @@ public class GeofencingCheck {
      */
     public List<PatientFence> getGeofencesFromDatabase(List<PatientFence> patientFences) {
         geofenceList = new ArrayList<>();
-
+        /*
         if (patientFences != null) {
             for (int i = 0; i < patientFences.size(); i++) {
                 PatientFence toAddToList = patientFences.get(i);
                 geofenceList.add(toAddToList);
             }
-        }
+        }*/
+        geofenceList = patientFences;
         return geofenceList;
 
     }
