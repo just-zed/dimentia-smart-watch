@@ -26,12 +26,14 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
@@ -77,9 +79,10 @@ OnMapLongClickListener {
     private Circle mTempCircle;
     private Marker mTempMarker;
 
-    private ArrayList<String> strFencesList;
-    private ArrayList<Circle> circlesList;
-    private ArrayList<Marker> markerList;
+    private List<String> strFencesList;
+    private List<Circle> circlesList;
+    private List<Marker> markerList;
+    private List<PatientFence> patientFenceList;
 
     private int curPosFence;
     private String curTitleFence;
@@ -241,16 +244,82 @@ OnMapLongClickListener {
     }
 
     /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Initializing some lists for needed fence functions.
-    * */
+     * Created by Nguyen Nam Cuong Tran
+     * <p>
+     * Initializing some lists for needed fence functions.
+     * */
     private void initFencesList(){
         strFencesList = new ArrayList<String>();
         markerList = new ArrayList<Marker>();
         circlesList = new ArrayList<Circle>();
         // Load existing geofences from database here
         // DO stuff
+
+
+/*
+        ParseObject  patientFence = new ParseObject("PatientFence");
+
+        patient.getParseObject("");
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("PatientFence");
+        query.whereEqualTo("patient", "WPCxaXY1tg");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> fenceList, ParseException e) {
+                if (e == null) {
+                    int size = fenceList.size();
+                    String t = String.valueOf(size).toString();
+                    toast("OK");
+                    //Log.d("score", "Retrieved " + fenceList.size() + " scores");
+                } else {
+                    Log.d("score", "Error: " + e.getMessage());
+                }
+            }
+        });
+*/
+        try {
+            patientFenceList = new ArrayList<PatientFence>();
+
+            patientFenceList = getFencesListFromDatabase(patient).toBlocking().single();
+            int size = patientFenceList.size();
+            String t = String.valueOf(size);
+            toast(t);
+        } catch (Exception e){
+            Log.e(TAG, e.getMessage());
+        }
+        toast("OK");
+
+/*        query.
+
+        int size = fenceList.size();
+
+        for (int i = 0; i < size; i++){
+            String title = patientFenceList.get(i).getObjectId();
+            LatLng center = patientFenceList.get(i).getCenter();
+            double radius = patientFenceList.get(i).getRadius();
+
+            strFencesList.add(title);
+            markerList.add(drawMarker(mMap, center, title));
+            circlesList.add(drawCircle(mMap, center, radius));
+        }
+*/
+
+
+    }
+
+    private Marker drawMarker(GoogleMap map, LatLng center, String title){
+        return map.addMarker(new MarkerOptions()
+                .position(center)
+                .title(title));
+    }
+
+    private Circle drawCircle(GoogleMap map, LatLng center, double radius){
+        return map.addCircle(new CircleOptions()
+                .center(center)
+                .radius(radius));
+    }
+
+    private Observable<List<PatientFence>> getFencesListFromDatabase(Person patient){
+        return PatientFence.getPatientFences(patient);
     }
 
     /*
