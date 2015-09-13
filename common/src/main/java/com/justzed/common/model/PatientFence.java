@@ -26,10 +26,25 @@ public class PatientFence {
     private static final String KEY_PATIENT = "patient";
     private static final String KEY_CENTER = "center";
     private static final String KEY_RADIUS = "radius";
+    private static final String KEY_DESCRIPTION = "description";
 
     private Person patient;
+
+    public void setCenter(LatLng center) {
+        this.center = center;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     private LatLng center;
     private double radius;
+    private String description;
 
     private String objectId = null;
     private ParseObject parseObject = null;
@@ -45,6 +60,8 @@ public class PatientFence {
     public double getRadius() {
         return radius;
     }
+
+    public String getDescription(){return description;}
 
     public String getObjectId() {
         return objectId;
@@ -64,14 +81,23 @@ public class PatientFence {
         this.patient = patient;
         this.center = center;
         this.radius = radius;
+        this.description = null;
     }
 
-    public PatientFence(ParseObject parseObject, Person patient, LatLng center, double radius) {
+    public PatientFence(Person patient, LatLng center, double radius, String description){
+        this.patient = patient;
+        this.center = center;
+        this.radius = radius;
+        this.description = description;
+    }
+
+    public PatientFence(ParseObject parseObject, Person patient, LatLng center, double radius, String description) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.patient = patient;
         this.center = center;
         this.radius = radius;
+        this.description = description;
     }
 
     private ParseObject serialize() {
@@ -82,6 +108,7 @@ public class PatientFence {
         parseObject.put(KEY_PATIENT, patient.getParseObject());
         parseObject.put(KEY_CENTER, LocationHelper.toParseGeoPoint(center));
         parseObject.put(KEY_RADIUS, radius);
+        parseObject.put(KEY_DESCRIPTION, description);
         return parseObject;
     }
 
@@ -89,7 +116,8 @@ public class PatientFence {
         return new PatientFence(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
                 LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
-                parseObject.getDouble(KEY_RADIUS));
+                parseObject.getDouble(KEY_RADIUS),
+                parseObject.getString(KEY_DESCRIPTION));
 
     }
 

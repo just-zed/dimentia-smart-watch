@@ -276,17 +276,54 @@ OnMapLongClickListener {
             }
         });
 */
-        try {
-            patientFenceList = new ArrayList<PatientFence>();
 
-            patientFenceList = getFencesListFromDatabase(patient).toBlocking().single();
+        PatientFence fence1 = patientFenceList.get(0);
+        fence1.delete()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        patientFence -> {
+                            // updates the object in the list
+                            // if patientFence == null it is successful, do another update from database
+
+                        },
+                        throwable -> {
+                            Log.e(TAG, throwable.getMessage());
+                        }
+                );
+
+        new PatientFence(patient, new LatLng(0,0), 10f, "")
+                .save()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        patientFence -> {
+                            // updates the object in the list
+
+                        },
+                        throwable -> {
+                            Log.e(TAG, throwable.getMessage());
+                        }
+                );
+
+
+
+        getFencesListFromDatabase(patient)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(patientFences -> {
+                    patientFenceList = patientFences;
+                    //loop through the list and add markers and circles...
+
+
+
+                },throwable -> {
+                    Log.e(TAG, throwable.getMessage());
+                });
+
             int size = patientFenceList.size();
             String t = String.valueOf(size);
             toast(t);
-        } catch (Exception e){
-            Log.e(TAG, e.getMessage());
-        }
-        toast("OK");
 
 /*        query.
 
