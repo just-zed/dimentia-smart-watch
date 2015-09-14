@@ -138,7 +138,6 @@ public class PatientFence {
                     subscriber.onError(e);
                 }
             });
-
         });
     }
 

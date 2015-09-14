@@ -252,111 +252,58 @@ OnMapLongClickListener {
         strFencesList = new ArrayList<String>();
         markerList = new ArrayList<Marker>();
         circlesList = new ArrayList<Circle>();
-        // Load existing geofences from database here
-        // DO stuff
+        patientFenceList = new ArrayList<PatientFence>();
 
+        strFencesList.clear();
+        markerList.clear();
+        circlesList.clear();
+        patientFenceList.clear();
 
-/*
-        ParseObject  patientFence = new ParseObject("PatientFence");
-
-        patient.getParseObject("");
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("PatientFence");
-        query.whereEqualTo("patient", "WPCxaXY1tg");
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> fenceList, ParseException e) {
-                if (e == null) {
-                    int size = fenceList.size();
-                    String t = String.valueOf(size).toString();
-                    toast("OK");
-                    //Log.d("score", "Retrieved " + fenceList.size() + " scores");
-                } else {
-                    Log.d("score", "Error: " + e.getMessage());
-                }
-            }
-        });
-*/
-
-        PatientFence fence1 = patientFenceList.get(0);
-        fence1.delete()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        patientFence -> {
-                            // updates the object in the list
-                            // if patientFence == null it is successful, do another update from database
-
-                        },
-                        throwable -> {
-                            Log.e(TAG, throwable.getMessage());
-                        }
-                );
-
-        new PatientFence(patient, new LatLng(0,0), 10f, "")
-                .save()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        patientFence -> {
-                            // updates the object in the list
-
-                        },
-                        throwable -> {
-                            Log.e(TAG, throwable.getMessage());
-                        }
-                );
-
-
-
-        getFencesListFromDatabase(patient)
+        PatientFence.getPatientFences(patient)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientFences -> {
                     patientFenceList = patientFences;
                     //loop through the list and add markers and circles...
+                    int size = patientFenceList.size();
+                    for (int i = 0; i < size; i++) {
+                        String title = patientFenceList.get(i).getDescription();
+                        LatLng center = patientFenceList.get(i).getCenter();
+                        double radius = patientFenceList.get(i).getRadius();
 
-
-
-                },throwable -> {
+                        strFencesList.add(title);
+                        markerList.add(drawMarker(mMap, center, title));
+                        circlesList.add(drawCircle(mMap, center, radius));
+                    }
+                }, throwable -> {
                     Log.e(TAG, throwable.getMessage());
                 });
-
-            int size = patientFenceList.size();
-            String t = String.valueOf(size);
-            toast(t);
-
-/*        query.
-
-        int size = fenceList.size();
-
-        for (int i = 0; i < size; i++){
-            String title = patientFenceList.get(i).getObjectId();
-            LatLng center = patientFenceList.get(i).getCenter();
-            double radius = patientFenceList.get(i).getRadius();
-
-            strFencesList.add(title);
-            markerList.add(drawMarker(mMap, center, title));
-            circlesList.add(drawCircle(mMap, center, radius));
-        }
-*/
-
-
     }
 
-    private Marker drawMarker(GoogleMap map, LatLng center, String title){
+    /*
+     * Created by Nguyen Nam Cuong Tran
+     * <p>
+     * Draw a marker.
+     * */
+    private Marker drawMarker(GoogleMap map, LatLng center, String title) {
         return map.addMarker(new MarkerOptions()
                 .position(center)
-                .title(title));
+                .title(title)
+                .visible(false));
     }
 
-    private Circle drawCircle(GoogleMap map, LatLng center, double radius){
+    /*
+     * Created by Nguyen Nam Cuong Tran
+     * <p>
+     * Draw a circle.
+     * */
+    private Circle drawCircle(GoogleMap map, LatLng center, double radius) {
         return map.addCircle(new CircleOptions()
                 .center(center)
-                .radius(radius));
-    }
-
-    private Observable<List<PatientFence>> getFencesListFromDatabase(Person patient){
-        return PatientFence.getPatientFences(patient);
+                .radius(radius)
+                .fillColor(0x20ff0000)
+                .strokeColor(Color.TRANSPARENT)
+                .strokeWidth(2));
     }
 
     /*
@@ -457,35 +404,49 @@ OnMapLongClickListener {
                 if ((checkTitleFence(txtFenceTitle.getText().toString()) == true)
                         && (skbFenceRadius.isEnabled())){
 
-                    strFencesList.add(txtFenceTitle.getText().toString());
+                    String title = txtFenceTitle.getText().toString();
+                    LatLng center = mTempCircle.getCenter();
+                    double radius = mTempCircle.getRadius();
 
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(mTempMarker.getPosition())
-                            .title(txtFenceTitle.getText().toString()));
+                    int size = patientFenceList.size();
+                    String t = String.valueOf(size);
+                    toast(t);
 
-                    Circle circle = mMap.addCircle(new CircleOptions()
-                                    .center(mTempCircle.getCenter())
-                                    .radius(mTempCircle.getRadius())
-                                    .fillColor(0x20ff0000)
-                                    .strokeColor(Color.TRANSPARENT)
-                                    .strokeWidth(2)
-                    );
+                    new PatientFence(patient, mTempCircle.getCenter(),
+                                        mTempCircle.getRadius(),
+                                        txtFenceTitle.getText().toString())
+                            .save()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    patientFence -> {
+                                        // updates the object in the list
+                                        patientFenceList.add(patientFence);
+                                        strFencesList.add(patientFence.getDescription().toString());
+                                        markerList.add(drawMarker(mMap, patientFence.getCenter(),
+                                                patientFence.getDescription().toString()));
+                                        circlesList.add(drawCircle(mMap, patientFence.getCenter(),
+                                                patientFence.getRadius()));
 
-                    markerList.add(marker);
-                    circlesList.add(circle);
+                                        mTempMarker.remove();
+                                        mTempCircle.remove();
 
-                    mTempMarker.remove();
-                    mTempCircle.remove();
+                                        fenceLayout.setVisibility(View.GONE);
+                                        ibtnMapCenter.setVisibility(View.VISIBLE);
+                                        btnAdd.setVisibility(View.VISIBLE);
+                                        btnCancel.setVisibility(View.GONE);
+                                        addMode = false;
 
-                    fenceLayout.setVisibility(View.GONE);
-                    ibtnMapCenter.setVisibility(View.VISIBLE);
-                    btnAdd.setVisibility(View.VISIBLE);
-                    btnCancel.setVisibility(View.GONE);
-                    addMode = false;
+                                        toast("Saved fence successfully.");
 
-                    toast("Saved fence successfully.");
-                    // Need to save GeoFence in database here.
-                    // Need to draw all circle in List here.
+                                        int size1 = patientFenceList.size();
+                                        String t1 = String.valueOf(size1);
+                                        toast(t1);
+                                    },
+                                    throwable -> {
+                                        Log.e(TAG, throwable.getMessage());
+                                    }
+                            );
                 } else {
                     toast("The title is blank or already. Please type another title of the fence.");
                 }
@@ -505,12 +466,10 @@ OnMapLongClickListener {
                         toast("The title is blank or already. Please type another title of the fence.");
                     }
                 }
-
             } catch (Exception e){
                 Log.e(TAG, "clickSaveButton: editMode is wrong.");
             }
         }
-
         showMarkers(false);
     }
 
@@ -522,24 +481,48 @@ OnMapLongClickListener {
     * */
     private void saveEditMode(){
         toast("saveEditMode");
-        strFencesList.set(curPosFence, txtFenceTitle.getText().toString());
-        markerList.get(curPosFence).setPosition(mTempMarker.getPosition());
-        markerList.get(curPosFence).setTitle(mTempMarker.getTitle());
-        circlesList.get(curPosFence).setCenter(mTempCircle.getCenter());
-        circlesList.get(curPosFence).setRadius(mTempCircle.getRadius());
 
-        mTempMarker.remove();
-        mTempCircle.remove();
+        String title = txtFenceTitle.getText().toString();
+        LatLng center = mTempCircle.getCenter();
+        double radius = mTempCircle.getRadius();
 
-        fenceLayout.setVisibility(View.GONE);
-        ibtnMapCenter.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.VISIBLE);
-        btnCancel.setVisibility(View.GONE);
-        editMode = false;
+        PatientFence fence = patientFenceList.get(curPosFence);
+        toast("EDIT object ID before : " + fence.getObjectId().toString());
 
-        toast("Edited fence successfully.");
-        // Need to save GeoFence in database here.
-        // Need to draw all circle in List here.
+        fence.setDescription(title);
+        fence.setCenter(center);
+        fence.setRadius(radius);
+        fence.save()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        patientFence -> {
+                            // updates the object in the list
+                            toast("EDIT object ID after : " + patientFence.getObjectId().toString());
+
+                            strFencesList.set(curPosFence, patientFence.getDescription());
+                            markerList.get(curPosFence).setPosition(patientFence.getCenter());
+                            markerList.get(curPosFence).setTitle(patientFence.getDescription());
+                            circlesList.get(curPosFence).setCenter(patientFence.getCenter());
+                            circlesList.get(curPosFence).setRadius(patientFence.getRadius());
+
+                            patientFenceList.set(curPosFence, patientFence);
+
+                            mTempMarker.remove();
+                            mTempCircle.remove();
+
+                            fenceLayout.setVisibility(View.GONE);
+                            ibtnMapCenter.setVisibility(View.VISIBLE);
+                            btnAdd.setVisibility(View.VISIBLE);
+                            btnCancel.setVisibility(View.GONE);
+                            editMode = false;
+
+                            toast("Edited fence successfully.");
+                        },
+                        throwable -> {
+                            Log.e(TAG, throwable.getMessage());
+                        }
+                );
     }
 
     /*
@@ -558,26 +541,49 @@ OnMapLongClickListener {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    mTempMarker.remove();
-                    mTempCircle.remove();
+                    int size = patientFenceList.size();
+                    String t = String.valueOf(size);
+                    toast(t);
+                    PatientFence fence = patientFenceList.get(curPosFence);
+                    fence.delete()
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    patientFence -> {
+                                        if (patientFence == null) {
+                                            mTempMarker.remove();
+                                            mTempCircle.remove();
 
-                    markerList.get(curPosFence).remove();
-                    circlesList.get(curPosFence).remove();
+                                            markerList.get(curPosFence).remove();
+                                            circlesList.get(curPosFence).remove();
 
-                    markerList.remove(curPosFence);
-                    circlesList.remove(curPosFence);
+                                            markerList.remove(curPosFence);
+                                            circlesList.remove(curPosFence);
 
-                    strFencesList.remove(curPosFence);
+                                            strFencesList.remove(curPosFence);
 
-                    fenceLayout.setVisibility(View.GONE);
-                    ibtnMapCenter.setVisibility(View.VISIBLE);
-                    btnAdd.setVisibility(View.VISIBLE);
-                    btnCancel.setVisibility(View.GONE);
-                    editMode = false;
+                                            patientFenceList.remove(curPosFence);
 
-                    toast("Deleted successfully.");
+                                            fenceLayout.setVisibility(View.GONE);
+                                            ibtnMapCenter.setVisibility(View.VISIBLE);
+                                            btnAdd.setVisibility(View.VISIBLE);
+                                            btnCancel.setVisibility(View.GONE);
+                                            editMode = false;
 
-                    showMarkers(false);
+                                            toast("Deleted successfully.");
+
+                                            int size1 = patientFenceList.size();
+                                            String t1 = String.valueOf(size1);
+                                            toast(t1);
+
+                                            showMarkers(false);
+                                        }
+                                    },
+                                    throwable -> {
+                                        Log.e(TAG, throwable.getMessage());
+                                    }
+                            );
+
                 }});
 
             b.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -586,7 +592,6 @@ OnMapLongClickListener {
                 {
                     dialog.cancel();
                 }
-
             });
 
             b.create().show();
@@ -640,8 +645,12 @@ OnMapLongClickListener {
     * Changing radius and title of fence when seek bar changes.
     * */
     private void changedSeekBar(int progress) {
-        mTempCircle.setRadius((double) progress);
-        txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
+        try {
+            mTempCircle.setRadius((double) progress);
+            txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
+        } catch (Exception e){
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     /*
@@ -848,12 +857,14 @@ OnMapLongClickListener {
 //            }
 //        });
 
+
+/* Something is wrong here...
         if (hideMarker) {
             marker.setVisible(false);
         } else {
             marker.setVisible(true);
             marker.setPosition(new LatLng(toPosition.latitude, toPosition.longitude));
-        }
+        }*/
     }
 
     /**
