@@ -170,6 +170,61 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         }
     }
 
+
+    //edit
+    @Test
+    public void testEdit() {
+
+        //setUp
+        PatientFence fence = new PatientFence(patient, center, radius)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(fence.getObjectId());
+
+
+        //read test
+        List<PatientFence> patientFences = PatientFence.getPatientFences(patient).toBlocking().single();
+
+        assertNotNull(patientFences);
+        assertEquals(patientFences.size(), 1);
+
+        PatientFence fenceToEdit = patientFences.get(0);
+        assertEquals(fenceToEdit.getPatient().getObjectId(), patient.getObjectId());
+        assertEquals(fenceToEdit.getCenter(), center);
+        assertEquals(fenceToEdit.getRadius(), radius);
+
+        fenceToEdit.setCenter(center1);
+        fenceToEdit.setRadius(radius1);
+        fenceToEdit.save().toBlocking().single();
+
+        assertEquals(fenceToEdit.getObjectId(), fence.getObjectId());
+
+
+        //re-read
+        List<PatientFence> patientFences1 = PatientFence.getPatientFences(patient).toBlocking().single();
+
+        assertNotNull(patientFences1);
+        assertEquals(patientFences1.size(), 1);
+
+        PatientFence retrievedFence = patientFences.get(0);
+        assertEquals(retrievedFence.getPatient().getObjectId(), patient.getObjectId());
+        assertEquals(retrievedFence.getCenter(), center1);
+        assertEquals(retrievedFence.getRadius(), radius1);
+
+
+        //tearDown
+
+        try {
+            assertNull(fence.delete().toBlocking().single());
+            assertNull(fence.getObjectId());
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
+    }
+
     @After
     protected void tearDown() throws Exception {
         try {
