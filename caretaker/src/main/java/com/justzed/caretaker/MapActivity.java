@@ -408,10 +408,6 @@ OnMapLongClickListener {
                     LatLng center = mTempCircle.getCenter();
                     double radius = mTempCircle.getRadius();
 
-                    int size = patientFenceList.size();
-                    String t = String.valueOf(size);
-                    toast(t);
-
                     new PatientFence(patient, mTempCircle.getCenter(),
                                         mTempCircle.getRadius(),
                                         txtFenceTitle.getText().toString())
@@ -438,10 +434,6 @@ OnMapLongClickListener {
                                         addMode = false;
 
                                         toast("Saved fence successfully.");
-
-                                        int size1 = patientFenceList.size();
-                                        String t1 = String.valueOf(size1);
-                                        toast(t1);
                                     },
                                     throwable -> {
                                         Log.e(TAG, throwable.getMessage());
@@ -487,7 +479,6 @@ OnMapLongClickListener {
         double radius = mTempCircle.getRadius();
 
         PatientFence fence = patientFenceList.get(curPosFence);
-        toast("EDIT object ID before : " + fence.getObjectId().toString());
 
         fence.setDescription(title);
         fence.setCenter(center);
@@ -498,8 +489,6 @@ OnMapLongClickListener {
                 .subscribe(
                         patientFence -> {
                             // updates the object in the list
-                            toast("EDIT object ID after : " + patientFence.getObjectId().toString());
-
                             strFencesList.set(curPosFence, patientFence.getDescription());
                             markerList.get(curPosFence).setPosition(patientFence.getCenter());
                             markerList.get(curPosFence).setTitle(patientFence.getDescription());
@@ -541,9 +530,6 @@ OnMapLongClickListener {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    int size = patientFenceList.size();
-                    String t = String.valueOf(size);
-                    toast(t);
                     PatientFence fence = patientFenceList.get(curPosFence);
                     fence.delete()
                             .subscribeOn(Schedulers.io())
@@ -572,10 +558,6 @@ OnMapLongClickListener {
 
                                             toast("Deleted successfully.");
 
-                                            int size1 = patientFenceList.size();
-                                            String t1 = String.valueOf(size1);
-                                            toast(t1);
-
                                             showMarkers(false);
                                         }
                                     },
@@ -583,7 +565,6 @@ OnMapLongClickListener {
                                         Log.e(TAG, throwable.getMessage());
                                     }
                             );
-
                 }});
 
             b.setNegativeButton("No", new DialogInterface.OnClickListener() {

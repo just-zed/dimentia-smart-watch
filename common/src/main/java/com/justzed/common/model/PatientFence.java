@@ -61,7 +61,9 @@ public class PatientFence {
         return radius;
     }
 
-    public String getDescription(){return description;}
+    public String getDescription() {
+        return description;
+    }
 
     public String getObjectId() {
         return objectId;
@@ -84,7 +86,7 @@ public class PatientFence {
         this.description = null;
     }
 
-    public PatientFence(Person patient, LatLng center, double radius, String description){
+    public PatientFence(Person patient, LatLng center, double radius, String description) {
         this.patient = patient;
         this.center = center;
         this.radius = radius;
@@ -108,7 +110,9 @@ public class PatientFence {
         parseObject.put(KEY_PATIENT, patient.getParseObject());
         parseObject.put(KEY_CENTER, LocationHelper.toParseGeoPoint(center));
         parseObject.put(KEY_RADIUS, radius);
-        parseObject.put(KEY_DESCRIPTION, description);
+        if (description != null) {
+            parseObject.put(KEY_DESCRIPTION, description);
+        }
         return parseObject;
     }
 
@@ -128,7 +132,12 @@ public class PatientFence {
      */
     public Observable<PatientFence> save() {
         return Observable.create(subscriber -> {
-            ParseObject parseObject = this.serialize();
+            ParseObject parseObject;
+            if (objectId == null) {
+                parseObject = this.serialize();
+            } else {
+                parseObject = this.serialize(this.parseObject);
+            }
             parseObject.saveInBackground(e -> {
                 if (e == null) {
                     objectId = parseObject.getObjectId();
