@@ -102,8 +102,7 @@ public class PatientService extends IntentService {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientLocation -> {
                     checkGeofenceStatus(
-                            new double[]{patientLocation.getLatLng().latitude,
-                                    patientLocation.getLatLng().longitude}, patientLocation.getPatient());
+                            patientLocation, patientLocation.getPatient());
                 });
 
 
@@ -116,7 +115,7 @@ public class PatientService extends IntentService {
      * If leaves all geofences, a notification is sent to the other device once.
      * If the device re-enters the geofences, a notification is sent to the other device once.
      */
-    private void checkGeofenceStatus(double[] myLocation, Person patient) {
+    private void checkGeofenceStatus(PatientLocation myLocation, Person patient) {
 
         @GeofencingCheck.StatusChange
         final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
