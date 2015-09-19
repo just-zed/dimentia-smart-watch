@@ -19,9 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Tristan.
+ * This class tests the geofencingCheck class.
+ *
+ * @author Tristan Dubois
+ * @version 1.0
+ * @since 2015-09-03
  */
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class GeofencingCheckTest extends TestCase {
@@ -47,7 +50,11 @@ public class GeofencingCheckTest extends TestCase {
     private final double[] POSITION_NEGATIVE = new double[]{-27.471011,-153.023449};
     private final double[] POSITION_SMALL = new double[]{0.0000415,0.0001535};
 
-
+    /**
+     * Sets up the tests.
+     *
+     * @return Nothing.
+     */
     @Before
     public void setUp(){
         geofenceCheck = new GeofencingCheck();
@@ -56,20 +63,21 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes no exceptions are thrown when running checkGeofence with an arbitrary
      * location.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckGeofenceExceptionTest(){
         geofenceCheck.checkGeofence(createALocation(POSITION_ONE), patient);
     }
+
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes no exceptions are thrown when running getGeofencesFromDatabase
      * with One item.
+     *
+     * @return Nothing.
      */
     @Test
     public void testGetGeofencesFromDatabaseOneItemExeption(){
@@ -81,10 +89,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes no exceptions are thrown when running getGeofencesFromDatabase
      * with many items.
+     *
+     * @return Nothing.
      */
     @Test
     public void testGetGeofencesFromDatabaseManyItemsExeption(){
@@ -98,10 +106,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes no exceptions are thrown when running getGeofencesFromDatabase
      * with no items.
+     *
+     * @return Nothing.
      */
     @Test
     public void testGetGeofencesFromDatabaseNoItemsExeption(){
@@ -111,10 +119,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE with only one
      * geofence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesSingleGeofenceInside(){
@@ -128,10 +136,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an OUTSIDE_FENCE with only one
      * geofence
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesSingleGeofenceOutside(){
@@ -144,10 +152,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an Inside_FENCE with multiple
      * geofences
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesMultipleGeofenceInside(){
@@ -162,10 +170,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an OUTSIDE_FENCE with multiple
      * geofence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesMultipleGeofenceOutside(){
@@ -180,9 +188,9 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE with a huge geofence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesHugeGeofence(){
@@ -195,9 +203,9 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an OUTSIDE_FENCE with a far away geofence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesFarGeofence(){
@@ -210,9 +218,9 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE with a small geofence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesSmallGeofence(){
@@ -225,10 +233,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE with a geofence in the negative
      * lat long
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesNegativeGeofence(){
@@ -241,10 +249,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns the same result as it has before when
      * there is no geofences after being inside a fence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesNoGeofencesInside(){
@@ -261,10 +269,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if the checkIfInsideGeofences returns the same result as it has before when
      * there is no geofences after being outside fence.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfInsideGeofencesNoGeofencesOutside(){
@@ -279,10 +287,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if checkIfStatusHasChanged returns NOTHING_HAS_CHANGED when both the current
      * and previous status are INSIDE_FENCE.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfStatusHasChangedBothInside() {
@@ -295,10 +303,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if checkIfStatusHasChanged returns NOTHING_HAS_CHANGED when both the current
      * and previous status are OUTSIDE_FENCE.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfStatusHasChangedBothOutside() {
@@ -311,10 +319,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if checkIfStatusHasChanged returns EXITED_A_FENCE when both the current status is
      * OUTSIDE_FENCE and previous status is INSIDE_FENCE.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfStatusHasChangedBothInsideToOutside() {
@@ -327,10 +335,10 @@ public class GeofencingCheckTest extends TestCase {
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Test passes if checkIfStatusHasChanged returns REENTERED_A_FENCE when both the current status is
      * INSIDE_FENCE and previous status is OUTSIDE_FENCE.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckIfStatusHasChangedBothOutsideToInside() {
@@ -343,6 +351,12 @@ public class GeofencingCheckTest extends TestCase {
         assertTrue(result == GeofencingCheck.REENTERED_A_FENCE);
     }
 
+    /**
+     * This method creates a new PatientFence object.
+     *
+     * @param geofenceData This contains the coordinates and radius for a geofence.
+     * @return PatientFence This returns a PatientFence with the radius and coordinates of the geofenceData.
+     */
     private PatientFence createAGeofence(double[] geofenceData){
         final int LATITUDE = 0;
         final int LONGITUDE = 1;
@@ -351,6 +365,12 @@ public class GeofencingCheckTest extends TestCase {
         return new PatientFence(patient, new LatLng(geofenceData[LATITUDE],geofenceData[LONGITUDE]), geofenceData[CENTER]);
     }
 
+    /**
+     * This method creates a new PatientLocation object.
+     *
+     * @param locationData This contains the coordinates for a location.
+     * @return PatientFence This returns a PatientLocation with the coordinates of the locationData.
+     */
     private PatientLocation createALocation(double[] locationData){
         final int LATITUDE = 0;
         final int LONGITUDE = 1;

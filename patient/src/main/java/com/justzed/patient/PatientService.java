@@ -109,34 +109,42 @@ public class PatientService extends IntentService {
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This method runs all the methods needed to check whether the device's status has changed.
-     * If leaves all geofences, a notification is sent to the other device once.
+     * If the patient leaves all geofences, a notification is sent to the other device once.
      * If the device re-enters the geofences, a notification is sent to the other device once.
+     * If the caretaker has turned off geofence checks, no checks will be made.
+     *
+     * @param myLocation This is the location of a patient.
+     * @param patient This is the Person database details of the patient.
+     * @return Nothing.
      */
-    private void checkGeofenceStatus(PatientLocation myLocation, Person patient) {
+    public void checkGeofenceStatus(PatientLocation myLocation, Person patient){
+        if (/**TODO change this to the correct get method*//*patient.getDisableGeofenceChecks() == */false) {
 
-        @GeofencingCheck.StatusChange
-        final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
+            @GeofencingCheck.StatusChange
+            final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
 
-        String channelName = "patient-" + patient.getUniqueToken();
+            String channelName = "patient-" + patient.getUniqueToken();
 
-        switch (geofenceStatus) {
-            case GeofencingCheck.NOTHING_HAS_CHANGED:
-                //Nothing
-                break;
-            case GeofencingCheck.NO_GEOFENCES_FOUND:
-                //Nothing
-                break;
-            case GeofencingCheck.EXITED_A_FENCE:
-                //Exited a fence notification
-                NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
-                break;
-            case GeofencingCheck.REENTERED_A_FENCE:
-                //The patient has re-entered a fence notification
-                NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
-                break;
+            switch (geofenceStatus) {
+                case GeofencingCheck.NOTHING_HAS_CHANGED:
+                    //Nothing
+                    break;
+                case GeofencingCheck.NO_GEOFENCES_FOUND:
+                    //Nothing
+                    break;
+                case GeofencingCheck.EXITED_A_FENCE:
+                    //Exited a fence notification
+                    NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
+                    break;
+                case GeofencingCheck.REENTERED_A_FENCE:
+                    //The patient has re-entered a fence notification
+                    NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
+                    break;
+            }
+        }
+        else{
+            geofenceCheck.setPreviouslyInAFence(GeofencingCheck.INSIDE_FENCE);
         }
     }
 }

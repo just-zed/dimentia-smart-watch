@@ -10,9 +10,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Created by Tristan on 14/08/2015.
- *
  * This class is used to test the TokenSenderActivity Class.
+ *
+ * @author Tristan Dubois
+ * @version 3.0
+ * @since 2015-08-14
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -46,9 +48,9 @@ public class TokenSenderActivityTest extends ActivityTestCase{
 
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if any exceptions occur.
+     *
+     * @return Nothing.
      */
     @Test
     public void testSendPatientDataWithNFCException() {
@@ -57,9 +59,9 @@ public class TokenSenderActivityTest extends ActivityTestCase{
 
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if any exceptions occur.
+     *
+     * @return Nothing.
      */
     @Test
     public void testCheckNfcException() {
@@ -67,9 +69,9 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if any exceptions occur.
+     *
+     * @return Nothing.
      */
     @Test
     public void testMessageBuilderException(){
@@ -78,10 +80,10 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if a normal string cannot be retrieved from the magic or does not equal the
      * expected value.
+     *
+     * @return Nothing.
      */
     @Test
     public void testMessageBuilderCheckContent(){
@@ -92,9 +94,9 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if the message is null when it is retrieved.
+     *
+     * @return Nothing.
      */
     @Test
     public void testMessageBuilderCheckNotNull(){
@@ -105,10 +107,10 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if a Small string cannot be retrieved from the magic or does not equal the
      * expected value.
+     *
+     * @return Nothing.
      */
     @Test
     public void testMessageBuilderCheckSmallContent(){
@@ -119,10 +121,10 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if a Large string cannot be retrieved from the magic or does not equal the
      * expected value.
+     *
+     * @return Nothing.
      */
     @Test
     public void testMessageBuilderCheckLargeContent(){
@@ -133,10 +135,10 @@ public class TokenSenderActivityTest extends ActivityTestCase{
     }
 
     /**
-     * Created by Tristan Dubois.
-     *
      * Fail the test if an Empty string cannot be retrieved from the magic or does not equal the
      * expected value.
+     *
+     * @return Nothing.
      */
     @Test
     public void testMessageBuilderCheckEmptyContent(){
