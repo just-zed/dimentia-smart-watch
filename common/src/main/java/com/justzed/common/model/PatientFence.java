@@ -11,23 +11,26 @@ import java.util.List;
 
 import rx.Observable;
 
+
 /**
- * PatientFence object + data layer
+ * PatientFence object + data layer.
  * <p>
  * Geo fences are saved in circles only.
  * Each database row contains patient, center point and radius.
- * <p>
- * Created by freeman on 8/23/15.
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-08-23
  */
 public class PatientFence {
-
-
+    //Constants
     private static final String KEY_PERSONFENCE = "PatientFence";
     private static final String KEY_PATIENT = "patient";
     private static final String KEY_CENTER = "center";
     private static final String KEY_RADIUS = "radius";
     private static final String KEY_DESCRIPTION = "description";
 
+    //Variables
     private Person patient;
 
     public void setCenter(LatLng center) {
@@ -126,7 +129,7 @@ public class PatientFence {
     }
 
     /**
-     * save PatientFence
+     * This method saves to the PatientFence.
      *
      * @return PatientFence Observable
      */
@@ -151,7 +154,7 @@ public class PatientFence {
     }
 
     /**
-     * delete PatientFence
+     * This method deletes PatientFence.
      *
      * @return PatientFence Observable
      */
@@ -181,9 +184,9 @@ public class PatientFence {
     }
 
     /**
-     * get whole list of geo fences by patient
+     * This method gets the whole list of geo fences by patient.
      *
-     * @param patient patient
+     * @param patient a Person Object
      * @return List of PatientFence Observable
      */
     public static Observable<List<PatientFence>> getPatientFences(Person patient) {

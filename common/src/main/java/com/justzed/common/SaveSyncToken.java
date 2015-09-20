@@ -7,11 +7,13 @@ import android.telephony.TelephonyManager;
 import java.util.UUID;
 
 /**
- * Created by Shirin on
- * <p>
+
  * This class adds a new row to the PersonLink table of the database and
  * syncs the DB to both devices.
- * <p>
+ *
+ * @author Shirin Azizmohammad
+ * @version 1.0
+ * @since 2015-08-15
  */
 public class SaveSyncToken {
 
@@ -25,7 +27,7 @@ public class SaveSyncToken {
      * generate unique id by ANDROID_ID
      * <p>
      *
-     * @return
+     * @return a String containing the device Id.
      */
     public String findMyDeviceId() {
         /**

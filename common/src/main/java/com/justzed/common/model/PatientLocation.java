@@ -9,13 +9,13 @@ import com.parse.ParseQuery;
 import rx.Observable;
 
 /**
- * Patient Location object + data access layer
- * <p>
+ * Patient Location object + data access layer.
  * Database contains list of all saved patient location, data can be sorted by CreatedAt timestamp,
- * the latest entry contains the patient's latest known location
- * <p>
- * <p>
- * Created by freeman on 8/23/15.
+ * the latest entry contains the patient's latest known location.
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-08-23
  */
 public class PatientLocation {
 
@@ -80,7 +80,7 @@ public class PatientLocation {
     }
 
     /**
-     * save this to database
+     * This method saves this to database.
      *
      * @return PatientLocation Observable
      */
@@ -102,7 +102,7 @@ public class PatientLocation {
 
 
     /**
-     * delete from database
+     * This method deletes from database.
      *
      * @return PatientLocation Observable (null for success)
      */
@@ -132,7 +132,7 @@ public class PatientLocation {
     }
 
     /**
-     * get latest location of patient
+     * This method gets the latest location of patient.
      *
      * @param patient patient as Person
      * @return PatientLocation Observable

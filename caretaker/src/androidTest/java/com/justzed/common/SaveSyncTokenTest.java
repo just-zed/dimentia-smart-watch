@@ -16,7 +16,11 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 /**
- * Created by Shirin on 8/30/2015.
+ * This class tests the SaveSyncToken Class.
+ *
+ * @author Shirin Azizmohammad
+ * @version 1.0
+ * @since 2015-08-30
  */
 @RunWith(AndroidJUnit4.class)
 public class SaveSyncTokenTest extends ActivityTestCase {
@@ -24,12 +28,22 @@ public class SaveSyncTokenTest extends ActivityTestCase {
     public SaveSyncTokenTest() {
     }
 
+    /**
+     * Sets up the tests.
+     *
+     * @return Nothing.
+     */
     @Before
     protected void setUp() throws Exception {
         super.setUp();
         //setup
     }
 
+    /**
+     * Fails if a Exception occurs.
+     *
+     * @return Nothing.
+     */
     @Test
     public void testSaveSyncToken(){
         //put tests here

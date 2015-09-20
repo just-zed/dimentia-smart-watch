@@ -16,6 +16,10 @@ import org.junit.runner.RunWith;
 /**
  * Created by freeman on 8/16/15.
  * tests covers CRD (no update) operations for Person
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-08-16
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
