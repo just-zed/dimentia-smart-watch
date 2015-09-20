@@ -18,11 +18,11 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,11 +59,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private Marker patientMarker;
     boolean test = false;
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Declare variables for my functions.
-    * */
     //==================== Brian Tran==============
     private LinearLayout fenceLayout;
     private LinearLayout fenceModeLayout;
@@ -125,11 +120,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     // ==================== Functions Brian Tran =======================
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Set ClickListener for buttons.
-    * */
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to set ClickListener for buttons.
+     */
     OnClickListener btnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -160,11 +155,10 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
     };
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Set ChangeListener for Seek Bar (adjusting radius of fence).
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to set ChangeListener for Seek Bar (adjusting radius of fence).
+     */
     OnSeekBarChangeListener skbChangeListener = new OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -182,45 +176,64 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
     };
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Set MapClickListener for Adding and Editing Fences.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to Set MapClickListener for Adding and Editing Fences.
+     *
+     * @param latLng The location which user clicked on the map.
+     */
     @Override
     public void onMapClick(LatLng latLng) {
         clickMap(latLng);
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Set MapLongClickListener for going to EDIT AND DELETE FENCE MODE.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to set MapLongClickListener for going to
+     * EDIT AND DELETE FENCE MODE.
+     *
+     * @param latLng The location which user clicked on the map.
+     */
     @Override
     public void onMapLongClick(LatLng latLng) {
         if (!editMode) {
-            int size = circlesList.size();
-            for (int i = 0; i < size; i++) {
-                LatLng center = circlesList.get(i).getCenter();
-                double radius = circlesList.get(i).getRadius();
-                float[] distance = new float[1];
-                Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
-
-                boolean clicked = distance[0] < radius;
-                if (clicked) {
-                    clickEditButton(i);
-                    break;
-                }
+            int pos = posFenceWhenClicked(latLng);
+            if (pos != -1) {
+                clickEditButton(pos);
             }
         }
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Set ChangeListener for Seek Bar (adjust radius of fence).
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to recognise the position of the fence
+     * when it is clicked.
+     *
+     * @param latLng The location which user clicked on the map.
+     * @return int the position of the fence in circleList.
+     */
+    private int posFenceWhenClicked(LatLng latLng) {
+        int pos = -1;
+        int size = circlesList.size();
+        for (int i = 0; i < size; i++) {
+            LatLng center = circlesList.get(i).getCenter();
+            double radius = circlesList.get(i).getRadius();
+            float[] distance = new float[1];
+            Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
+
+            boolean clicked = distance[0] < radius;
+            if (clicked) {
+                pos = i;
+                break;
+            }
+        }
+        return pos;
+    }
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to setup Geofences activity on caretaker app.
+     */
     private void initFenceActivitySetup() {
         ibtnMapCenter = (ImageButton) findViewById(R.id.mapCenterButton);
 
@@ -249,11 +262,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
     }
 
-    /*
-     * Created by Nguyen Nam Cuong Tran
-     * <p>
-     * Initializing some lists for needed fence functions.
-     * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to initialise some lists for needed fence functions
+     * and show the existing Geofences which are in database on the map.
+     */
     private void initFencesList() {
         strFencesList = new ArrayList<String>();
         markerList = new ArrayList<Marker>();
@@ -286,23 +299,33 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 });
     }
 
-    /*
-     * Created by Nguyen Nam Cuong Tran
-     * <p>
-     * Draw a marker.
-     * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to draw a marker on the map.
+     *
+     * @param map    An object of Google map.
+     * @param center The location of the marker on the map.
+     * @param title  The title of the marker.
+     * @return Marker A marker on the map.
+     */
     private Marker drawMarker(GoogleMap map, LatLng center, String title) {
         return map.addMarker(new MarkerOptions()
-                .position(center)
-                .title(title)
-                .visible(false));
+                        .position(center)
+                        .title(title)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                        .visible(false)
+        );
     }
 
-    /*
-     * Created by Nguyen Nam Cuong Tran
-     * <p>
-     * Draw a circle.
-     * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to draw a circle on the map.
+     *
+     * @param map    An object of Google map.
+     * @param center The center of the circle on the map.
+     * @param radius The radius of the circle.
+     * @return Circle A circle on the map.
+     */
     private Circle drawCircle(GoogleMap map, LatLng center, double radius) {
         return map.addCircle(new CircleOptions()
                 .center(center)
@@ -312,12 +335,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .strokeWidth(2));
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of clicking Add button.
-    * Going to Add mode.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of clicking Add button.
+     * Going to Add mode.
+     */
     private void clickAddButton() {
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
@@ -329,15 +351,15 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         skbFenceRadius.setProgress(RADIUS_MIN);
         skbFenceRadius.setEnabled(false);
         addMode = true;
-
-        showMarkers(true);
+        showMarkers(false);
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Show or hide all markers on the Map.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to show or hide all markers on the Map.
+     *
+     * @param flag True (Show markers) or False (Hide markers).
+     */
     private void showMarkers(boolean flag) {
         int size = markerList.size();
         for (int i = 0; i < size; i++) {
@@ -345,26 +367,28 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Checking title of fence is existed.
-    * Checking title of fence is blank.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to check title of fence is blank.
+     *
+     * @param title The title of the fence on the map.
+     * @return boolean True (Not blank) or False (Blank).
+     */
     private boolean checkTitleFence(String title) {
-        if ((title.trim().length() == 0) || (strFencesList.contains(title))) {
+        if (title.trim().length() == 0) {
             return false;
         } else {
             return true;
         }
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Edit Mode.
-    * Editing fences.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Edit Mode.
+     * Editing fences.
+     *
+     * @param pos The position of the fence in Lists.
+     */
     private void clickEditButton(int pos) {
 
         fenceLayout.setVisibility(View.VISIBLE);
@@ -374,36 +398,30 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnCancel.setVisibility(View.VISIBLE);
         txvFenceMode.setText("EDIT MODE");
         editMode = true;
+        showMarkers(false);
 
         curPosFence = pos;
         curTitleFence = strFencesList.get(pos);
         curCenFence = circlesList.get(pos).getCenter();
         curRadFence = circlesList.get(pos).getRadius();
 
+        markerList.get(pos).setVisible(true);
+
         drawTempMarker(mMap, curCenFence, curTitleFence);
         drawTempFence(mMap, curCenFence, curRadFence);
-
-        // Animating to the touched position
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(curCenFence));
 
         txtFenceTitle.setText(curTitleFence);
         int i = (int) curRadFence;
         skbFenceRadius.setProgress(i);
         String t = Integer.toString(i);
-        txvFenceRadius.setText(t);
-
-        // Moving CameraPosition to touched position
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curCenFence, 14));
-
-        showMarkers(true);
+        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Save Button.
-    * Saving fence. There are 2 mode: Add mode and Edit mode.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Save Button.
+     * Saving fence. There are 2 mode: Add mode and Edit mode.
+     */
     private void clickSaveButton() {
         if (addMode) {
             try {
@@ -446,7 +464,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                                     }
                             );
                 } else {
-                    toast("The title is blank or already. Please type another title of the fence.");
+                    toast("The title is blank. Please type the title of the fence.");
                 }
             } catch (Exception e) {
                 Log.e(TAG, "clickSaveButton: addMode is wrong.");
@@ -455,14 +473,10 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         if (editMode) {
             try {
-                if (txtFenceTitle.getText().toString().trim().contentEquals(curTitleFence.toString())) {
+                if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
                     saveEditMode();
                 } else {
-                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
-                        saveEditMode();
-                    } else {
-                        toast("The title is blank or already. Please type another title of the fence.");
-                    }
+                    toast("The title is blank. Please type the title of the fence.");
                 }
             } catch (Exception e) {
                 Log.e(TAG, "clickSaveButton: editMode is wrong.");
@@ -471,14 +485,13 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         showMarkers(false);
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Save Button.
-    * Saving fence in Edit mode.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Save Button.
+     * Saving fence in Edit mode.
+     */
     private void saveEditMode() {
-        toast("saveEditMode");
+        //toast("saveEditMode");
 
         String title = txtFenceTitle.getText().toString();
         LatLng center = mTempCircle.getCenter();
@@ -520,12 +533,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 );
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Delete Button.
-    * Deleting fence in Edit mode.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Delete Button.
+     * Deleting fence in Edit mode.
+     */
     private void clickDeleteButton() {
         try {
             AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
@@ -587,23 +599,20 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Clear Button.
-    * Clearing content of fence title.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Clear Button.
+     * Clearing textbox's content of the fence title.
+     */
     private void clickClearButton() {
         txtFenceTitle.setText("");
-        toast("Clear Button");
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Cancel Button.
-    * Canceling Add mode and Edit mode to go back the Map View.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Cancel Button.
+     * Canceling Add mode and Edit mode to go back the Map View.
+     */
     private void clickCancelButton() {
         fenceLayout.setVisibility(View.GONE);
         ibtnMapCenter.setVisibility(View.VISIBLE);
@@ -624,27 +633,31 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         showMarkers(false);
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of Radius Seek Bar.
-    * Changing radius and title of fence when seek bar changes.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Radius Seek Bar.
+     * Changing radius and title of fence when seek bar changes.
+     *
+     * @param progress The value of Seekbar progress.
+     */
     private void changedSeekBar(int progress) {
-        try {
+        if (progress >= 0) {
             mTempCircle.setRadius((double) progress);
-            txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress)
+                    + " meters.");
+        } else {
+            mTempCircle.setRadius(0.0);
+            txvFenceRadius.setText("Radius of fence : 0 meters.");
         }
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Implementing actions of clicking on map.
-    * Set location to draw or edit fence.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of clicking on map.
+     * Set location to draw or edit fence.
+     *
+     * @param latLng The location which user clicked on the map.
+     */
     public void clickMap(LatLng latLng) {
         if (mTempMarker != null) {
             mTempMarker.remove();
@@ -653,10 +666,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         if (mTempCircle != null) {
             mTempCircle.remove();
         }
-        // Animating to the touched position
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        // Moving CameraPosition to touched position
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
+        if (!addMode && !editMode) {
+            int pos = posFenceWhenClicked(latLng);
+            if (pos != -1) {
+                showMarkers(false);
+                markerList.get(pos).setVisible(true);
+            }
+        }
 
         if (addMode) {
             try {
@@ -668,7 +685,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 int i = (int) mTempCircle.getRadius();
                 skbFenceRadius.setProgress(i);
                 String t = Integer.toString(i);
-                txvFenceRadius.setText("Radius of fence : " + t);
+                txvFenceRadius.setText("Radius of fence : " + t + " meters.");
             } catch (Exception e) {
                 Log.e(TAG, "clickMap: addMode is Wrong.");
             }
@@ -682,7 +699,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 int i = (int) mTempCircle.getRadius();
                 skbFenceRadius.setProgress(i);
                 String t = Integer.toString(i);
-                txvFenceRadius.setText(t);
+                txvFenceRadius.setText("Radius of fence : " + t + " meters.");
             } catch (Exception e) {
                 Log.e(TAG, "clickMap: editMode is Wrong.");
             }
@@ -690,22 +707,29 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Drawing temporary marker for adding and editing fence.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran
+     * This method is used to draw temporary marker for adding and editing fence.
+     *
+     * @param mMap   An object of Google map.
+     * @param latLng The center of the temporary marker on the map.
+     * @param title  The title of the temporary marker.
+     */
     private void drawTempMarker(GoogleMap mMap, LatLng latLng, String title) {
         mTempMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
-                .title(title));
+                .title(title)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
     }
 
-    /*
-    * Created by Nguyen Nam Cuong Tran
-    * <p>
-    * Drawing temporary circle for adding and editing fence.
-    * */
+    /**
+     * Created by Nguyen Nam Cuong Tran
+     * This method is used to draw temporary circle for adding and editing fence.
+     *
+     * @param mMap   An object of Google map.
+     * @param latLng The center of the temporary circle on the map.
+     * @param radius The radius of the temporary circle.
+     */
     private void drawTempFence(GoogleMap mMap, LatLng latLng, double radius) {
         mTempCircle = mMap.addCircle(new CircleOptions()
                 .center(latLng)
@@ -790,8 +814,12 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private void showPatientOnMap(LatLng patientCurrentLocation) {
         try {
             if (patientMarker == null) {
-                //patientMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(X,Y)).title(getPatientName()));
-                patientMarker = mMap.addMarker(new MarkerOptions().position(patientCurrentLocation).title(getPatientName()));
+                patientMarker = mMap.addMarker(new MarkerOptions()
+                                .position(patientCurrentLocation)
+                                .title(getPatientName())
+                                .icon(BitmapDescriptorFactory
+                                        .defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                );
             } else {
                 updatePatientLocationOnMap(patientMarker, patientCurrentLocation, false);
             }
