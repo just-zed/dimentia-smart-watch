@@ -1,36 +1,36 @@
 package com.justzed.caretaker;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.graphics.Color;
-import android.view.View.OnClickListener;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -808,47 +808,12 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      */
     public void updatePatientLocationOnMap(final Marker marker, final LatLng toPosition,
                                            final boolean hideMarker) {
-//        final Handler handler = new Handler();
-//        final long start = SystemClock.uptimeMillis();
-//        Projection proj = mMap.getProjection();
-//        Point startPoint = proj.toScreenLocation(marker.getPosition());
-//        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-//        final long INTERPOLATION_DURATION = 500;
-//        final Interpolator interpolator = new LinearInterpolator();
-//
-//        handler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                long elapsed = SystemClock.uptimeMillis() - start;
-//                float t = interpolator.getInterpolation((float) elapsed
-//                        / INTERPOLATION_DURATION);
-//                double lng = t * toPosition.longitude + (1 - t)
-//                        * startLatLng.longitude;
-//                double lat = t * toPosition.latitude + (1 - t)
-//                        * startLatLng.latitude;
-//                marker.setPosition(new LatLng(lat, lng));
-//
-//                if (t < 1.0) {
-//                    // Post again 16ms later.
-//                    handler.postDelayed(this, 16);
-//                } else {
-//                    if (hideMarker) {
-//                        marker.setVisible(false);
-//                    } else {
-//                        marker.setVisible(true);
-//                    }
-//                }
-//            }
-//        });
-
-
-/* Something is wrong here...
         if (hideMarker) {
             marker.setVisible(false);
         } else {
             marker.setVisible(true);
             marker.setPosition(new LatLng(toPosition.latitude, toPosition.longitude));
-        }*/
+        }
     }
 
     /**
