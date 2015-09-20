@@ -106,6 +106,9 @@
             </intent-filter>
         </receiver>
 
+
+        <!-- Dialog Activity has to be a launcher activity because we want to launch it
+         outside an activity-->
         <activity
             android:name=".DialogActivity"
             android:label="@string/title_activity_dialog"
