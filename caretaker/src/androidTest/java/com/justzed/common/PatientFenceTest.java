@@ -17,8 +17,11 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 /**
- * Created by freeman on 8/16/15.
- * tests covers CRD (no update) operations for Person
+ * Tests covers CRD (no update) operations for Person
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-08-16
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -40,6 +43,11 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         super(Application.class);
     }
 
+    /**
+     * Sets up the tests.
+     *
+     * @return Nothing.
+     */
     @Before
     protected void setUp() throws Exception {
         super.setUp();
@@ -62,6 +70,11 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
     }
 
+    /**
+     * Tests the constructors
+     *
+     * @return Nothing.
+     */
     @Test
     public void testConstructer() {
         PatientFence fence = new PatientFence(patient, center, radius);
@@ -71,7 +84,11 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         assertEquals(fence.getRadius(), radius);
     }
 
-
+    /**
+     * Tests the create and delete methods
+     *
+     * @return Nothing.
+     */
     //create
     @Test
     public void testCreateDelete() {
@@ -116,6 +133,11 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
     }
 
+    /**
+     * Tests the read methods
+     *
+     * @return Nothing.
+     */
     //read
     @Test
     public void testRead() {
@@ -170,7 +192,11 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         }
     }
 
-
+    /**
+     * Tests the edit methods
+     *
+     * @return Nothing.
+     */
     //edit
     @Test
     public void testEdit() {
@@ -225,6 +251,11 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         }
     }
 
+    /**
+     * Tears down the test methods.
+     *
+     * @return Nothing.
+     */
     @After
     protected void tearDown() throws Exception {
         try {
