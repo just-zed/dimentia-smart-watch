@@ -1,49 +1,134 @@
-<!--<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <com.google.android.maps.MapView android:id="@+id/google_maps"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:apiKey="@string/google_maps_key"/>
+<?xml version="1.0" encoding="utf-8"?>
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/mapCenterButton"
-        android:src="@drawable/map_center"
-        android:contentDescription="@string/center_map_description"
-        android:background="@null"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="5dp" />
-</RelativeLayout>-->
-
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapActivity" >
+    tools:context=".MapActivity">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:id="@+id/map"
-        tools:context="com.justzed.caretaker.MapActivity"
+    <fragment
+        android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        tools:layout="@layout/activity_map" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.justzed.caretaker.MapActivity" />
 
-        <ImageButton
+    <ImageButton
+        android:id="@+id/mapCenterButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@null"
+        android:contentDescription="@string/center_map_description"
+        android:onClick="centerPatientMarker"
+        android:src="@drawable/map_center" />
+
+    <LinearLayout
+        android:id="@+id/fence_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="1"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fence_mode_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f0ffffff"
+                android:textAlignment="center"
+                android:textSize="25sp" />
+
+            <EditText
+                android:id="@+id/fence_title_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f0ffffff"
+                android:hint="Type title of fence here..."
+                android:text=""
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/fence_radius_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f0ffffff"
+                android:text="Radius of fence : "
+                android:textAlignment="center"
+                android:textSize="14sp" />
+
+            <SeekBar
+                android:id="@+id/fence_seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f0ffffff"
+                android:splitTrack="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/mapCenterButton"
-            android:src="@drawable/map_center"
-            android:contentDescription="@string/center_map_description"
-            android:background="@null"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:onClick="centerPatientMarker"
-            />
+            android:orientation="vertical">
 
-    </FrameLayout>
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/save" />
+
+            <Button
+                android:id="@+id/clear_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/clear" />
+
+            <Button
+                android:id="@+id/delete_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/fence_mode_layout"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="#80ffffff"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+
+</FrameLayout>

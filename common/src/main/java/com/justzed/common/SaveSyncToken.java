@@ -11,6 +11,7 @@ import java.util.UUID;
  * <p>
  * This class adds a new row to the PersonLink table of the database and
  * syncs the DB to both devices.
+ * <p>
  */
 public class SaveSyncToken {
 
@@ -20,7 +21,17 @@ public class SaveSyncToken {
         this.activity = activity;
     }
 
+    /**
+     * generate unique id by ANDROID_ID
+     * <p>
+     *
+     * @return
+     */
     public String findMyDeviceId() {
+        /**
+         * TODO: check for android permissions, so it won't throw permission exception in API 23+
+         */
+
         final TelephonyManager tm = (TelephonyManager) activity.getSystemService(Context.TELEPHONY_SERVICE);
 
         final String tmDevice, androidId;
@@ -32,45 +43,4 @@ public class SaveSyncToken {
 
         return deviceUuid.toString();
     }
-
-
-    //get the token from patient device
-    // tokensenderActivity token;
-    // token.....
-//    public String getPatientDeviceID() {
-//        //String PatientDeviceID =
-//        return "";
-//    }
-//
-//    String careTakerId = findMyDeviceId();
-//    String patientId = getPatientDeviceID();
-//
-//    public void inserToDB(String careTakerId, String patientId) {
-//        //ParseObject personLink = new ParseObject("PersonLink");
-//        //personLink.put("caretakerUniqueToken","deviceId" );
-//        // personLink.put("patientUniqueToken", "patientToken");
-//
-//        // personLink.saveInBackground();
-//
-//
-//        Person patient = Person.getByUniqueToken(patientId).toBlocking().first();
-//        Person caretaker = Person.getByUniqueToken(careTakerId).toBlocking().first();
-//
-//        PatientLink patientLink = new PatientLink(patient, caretaker).save().toBlocking().single();
-//
-//        /*
-//        Person patient1 = patientLink.getPatient();
-//        Person caretaker1 = patientLink.getCaretaker();
-//
-//        if (patient1.getType() == Person.PATIENT){
-//            //do something
-//        }
-//
-//        patient1.getUniqueToken();
-//        caretaker1.getUniqueToken();
-//
-//
-//        PatientLink patientLink1 = PatientLink.getByPatient(patient).toBlocking().single();
-//        */
-//    }
 }

@@ -1,14 +1,20 @@
 package com.justzed.common.model;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.justzed.common.LocationHelper;
 import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import rx.Observable;
 
 /**
+ * Patient Location object + data access layer
+ * <p>
+ * Database contains list of all saved patient location, data can be sorted by CreatedAt timestamp,
+ * the latest entry contains the patient's latest known location
+ * <p>
+ * <p>
  * Created by freeman on 8/23/15.
  */
 public class PatientLocation {
@@ -63,29 +69,21 @@ public class PatientLocation {
 
     private ParseObject serialize(ParseObject parseObject) {
         parseObject.put(KEY_PATIENT, patient.getParseObject());
-        parseObject.put(KEY_LATLNG, toParseGeoPoint(latLng));
+        parseObject.put(KEY_LATLNG, LocationHelper.toParseGeoPoint(latLng));
         return parseObject;
     }
 
     public static PatientLocation deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLocation(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
-                toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_LATLNG)));
+                LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_LATLNG)));
     }
 
-    public static LatLng toLatLng(ParseGeoPoint geoPoint) throws ParseException {
-        if (geoPoint != null) {
-            return new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-        } else {
-            return null;
-        }
-    }
-
-    public static ParseGeoPoint toParseGeoPoint(LatLng latLng) {
-        return new ParseGeoPoint(latLng.latitude, latLng.longitude);
-    }
-
-
+    /**
+     * save this to database
+     *
+     * @return PatientLocation Observable
+     */
     public Observable<PatientLocation> save() {
         return Observable.create(subscriber -> {
             ParseObject parseObject = this.serialize();
@@ -102,6 +100,12 @@ public class PatientLocation {
         });
     }
 
+
+    /**
+     * delete from database
+     *
+     * @return PatientLocation Observable (null for success)
+     */
     public Observable<PatientLocation> delete() {
         return Observable.create(subscriber -> {
             if (objectId == null) {
@@ -126,6 +130,13 @@ public class PatientLocation {
             });
         });
     }
+
+    /**
+     * get latest location of patient
+     *
+     * @param patient patient as Person
+     * @return PatientLocation Observable
+     */
 
     public static Observable<PatientLocation> getLatestPatientLocation(Person patient) {
         return Observable.create(subscriber -> {

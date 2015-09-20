@@ -71,10 +71,15 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lat, lng);
         LatLng latLng = new LatLng(lat, lng);
 
-        assertEquals(PatientLocation.toLatLng(parseGeoPoint).latitude, lat);
-        assertEquals(PatientLocation.toLatLng(parseGeoPoint).longitude, lng);
-        assertEquals(PatientLocation.toParseGeoPoint(latLng).getLatitude(), lat);
-        assertEquals(PatientLocation.toParseGeoPoint(latLng).getLongitude(), lng);
+        try {
+            assertEquals(LocationHelper.toLatLng(parseGeoPoint).latitude, lat);
+            assertEquals(LocationHelper.toLatLng(parseGeoPoint).longitude, lng);
+
+        } catch (ParseException e) {
+            assertNull(e.getMessage());
+        }
+        assertEquals(LocationHelper.toParseGeoPoint(latLng).getLatitude(), lat);
+        assertEquals(LocationHelper.toParseGeoPoint(latLng).getLongitude(), lng);
     }
 
     //create

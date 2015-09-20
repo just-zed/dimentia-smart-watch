@@ -3,6 +3,7 @@ package com.justzed.patient.internal.di;
 import com.justzed.common.ApiKeys;
 import com.justzed.patient.Application;
 import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 import javax.inject.Singleton;
 
@@ -19,10 +20,14 @@ public class ApplicationModule {
 
     public ApplicationModule(Application application) {
         this.application = application;
-        Parse.enableLocalDatastore(application);
+
+
         Parse.initialize(application,
                 ApiKeys.PARSE_API_TEST_APPLICATION_ID,
                 ApiKeys.PARSE_API_TEST_CLIENT_KEY);
+
+
+
     }
 
     @Provides

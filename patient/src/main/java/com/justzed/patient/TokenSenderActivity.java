@@ -13,7 +13,11 @@ import com.justzed.common.model.Person;
 //import com.parse.ParseClassName;
 
 /**
- * Created by Tristan on 13/08/2015.
+ * This class is used to push an NDEF Message to the Caretaker's device.
+ *
+ * @author Tristan Dubois
+ * @version 1.0
+ * @since 2015-08-13
  */
 public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNdefMessageCallback,
         NfcAdapter.OnNdefPushCompleteCallback {
@@ -25,6 +29,9 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
 
     /**
      * Main method to send the myInformation's info to the caretaker
+     *
+     * @param savedInstanceState This is a Bundle.
+     * @return Nothing.
      */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,10 +47,11 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     }
 
     /**
-     * Created by Tristan
-     * <p>
      * Main method used to send the myInformation's info to the caretaker.
+     *
+     * @return Nothing.
      */
+
     public void sendPatientDataWithNFC() {
         // Check for available NFC Adapter
         try {
@@ -73,9 +81,10 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     //Helper Methods
 
     /**
-     * Created by Tristan
-     * <p>
      * Checks wether the device has an NFC connection.
+     *
+     * @param deviceNfcAvailibility This is an NFC Adapter
+     * @return boolean This returns whether the device is NFC compatible and whether tje NFC is enabled.
      */
     public boolean checkNfc(NfcAdapter deviceNfcAvailibility) {
         try {
@@ -98,9 +107,10 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     }
 
     /**
-     * Created by Tristan
-     * <p>
      * NFC Method needed to get NfcAdapter.setNdefPushMessageCallback() to work.
+     *
+     * @param event This is an Nfc Event.
+     * @return NdefMessage This is an Ndef message containing the unique token.
      */
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
@@ -108,9 +118,10 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     }
 
     /**
-     * Created by Tristan
-     * <p>
      * Stores a string array inside an NDEF message.
+     *
+     * @param patientInformation This is a string containing the patient's information
+     * @return NdefMessage This returns an NdefMessage containing patientInformation.
      */
     public NdefMessage messageBuilder(String patientInformation) {
 
@@ -122,12 +133,24 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
 
     }
 
+    /**
+     * Show a toast message when the Ndef push message is complete
+     *
+     * @param event This is the Nfc Event being checked for completion
+     * @return Nothing.
+     */
     @Override
     public void onNdefPushComplete(NfcEvent event) {
         Toast.makeText(TokenSenderActivity.this, "Connection completed!", Toast.LENGTH_LONG).show();
         finishWithSuccess(true);
     }
 
+    /**
+     * Check if the connection was succesful
+     *
+     * @param status This is the status of the connection.
+     * @return Nothing.
+     */
     private void finishWithSuccess(boolean status) {
         this.setResult((status) ? RESULT_OK : RESULT_CANCELED);
         finish();
