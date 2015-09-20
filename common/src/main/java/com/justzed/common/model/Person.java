@@ -30,6 +30,12 @@ public class Person implements Parcelable {
     private static final String KEY_TYPE_ID = "typeId";
     private static final String KEY_UNIQUE_TOKEN = "uniqueToken";
 
+    private static final String KEY_DISABLE_GEOFENCE_CHECkS = "disableGeofenceChecks";
+
+    private boolean disableGeofenceChecks = false;
+
+
+
 
     @Override
     public int describeContents() {
@@ -38,19 +44,21 @@ public class Person implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{
-                this.getObjectId(),
-                this.getUniqueToken()
-        });
+        dest.writeString(this.getObjectId());
         dest.writeInt(this.getType());
+        dest.writeString(this.getUniqueToken());
+        dest.writeInt((disableGeofenceChecks)? 1: 0);
+
     }
 
     protected Person(Parcel in) {
-        String[] data = new String[2];
-        in.readStringArray(data);
-        objectId = data[0];
+
+
+        objectId = in.readString();
         type = parseType(in.readInt());
-        uniqueToken = data[1];
+        uniqueToken = in.readString();
+        disableGeofenceChecks = in.readInt() == 1? true:false;
+
     }
 
     public static final Creator<Person> CREATOR = new Creator<Person>() {
@@ -82,6 +90,7 @@ public class Person implements Parcelable {
 
     private ParseObject parseObject;
 
+
     public String getObjectId() {
         return objectId;
     }
@@ -107,6 +116,13 @@ public class Person implements Parcelable {
     public int getType() {
         return type;
     }
+    ///////////
+    @Type
+    public boolean getDisableGeofenceChecks(){
+        return disableGeofenceChecks;
+    }
+/////////////
+
 
     @Type
     public static int parseType(int typeId) {
@@ -118,6 +134,16 @@ public class Person implements Parcelable {
         }
     }
 
+    @Type
+    public static boolean parseDGCheck(boolean DisableGeofenceChecks) {
+        if (DisableGeofenceChecks == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     public String getUniqueToken() {
         return uniqueToken;
     }
@@ -128,11 +154,13 @@ public class Person implements Parcelable {
     }
 
 
-    public Person(ParseObject parseObject, @Type int type, String uniqueToken) {
+    public Person(ParseObject parseObject, @Type int type, String uniqueToken,boolean DisableGeofenceChecks ) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.type = type;
         this.uniqueToken = uniqueToken;
+        this.disableGeofenceChecks=DisableGeofenceChecks;
+
     }
 
     private ParseObject serialize() {
@@ -142,6 +170,7 @@ public class Person implements Parcelable {
     private ParseObject serialize(ParseObject person) {
         person.put(KEY_TYPE_ID, type);
         person.put(KEY_UNIQUE_TOKEN, uniqueToken);
+        person.put(KEY_DISABLE_GEOFENCE_CHECkS,disableGeofenceChecks);
         return person;
     }
 
@@ -149,7 +178,7 @@ public class Person implements Parcelable {
     public static Person deserialize(ParseObject parseObject) {
         return new Person(parseObject,
                 parseType(parseObject.getInt(KEY_TYPE_ID)),
-                parseObject.getString(KEY_UNIQUE_TOKEN));
+                parseObject.getString(KEY_UNIQUE_TOKEN),parseDGCheck(parseObject.getBoolean(KEY_DISABLE_GEOFENCE_CHECkS)));
     }
 
     /**
