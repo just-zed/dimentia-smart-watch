@@ -47,8 +47,7 @@ public class NfcActivity extends Activity {
 
         try {
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             toast("Something is wrong !!!");
         }
 
@@ -59,13 +58,14 @@ public class NfcActivity extends Activity {
         if (!mPrefs.contains(MainActivity.PREF_PERSON_KEY)) {
             // start main activity if pref key not present
             Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivityForResult(intent, REQ_CODE_MAIN);
         } else {
             caretakerToken = mPrefs.getString(MainActivity.PREF_PERSON_KEY, "");
         }
     }
 
-    public void receiveNdefMessage(){
+    public void receiveNdefMessage() {
         try {
             // Handle all of our received NFC intents in this activity.
             mNfcPendingIntent = PendingIntent.getActivity(this, 0,
@@ -79,8 +79,8 @@ public class NfcActivity extends Activity {
                 toast("Something is wrong !!!");
             }
             mNdefExchangeFilters = new IntentFilter[]{ndefDetected};
+        } catch (Exception e) {
         }
-        catch (Exception e){}
     }
 
     private void enableNdefExchangeMode() {
@@ -88,7 +88,7 @@ public class NfcActivity extends Activity {
     }
 
     private void disableNdefExchangeMode() {
-        if (NfcAdapter.getDefaultAdapter(this) != null){
+        if (NfcAdapter.getDefaultAdapter(this) != null) {
             mNfcAdapter.disableForegroundDispatch(this);
         }
     }
@@ -177,19 +177,16 @@ public class NfcActivity extends Activity {
                 // NFC is not available on the device.
                 toast("The device does not have NFC hardware.");
                 return false;
-            }
-            else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 // Android Beam feature is not supported.
                 toast("The device does not have Android Beam.");
                 return false;
-            }
-            else {
+            } else {
                 // NFC and Android Beam file transfer is supported.
                 toast("NFC and Android Beam are supported on your device.");
                 return true;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             toast("Something is wrong !!!");
             return false;
         }
@@ -217,8 +214,7 @@ public class NfcActivity extends Activity {
                 toast("NFC and Android Beam are supported on your device.");
                 return true;
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             toast("Something is wrong !!!");
             return false;
         }
@@ -226,10 +222,10 @@ public class NfcActivity extends Activity {
 
     // Toast method
     private void toast(String text) {
-        try{
+        try {
             Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        } catch (Exception toast) {
         }
-        catch (Exception toast){ }
     }
 
 

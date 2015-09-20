@@ -115,11 +115,11 @@ public class PatientService extends IntentService {
      * If the caretaker has turned off geofence checks, no checks will be made.
      *
      * @param myLocation This is the location of a patient.
-     * @param patient This is the Person database details of the patient.
+     * @param patient    This is the Person database details of the patient.
      * @return Nothing.
      */
-    public void checkGeofenceStatus(PatientLocation myLocation, Person patient){
-        if (/**TODO change this to the correct get method*//*patient.getDisableGeofenceChecks() == */false) {
+    public void checkGeofenceStatus(PatientLocation myLocation, Person patient) {
+        if (/**TODO change this to the correct get method*//*patient.getDisableGeofenceChecks() == */true) {
 
             @GeofencingCheck.StatusChange
             final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
@@ -142,8 +142,7 @@ public class PatientService extends IntentService {
                     NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
                     break;
             }
-        }
-        else{
+        } else {
             geofenceCheck.setPreviouslyInAFence(GeofencingCheck.INSIDE_FENCE);
         }
     }
