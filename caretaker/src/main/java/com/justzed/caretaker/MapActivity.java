@@ -29,7 +29,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 
 import java.util.ArrayList;
@@ -200,20 +199,34 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     @Override
     public void onMapLongClick(LatLng latLng) {
         if (!editMode) {
-            int size = circlesList.size();
-            for (int i = 0; i < size; i++) {
-                LatLng center = circlesList.get(i).getCenter();
-                double radius = circlesList.get(i).getRadius();
-                float[] distance = new float[1];
-                Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
-
-                boolean clicked = distance[0] < radius;
-                if (clicked) {
-                    clickEditButton(i);
-                    break;
-                }
+            int pos = posFenceWhenClicked(latLng);
+            if (pos != -1) {
+                clickEditButton(pos);
             }
         }
+    }
+
+        /*
+    * Created by Nguyen Nam Cuong Tran
+    * <p>
+    * Recognising the position of the fence when it is clicked.
+    * */
+    private int posFenceWhenClicked(LatLng latLng){
+        int pos = -1;
+        int size = circlesList.size();
+        for (int i = 0; i < size; i++) {
+            LatLng center = circlesList.get(i).getCenter();
+            double radius = circlesList.get(i).getRadius();
+            float[] distance = new float[1];
+            Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
+
+            boolean clicked = distance[0] < radius;
+            if (clicked) {
+                pos = i;
+                break;
+            }
+        }
+        return pos;
     }
 
     /*
@@ -329,8 +342,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         skbFenceRadius.setProgress(RADIUS_MIN);
         skbFenceRadius.setEnabled(false);
         addMode = true;
-
-        showMarkers(true);
+        showMarkers(false);
     }
 
     /*
@@ -352,7 +364,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     * Checking title of fence is blank.
     * */
     private boolean checkTitleFence(String title) {
-        if ((title.trim().length() == 0) || (strFencesList.contains(title))) {
+        if (title.trim().length() == 0) {
             return false;
         } else {
             return true;
@@ -374,28 +386,23 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnCancel.setVisibility(View.VISIBLE);
         txvFenceMode.setText("EDIT MODE");
         editMode = true;
+        showMarkers(false);
 
         curPosFence = pos;
         curTitleFence = strFencesList.get(pos);
         curCenFence = circlesList.get(pos).getCenter();
         curRadFence = circlesList.get(pos).getRadius();
 
+        markerList.get(pos).setVisible(true);
+
         drawTempMarker(mMap, curCenFence, curTitleFence);
         drawTempFence(mMap, curCenFence, curRadFence);
-
-        // Animating to the touched position
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(curCenFence));
 
         txtFenceTitle.setText(curTitleFence);
         int i = (int) curRadFence;
         skbFenceRadius.setProgress(i);
         String t = Integer.toString(i);
-        txvFenceRadius.setText(t);
-
-        // Moving CameraPosition to touched position
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(curCenFence, 14));
-
-        showMarkers(true);
+        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
     }
 
     /*
@@ -446,7 +453,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                                     }
                             );
                 } else {
-                    toast("The title is blank or already. Please type another title of the fence.");
+                    toast("The title is blank. Please type the title of the fence.");
                 }
             } catch (Exception e) {
                 Log.e(TAG, "clickSaveButton: addMode is wrong.");
@@ -455,14 +462,10 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         if (editMode) {
             try {
-                if (txtFenceTitle.getText().toString().trim().contentEquals(curTitleFence.toString())) {
+                if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
                     saveEditMode();
                 } else {
-                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
-                        saveEditMode();
-                    } else {
-                        toast("The title is blank or already. Please type another title of the fence.");
-                    }
+                    toast("The title is blank. Please type the title of the fence.");
                 }
             } catch (Exception e) {
                 Log.e(TAG, "clickSaveButton: editMode is wrong.");
@@ -478,7 +481,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     * Saving fence in Edit mode.
     * */
     private void saveEditMode() {
-        toast("saveEditMode");
+        //toast("saveEditMode");
 
         String title = txtFenceTitle.getText().toString();
         LatLng center = mTempCircle.getCenter();
@@ -595,7 +598,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     * */
     private void clickClearButton() {
         txtFenceTitle.setText("");
-        toast("Clear Button");
     }
 
     /*
@@ -631,11 +633,13 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     * Changing radius and title of fence when seek bar changes.
     * */
     private void changedSeekBar(int progress) {
-        try {
+        if (progress >= 0) {
             mTempCircle.setRadius((double) progress);
-            txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress)
+                        + " meters.");
+        } else {
+            mTempCircle.setRadius(0.0);
+            txvFenceRadius.setText("Radius of fence : 0 meters.");
         }
     }
 
@@ -653,10 +657,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         if (mTempCircle != null) {
             mTempCircle.remove();
         }
-        // Animating to the touched position
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        // Moving CameraPosition to touched position
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
+        if (!addMode && !editMode) {
+            int pos = posFenceWhenClicked(latLng);
+            if (pos != -1){
+                showMarkers(false);
+                markerList.get(pos).setVisible(true);
+            }
+        }
 
         if (addMode) {
             try {
@@ -668,7 +676,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 int i = (int) mTempCircle.getRadius();
                 skbFenceRadius.setProgress(i);
                 String t = Integer.toString(i);
-                txvFenceRadius.setText("Radius of fence : " + t);
+                txvFenceRadius.setText("Radius of fence : " + t + " meters.");
             } catch (Exception e) {
                 Log.e(TAG, "clickMap: addMode is Wrong.");
             }
@@ -682,7 +690,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 int i = (int) mTempCircle.getRadius();
                 skbFenceRadius.setProgress(i);
                 String t = Integer.toString(i);
-                txvFenceRadius.setText(t);
+                txvFenceRadius.setText("Radius of fence : " + t + " meters.");
             } catch (Exception e) {
                 Log.e(TAG, "clickMap: editMode is Wrong.");
             }
