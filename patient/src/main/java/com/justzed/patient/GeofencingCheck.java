@@ -14,9 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Tristan Dubois on 03/09/2015.
- * <p>
  * This class checks wether the patient is in a geofence.
+ *
+ * @author Tristan Dubois
+ * @version 2.0
+ * @since 2015-09-03
  */
 public class GeofencingCheck {
 
@@ -49,13 +51,16 @@ public class GeofencingCheck {
     @Status
     private int currentlyInAFence = INSIDE_FENCE;
     private List<PatientFence> geofenceList;
-    private double[] currentLocation;
+
+    public void setPreviouslyInAFence(@Status int Status){previouslyInAFence = Status;}
 
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * Main method to check if a patient is in a geofence.
+     *
+     * @param myLocation This is the location of a patient.
+     * @param patient This is the Person database details of the patient.
+     * @return int This returns whether a status changed has happened or if there are no geofences.
      */
     @StatusChange
     public int checkGeofence(PatientLocation myLocation, Person patient) {
@@ -70,9 +75,10 @@ public class GeofencingCheck {
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This method gets the values of all geofences from the database and stores them in a list.
+     *
+     * @param patientFences This is a list of geofences
+     * @return List<PatientFence> This returns a clean List of geofences
      */
     public List<PatientFence> getGeofencesFromDatabase(List<PatientFence> patientFences) {
         geofenceList = new ArrayList<>();
@@ -89,9 +95,11 @@ public class GeofencingCheck {
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This uses the location of the device and all the geofence values to check wether the device is inside a geofence.
+     *
+     * @param patientFences This is a List of the geofences being checked.
+     * @param deviceLocation This is the device thats being checked.
+     * @return int This returns the status after all geofences have been checked.
      */
 
     @Status
@@ -130,9 +138,11 @@ public class GeofencingCheck {
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This checks if the patient has entered or exited a fence.
+     *
+     * @param currentStatus This is the current status of the patient.
+     * @param previousStatus This is the last status of the patient
+     * @return int This returns a status change
      */
     @StatusChange
     public int checkIfStatusHasChanged(@Status int currentStatus, @Status int previousStatus) {
@@ -149,4 +159,5 @@ public class GeofencingCheck {
             return NOTHING_HAS_CHANGED;
         }
     }
+
 }
