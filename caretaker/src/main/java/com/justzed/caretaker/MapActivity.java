@@ -101,7 +101,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     //Constants
 
-    private static final int UPDATE_TIMER_NORMAL = 10000;
+    private static final int UPDATE_TIMER_NORMAL = 1000;
     private Subscription subscription;
 
     @Override

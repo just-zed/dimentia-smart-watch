@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.justzed.common.model.PatientFence;
@@ -93,17 +94,17 @@ public class PatientService extends IntentService {
                         .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
                         .flatMap(latLng -> new PatientLocation(person, latLng).save()),
                 // save geofence into geofenceCheck object
-                PatientFence.getPatientFences(person), (patientLocation, patientFences) -> {
+                PatientFence.getPatientFences(person).repeat()
+                , (patientLocation, patientFences) -> {
                     geofenceCheck.getGeofencesFromDatabase(patientFences);
                     // pass on patientLocation
                     return patientLocation;
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(patientLocation -> {
-                    checkGeofenceStatus(
-                            patientLocation, patientLocation.getPatient());
-                });
+                .subscribe(patientLocation -> checkGeofenceStatus(
+                                patientLocation, patientLocation.getPatient()),
+                        throwable -> Log.e(TAG, throwable.getMessage()));
 
 
     }
@@ -119,7 +120,7 @@ public class PatientService extends IntentService {
      * @return Nothing.
      */
     public void checkGeofenceStatus(PatientLocation myLocation, Person patient) {
-        if (/**TODO change this to the correct get method*//*patient.getDisableGeofenceChecks() == */true) {
+        if (!patient.getDisableGeofenceChecks()) {
 
             @GeofencingCheck.StatusChange
             final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
