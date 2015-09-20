@@ -9,12 +9,13 @@ import com.parse.ParseQuery;
 import rx.Observable;
 
 /**
- * PatientLink object + data access layer
+ * PatientLink object + data access layer.
  * <p>
- * Database contains connection between 2 Persons, 1 as patient, 1 as caretaker
- * <p>
- * <p>
- * Created by freeman on 8/16/15.
+ * Database contains connection between 2 Persons, 1 as patient, 1 as caretaker.
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-08-15
  */
 public class PatientLink {
 
@@ -94,9 +95,9 @@ public class PatientLink {
     }
 
     /**
-     * this method automatically checks for duplicate and save the personlink object to database
+     * This method automatically checks for duplicate and save the personlink object to database.
      *
-     * @return PatientLink Observable
+     * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
     public Observable<PatientLink> save() {
         return Observable.defer(() -> Observable.create(subscriber -> {
@@ -124,11 +125,11 @@ public class PatientLink {
     }
 
     /**
-     * get PatientLink by inputing both patient and caretaker, only used for checking duplicates
+     * This method gets PatientLink by inputing both patient and caretaker, only used for checking duplicates.
      *
-     * @param patient   patient
-     * @param caretaker caretaker
-     * @return PatientLink Observable
+     * @param patient   a Person Object.
+     * @param caretaker an other Person Object.
+     * @return PatientLink Observable  that contains a link between the patient and the caretaker.
      */
     public static Observable<PatientLink> getByPersons(Person patient, Person caretaker) {
 
@@ -158,10 +159,10 @@ public class PatientLink {
 
     /**
      * get the first PatientLink by patient
-     * - can be extended to multiple
+     * - can be extended to multiple.
      *
-     * @param patient patient
-     * @return PatientLink Observable
+     * @param patient a Person Object.
+     * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
     public static Observable<PatientLink> getByPatient(Person patient) {
 
@@ -190,10 +191,10 @@ public class PatientLink {
 
     /**
      * get first PatientLink by caretaker
-     * - can be extended to multiple
+     * - can be extended to multiple.
      *
-     * @param caretaker caretaker
-     * @return PatientLink Observable
+     * @param caretaker a Person Object.
+     * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
     public static Observable<PatientLink> getByCaretaker(Person caretaker) {
 
@@ -224,7 +225,7 @@ public class PatientLink {
     /**
      * delete PatientLink
      *
-     * @return PatientLink Observable (null for success)
+     * @return PatientLink Observable or null for success
      */
     public Observable<PatientLink> delete() {
         return Observable.create(subscriber -> {

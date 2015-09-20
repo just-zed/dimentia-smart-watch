@@ -78,7 +78,7 @@ public class GeofencingCheck {
      * This method gets the values of all geofences from the database and stores them in a list.
      *
      * @param patientFences This is a list of geofences
-     * @return List<PatientFence> This returns a clean List of geofences
+     * @return List PatientFence This returns a clean List of geofences
      */
     public List<PatientFence> getGeofencesFromDatabase(List<PatientFence> patientFences) {
         geofenceList = new ArrayList<>();

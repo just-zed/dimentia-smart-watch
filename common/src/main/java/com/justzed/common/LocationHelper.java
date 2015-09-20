@@ -8,6 +8,10 @@ import com.parse.ParseGeoPoint;
  * Created by freeman on 9/5/15.
  * <p>
  * This class contains helper function for location related operations
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-09-05
  */
 public class LocationHelper {
 
@@ -15,7 +19,7 @@ public class LocationHelper {
      * convert ParseGeoPoint to google LatLng
      *
      * @param geoPoint
-     * @return LatLng
+     * @return LatLng Latitude and Longitude of a geofence.
      * @throws ParseException
      */
     public static LatLng toLatLng(ParseGeoPoint geoPoint) throws ParseException {
@@ -29,7 +33,7 @@ public class LocationHelper {
     /**
      * convert google LatLng to ParseGeoPoint
      *
-     * @param latLng
+     * @param latLng Latitude and Longitude of a geofence.
      * @return ParseGeoPoint
      */
     public static ParseGeoPoint toParseGeoPoint(LatLng latLng) {
