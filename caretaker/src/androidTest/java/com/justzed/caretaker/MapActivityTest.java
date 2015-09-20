@@ -1,34 +1,22 @@
 package com.justzed.caretaker;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
-import android.support.test.uiautomator.Until;
-import android.test.ActivityTestCase;
-import static org.mockito.Mockito.mock;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.By;
 import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Marker;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.mockito.Mockito.mock;
-
 /**
  * Created by Tristan on 14/08/2015.
- *
+ * <p>
  * This class is used to test the MapActivity Class.
  */
 @RunWith(AndroidJUnit4.class)
@@ -56,7 +44,7 @@ public class MapActivityTest extends InstrumentationTestCase {
     @Test
     public void testUiMapActivity() throws UiObjectNotFoundException {
         device = UiDevice.getInstance(getInstrumentation());
-        UiObject marker =  device.findObject(new UiSelector().descriptionContains("testPatient"));
+        UiObject marker = device.findObject(new UiSelector().descriptionContains("testPatient"));
         marker.click();
     }
 

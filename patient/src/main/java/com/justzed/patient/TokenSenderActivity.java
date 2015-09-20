@@ -14,6 +14,8 @@ import com.justzed.common.model.Person;
 
 /**
  * Created by Tristan on 13/08/2015.
+ *
+ * This class is used to push an NDEF Message to the Caretaker's device.
  */
 public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNdefMessageCallback,
         NfcAdapter.OnNdefPushCompleteCallback {

@@ -43,8 +43,13 @@ import rx.schedulers.Schedulers;
 
 import static com.google.android.gms.maps.CameraUpdateFactory.newLatLngZoom;
 
+/**
+ * Created by Tristan on 21/08/2015.
+ * <p>
+ * This class uses the google map API to display the location of the patient device by getting data from the parse.com database.
+ */
 public class MapActivity extends FragmentActivity implements OnMapClickListener,
-OnMapLongClickListener {
+        OnMapLongClickListener {
     private static final String TAG = MapActivity.class.getSimpleName();
     //Variables
     private Person patient;
@@ -128,7 +133,7 @@ OnMapLongClickListener {
     OnClickListener btnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+            switch (v.getId()) {
                 case R.id.add_button:
                     //do stuff
                     clickAddButton();
@@ -149,7 +154,8 @@ OnMapLongClickListener {
                     //do stuff
                     clickCancelButton();
                     break;
-                default: break;
+                default:
+                    break;
             }
         }
     };
@@ -248,7 +254,7 @@ OnMapLongClickListener {
      * <p>
      * Initializing some lists for needed fence functions.
      * */
-    private void initFencesList(){
+    private void initFencesList() {
         strFencesList = new ArrayList<String>();
         markerList = new ArrayList<Marker>();
         circlesList = new ArrayList<Circle>();
@@ -312,7 +318,7 @@ OnMapLongClickListener {
     * Implementing actions of clicking Add button.
     * Going to Add mode.
     * */
-    private void clickAddButton(){
+    private void clickAddButton() {
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
         btnDelete.setVisibility(View.GONE);
@@ -332,9 +338,9 @@ OnMapLongClickListener {
     * <p>
     * Show or hide all markers on the Map.
     * */
-    private void showMarkers(boolean flag){
+    private void showMarkers(boolean flag) {
         int size = markerList.size();
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             markerList.get(i).setVisible(flag);
         }
     }
@@ -345,7 +351,7 @@ OnMapLongClickListener {
     * Checking title of fence is existed.
     * Checking title of fence is blank.
     * */
-    private boolean checkTitleFence(String title){
+    private boolean checkTitleFence(String title) {
         if ((title.trim().length() == 0) || (strFencesList.contains(title))) {
             return false;
         } else {
@@ -359,7 +365,7 @@ OnMapLongClickListener {
     * Implementing actions of Edit Mode.
     * Editing fences.
     * */
-    private void clickEditButton(int pos){
+    private void clickEditButton(int pos) {
 
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
@@ -398,19 +404,19 @@ OnMapLongClickListener {
     * Implementing actions of Save Button.
     * Saving fence. There are 2 mode: Add mode and Edit mode.
     * */
-    private void clickSaveButton(){
-        if (addMode){
+    private void clickSaveButton() {
+        if (addMode) {
             try {
                 if ((checkTitleFence(txtFenceTitle.getText().toString()) == true)
-                        && (skbFenceRadius.isEnabled())){
+                        && (skbFenceRadius.isEnabled())) {
 
                     String title = txtFenceTitle.getText().toString();
                     LatLng center = mTempCircle.getCenter();
                     double radius = mTempCircle.getRadius();
 
                     new PatientFence(patient, mTempCircle.getCenter(),
-                                        mTempCircle.getRadius(),
-                                        txtFenceTitle.getText().toString())
+                            mTempCircle.getRadius(),
+                            txtFenceTitle.getText().toString())
                             .save()
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -442,23 +448,23 @@ OnMapLongClickListener {
                 } else {
                     toast("The title is blank or already. Please type another title of the fence.");
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, "clickSaveButton: addMode is wrong.");
             }
         }
 
-        if (editMode){
+        if (editMode) {
             try {
-                if (txtFenceTitle.getText().toString().trim().contentEquals(curTitleFence.toString())){
+                if (txtFenceTitle.getText().toString().trim().contentEquals(curTitleFence.toString())) {
                     saveEditMode();
                 } else {
-                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true){
+                    if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
                         saveEditMode();
                     } else {
                         toast("The title is blank or already. Please type another title of the fence.");
                     }
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, "clickSaveButton: editMode is wrong.");
             }
         }
@@ -471,7 +477,7 @@ OnMapLongClickListener {
     * Implementing actions of Save Button.
     * Saving fence in Edit mode.
     * */
-    private void saveEditMode(){
+    private void saveEditMode() {
         toast("saveEditMode");
 
         String title = txtFenceTitle.getText().toString();
@@ -528,8 +534,7 @@ OnMapLongClickListener {
             b.setMessage("Are you sure you want to delete this fence?");
             b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
+                public void onClick(DialogInterface dialog, int which) {
                     PatientFence fence = patientFenceList.get(curPosFence);
                     fence.delete()
                             .subscribeOn(Schedulers.io())
@@ -565,19 +570,19 @@ OnMapLongClickListener {
                                         Log.e(TAG, throwable.getMessage());
                                     }
                             );
-                }});
+                }
+            });
 
             b.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
+                public void onClick(DialogInterface dialog, int which) {
                     dialog.cancel();
                 }
             });
 
             b.create().show();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
     }
@@ -588,7 +593,7 @@ OnMapLongClickListener {
     * Implementing actions of Clear Button.
     * Clearing content of fence title.
     * */
-    private void clickClearButton(){
+    private void clickClearButton() {
         txtFenceTitle.setText("");
         toast("Clear Button");
     }
@@ -599,7 +604,7 @@ OnMapLongClickListener {
     * Implementing actions of Cancel Button.
     * Canceling Add mode and Edit mode to go back the Map View.
     * */
-    private void clickCancelButton(){
+    private void clickCancelButton() {
         fenceLayout.setVisibility(View.GONE);
         ibtnMapCenter.setVisibility(View.VISIBLE);
         btnAdd.setVisibility(View.VISIBLE);
@@ -607,7 +612,7 @@ OnMapLongClickListener {
         addMode = false;
         editMode = false;
 
-        if (mTempMarker != null){
+        if (mTempMarker != null) {
             mTempMarker.remove();
         }
 
@@ -629,7 +634,7 @@ OnMapLongClickListener {
         try {
             mTempCircle.setRadius((double) progress);
             txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress));
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
     }
@@ -641,7 +646,7 @@ OnMapLongClickListener {
     * Set location to draw or edit fence.
     * */
     public void clickMap(LatLng latLng) {
-        if (mTempMarker != null){
+        if (mTempMarker != null) {
             mTempMarker.remove();
         }
 
@@ -664,9 +669,8 @@ OnMapLongClickListener {
                 skbFenceRadius.setProgress(i);
                 String t = Integer.toString(i);
                 txvFenceRadius.setText("Radius of fence : " + t);
-            }
-            catch (Exception e){
-                Log.e(TAG,"clickMap: addMode is Wrong.");
+            } catch (Exception e) {
+                Log.e(TAG, "clickMap: addMode is Wrong.");
             }
         }
 
@@ -679,9 +683,8 @@ OnMapLongClickListener {
                 skbFenceRadius.setProgress(i);
                 String t = Integer.toString(i);
                 txvFenceRadius.setText(t);
-            }
-            catch (Exception e){
-                Log.e(TAG,"clickMap: editMode is Wrong.");
+            } catch (Exception e) {
+                Log.e(TAG, "clickMap: editMode is Wrong.");
             }
 
         }
@@ -692,7 +695,7 @@ OnMapLongClickListener {
     * <p>
     * Drawing temporary marker for adding and editing fence.
     * */
-    private void drawTempMarker(GoogleMap mMap, LatLng latLng, String title){
+    private void drawTempMarker(GoogleMap mMap, LatLng latLng, String title) {
         mTempMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(title));
@@ -703,7 +706,7 @@ OnMapLongClickListener {
     * <p>
     * Drawing temporary circle for adding and editing fence.
     * */
-    private void drawTempFence(GoogleMap mMap, LatLng latLng, double radius){
+    private void drawTempFence(GoogleMap mMap, LatLng latLng, double radius) {
         mTempCircle = mMap.addCircle(new CircleOptions()
                 .center(latLng)
                 .radius(radius)
@@ -799,7 +802,7 @@ OnMapLongClickListener {
     }
 
     /**
-     * Created by Tristan Duboi
+     * Created by Tristan Dubois
      * <p>
      * This method updates the patient marker to a new location
      */
@@ -849,7 +852,7 @@ OnMapLongClickListener {
     }
 
     /**
-     * Created by Tristan Duboi
+     * Created by Tristan Dubois
      * <p>
      * Countdown till the next patient location update.
      */
@@ -902,6 +905,11 @@ OnMapLongClickListener {
         return patientMarkerName;
     }
 
+    /**
+     * Created by Tristan Dubois
+     * <p>
+     * This is used to create a toast message using a string.
+     */
     private void toast(String toastMessage) {
         try {
             Toast.makeText(MapActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
