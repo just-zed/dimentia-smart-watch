@@ -24,6 +24,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 
     private final String testToken = "someyadayadahardcodedtoken";
+    private final boolean testDGchecks = false;
 
     private Person person;
 
@@ -52,6 +53,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person.getUniqueToken(), testToken);
         assertNotSame(person.getType(), Person.PATIENT);
         assertEquals(person.getType(), Person.CARETAKER);
+        assertEquals(person.getDisableGeofenceChecks(), testDGchecks);
     }
 
     @Test
@@ -81,6 +83,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person1.getObjectId());
         assertEquals(person.getObjectId(), person1.getObjectId());
         assertEquals(person1.getType(), Person.PATIENT);
+        assertEquals(person1.getDisableGeofenceChecks(), testDGchecks);
 
         //test if person is updated to caretaker
         Person person2 = new Person(Person.CARETAKER, testToken)
@@ -117,6 +120,36 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person1.getUniqueToken(), testToken);
         assertEquals(person1.getType(), person.getType());
         assertTrue(person1.getType() == Person.PATIENT);
+        assertEquals(person1.getDisableGeofenceChecks(), testDGchecks);
+
+    }
+
+
+    public void testEdit() {
+
+        Person person1 = Person
+                .getByUniqueToken(testToken)
+                .toBlocking()
+                .first();
+
+        assertNotNull(person1);
+        assertEquals(person1.getUniqueToken(), person.getUniqueToken());
+        assertEquals(person1.getUniqueToken(), testToken);
+        assertEquals(person1.getType(), person.getType());
+        assertTrue(person1.getType() == Person.PATIENT);
+        assertEquals(person1.getDisableGeofenceChecks(), false);
+
+        // set disableGeoFence flag
+        person1.setDisableGeofenceChecks(true);
+
+        // save the modified person
+        Person peron1AfterSave = person1.save().toBlocking().single();
+
+        // the saved person is the same as the previous person
+        assertEquals(person1.getObjectId(), peron1AfterSave.getObjectId());
+
+        // check the saved changes
+        assertEquals(peron1AfterSave.getDisableGeofenceChecks(), true);
     }
 
     //delete
