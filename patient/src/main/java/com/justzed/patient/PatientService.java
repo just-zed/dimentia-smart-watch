@@ -28,6 +28,8 @@ public class PatientService extends IntentService {
 
     private static final int INTERVAL = 5000;
 
+    private Person patient;
+
     public PatientService() {
         super(PatientService.class.getName());
     }
@@ -86,24 +88,28 @@ public class PatientService extends IntentService {
         // get device id
 
         Bundle data = intent.getExtras();
-        final Person person = data.getParcelable(Person.PARCELABLE_KEY);
+        patient = data.getParcelable(Person.PARCELABLE_KEY);
+
         Observable.combineLatest(
                 // get location updates observable
                 getLocationUpdates()
                         .filter(location1 -> location1 != null)
                         .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
-                        .flatMap(latLng -> new PatientLocation(person, latLng).save()),
+                        .flatMap(latLng -> new PatientLocation(patient, latLng).save()),
                 // save geofence into geofenceCheck object
-                PatientFence.getPatientFences(person).repeat()
-                , (patientLocation, patientFences) -> {
+                PatientFence.getPatientFences(patient).repeat(),
+                // refresh patient object in case it is changed
+                Person.getByUniqueToken(patient.getUniqueToken()).repeat()
+                , (patientLocation, patientFences, person1) -> {
                     geofenceCheck.getGeofencesFromDatabase(patientFences);
+                    patient = person1;
                     // pass on patientLocation
                     return patientLocation;
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientLocation -> checkGeofenceStatus(
-                                patientLocation, patientLocation.getPatient()),
+                                patientLocation, patient),
                         throwable -> Log.e(TAG, throwable.getMessage()));
 
 

@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
+import android.widget.Switch;
 
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
@@ -35,6 +36,9 @@ public class MainActivity extends Activity {
     @Bind(R.id.button)
     View button;
 
+    @Bind(R.id.switch_patient_disable_check)
+    Switch switchPatientDisableCheck;
+
     @OnClick(R.id.button)
     void mapButtonClick() {
         if (patient != null) {
@@ -44,6 +48,7 @@ public class MainActivity extends Activity {
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +57,7 @@ public class MainActivity extends Activity {
 
         ButterKnife.bind(this);
         button.setEnabled(false);
+        switchPatientDisableCheck.setEnabled(false);
 
         //TODO: move these to a splash screen activity?
         getCaretaker()
@@ -65,14 +71,24 @@ public class MainActivity extends Activity {
                 .subscribe(
                         patientLink -> {
                             // subscribe to patient's push channel
-                            String channelName = "patient-" + patientLink.getPatient().getUniqueToken();
-                            ParsePush.subscribeInBackground(channelName);
                             finishActivityWithResult();
                         },
                         throwable -> Log.e(TAG, throwable.getMessage()));
 
 
     }
+
+    private void toggleSubscription(boolean subscribe) {
+        if (patient != null) {
+            String channelName = "patient-" + patient.getUniqueToken();
+            if (subscribe) {
+                ParsePush.subscribeInBackground(channelName);
+            } else {
+                ParsePush.unsubscribeInBackground(channelName);
+            }
+        }
+    }
+
 
     @NonNull
     private Observable<Person> getCaretaker() {
@@ -106,6 +122,22 @@ public class MainActivity extends Activity {
 
     private void finishActivityWithResult() {
         button.setEnabled(true);
+        switchPatientDisableCheck.setEnabled(true);
+        switchPatientDisableCheck.setChecked(patient.getDisableGeofenceChecks());
+        toggleSubscription(!patient.getDisableGeofenceChecks());
+
+        switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (patient != null) {
+                patient.setDisableGeofenceChecks(isChecked);
+                toggleSubscription(!isChecked);
+
+                patient.save().subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(person -> {
+                            //do nothing
+                        }, throwable -> Log.e(TAG, throwable.getMessage()));
+            }
+        });
         // if activity is called by NfcActivity, close and return result
         if (getCallingActivity() != null && caretaker != null) {
             Intent result = new Intent();

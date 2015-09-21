@@ -35,6 +35,7 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_token_sender);
         Bundle data = getIntent().getExtras();
         Person person = data.getParcelable(Person.PARCELABLE_KEY);
         if (person != null) {
@@ -141,7 +142,6 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      */
     @Override
     public void onNdefPushComplete(NfcEvent event) {
-        Toast.makeText(TokenSenderActivity.this, "Connection completed!", Toast.LENGTH_LONG).show();
         finishWithSuccess(true);
     }
 
