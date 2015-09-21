@@ -8,7 +8,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
 
 
     @Bind(R.id.panic_button)
-    Button panicButton;
+    ImageButton panicButton;
 
     @OnClick(R.id.panic_button)
     void onClickPanicButton() {
