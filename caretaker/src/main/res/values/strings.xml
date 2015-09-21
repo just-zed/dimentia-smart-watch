@@ -16,15 +16,15 @@
 
     <string name="hello_world">Hello world!</string>
 
-    <string name="title_activity_caretaker_nfc">CaretakerNfcActivity</string>
+    <string name="title_activity_caretaker_nfc">Pair a Patient</string>
     <string name="center_map_description">button to center the map on the patient.</string>
-    <string name="add">add</string>
+    <string name="add">Add a fence</string>
     <string name="save">save</string>
     <string name="delete">delete</string>
     <string name="clear">clear</string>
     <string name="select">select</string>
     <string name="edit">edit</string>
-    <string name="cancel">cancel</string>
+    <string name="cancel">cancel this fence</string>
     <string name="title_activity_dialog">DialogActivity</string>
     <string name="launch_caretaker">Launch Caretaker</string>
 </resources>

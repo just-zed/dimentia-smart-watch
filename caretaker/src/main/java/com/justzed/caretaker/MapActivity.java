@@ -425,7 +425,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private void clickSaveButton() {
         if (addMode) {
             try {
-                if ((checkTitleFence(txtFenceTitle.getText().toString()) == true)
+                if ((checkTitleFence(txtFenceTitle.getText().toString()))
                         && (skbFenceRadius.isEnabled())) {
 
                     String title = txtFenceTitle.getText().toString();
@@ -442,9 +442,9 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                                     patientFence -> {
                                         // updates the object in the list
                                         patientFenceList.add(patientFence);
-                                        strFencesList.add(patientFence.getDescription().toString());
+                                        strFencesList.add(patientFence.getDescription());
                                         markerList.add(drawMarker(mMap, patientFence.getCenter(),
-                                                patientFence.getDescription().toString()));
+                                                patientFence.getDescription()));
                                         circlesList.add(drawCircle(mMap, patientFence.getCenter(),
                                                 patientFence.getRadius()));
 
@@ -473,7 +473,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         if (editMode) {
             try {
-                if (checkTitleFence(txtFenceTitle.getText().toString()) == true) {
+                if (checkTitleFence(txtFenceTitle.getText().toString())) {
                     saveEditMode();
                 } else {
                     toast("The title is blank. Please type the title of the fence.");
@@ -834,8 +834,8 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * <p>
      * This method updates the patient marker to a new location
      */
-    public void updatePatientLocationOnMap(final Marker marker, final LatLng toPosition,
-                                           final boolean hideMarker) {
+    public void updatePatientLocationOnMap(Marker marker, LatLng toPosition,
+                                           boolean hideMarker) {
         if (hideMarker) {
             marker.setVisible(false);
         } else {
@@ -855,10 +855,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .repeat()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(latLng -> {
-//                    toast("Update");
-                    updatePatientLocationOnMap(patientMarker, latLng, false);
-                });
+                .subscribe(this::showPatientOnMap);
 
     }
 

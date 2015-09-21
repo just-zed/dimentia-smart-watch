@@ -8,4 +8,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.justzed.patient.TokenSenderActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawableTop="@drawable/beam"
+        android:gravity="center"
+        android:text="Ready to Beam!" />
+
 </FrameLayout>

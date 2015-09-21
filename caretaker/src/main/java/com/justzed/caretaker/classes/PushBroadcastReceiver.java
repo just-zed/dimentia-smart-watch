@@ -33,7 +33,7 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
             if (json.has(KEY_ALERT)) {
                 Intent dialogIntent = new Intent(context, DialogActivity.class);
                 dialogIntent.putExtra(DialogActivity.INTENT_KEY_MESSAGE, json.getString(KEY_ALERT));
-                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(dialogIntent);
             }
 

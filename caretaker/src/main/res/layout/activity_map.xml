@@ -30,6 +30,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|top"
+        android:background="#f0ffffff"
+        android:baselineAligned="false"
         android:orientation="horizontal"
         android:visibility="gone"
         android:weightSum="1"
@@ -39,41 +41,51 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
 
             <TextView
                 android:id="@+id/fence_mode_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#f0ffffff"
                 android:textAlignment="center"
                 android:textSize="25sp" />
 
-            <EditText
-                android:id="@+id/fence_title_edit_text"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#f0ffffff"
-                android:hint="Type title of fence here..."
-                android:text=""
-                android:textAlignment="center"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textSize="18sp" />
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/fence_title_edit_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="description"
+                    android:text=""
+                    android:textAlignment="center" />
+
+                <Button
+                    android:id="@+id/clear_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="@string/clear" />
+            </LinearLayout>
+
 
             <TextView
                 android:id="@+id/fence_radius_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#f0ffffff"
-                android:text="Radius of fence : "
-                android:textAlignment="center"
-                android:textSize="14sp" />
+                android:text="Radius of fence : " />
 
             <SeekBar
                 android:id="@+id/fence_seek_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#f0ffffff"
                 android:splitTrack="false" />
 
         </LinearLayout>
@@ -87,15 +99,7 @@
                 android:id="@+id/save_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
                 android:text="@string/save" />
-
-            <Button
-                android:id="@+id/clear_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:text="@string/clear" />
 
             <Button
                 android:id="@+id/delete_button"
@@ -112,7 +116,6 @@
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:background="#80ffffff"
         android:orientation="horizontal">
 
         <Button
