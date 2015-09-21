@@ -1,18 +1,17 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ffffffff"
-    tools:context="com.justzed.patient.MainActivity">
+    android:layout_height="match_parent">
 
     <ImageButton
         android:id="@+id/panic_button"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:adjustViewBounds="false"
         android:background="#00000000"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_alert_error" />
+        android:src="@drawable/ic_alert_error">
+
+    </ImageButton>
 
 </FrameLayout>
