@@ -346,7 +346,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnDelete.setVisibility(View.GONE);
         btnAdd.setVisibility(View.GONE);
         btnCancel.setVisibility(View.VISIBLE);
-        txvFenceMode.setText("ADD MODE");
+        txvFenceMode.setText(R.string.add_fence_title);
         txtFenceTitle.setText("");
         skbFenceRadius.setProgress(RADIUS_MIN);
         skbFenceRadius.setEnabled(false);
@@ -375,7 +375,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * @return boolean True (Not blank) or False (Blank).
      */
     private boolean checkTitleFence(String title) {
-        return title.trim().length() == 0;
+        return title.trim().length() > 0;
     }
 
     /**
@@ -392,7 +392,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnDelete.setVisibility(View.VISIBLE);
         btnAdd.setVisibility(View.GONE);
         btnCancel.setVisibility(View.VISIBLE);
-        txvFenceMode.setText("EDIT MODE");
+        txvFenceMode.setText(R.string.edit_fence_title);
         editMode = true;
         showMarkers(false);
 
@@ -430,7 +430,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
                     new PatientFence(patient, mTempCircle.getCenter(),
                             mTempCircle.getRadius(),
-                            txtFenceTitle.getText().toString())
+                            txtFenceTitle.getText().toString().trim())
                             .save()
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -798,24 +798,15 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         getPatientLocation()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::showPatientOnMap,
+                .subscribe(this::updatePatientOnMap,
                         throwable -> Log.e(TAG, throwable.getMessage()));
     }
 
     /**
-     * Created by Tristan Duboi
-     * <p>
-     * This method adds a marker for the patient on the map.
+     * Update patient's location on map, add a marker and move to marker if it is not present
+     *
+     * @param patientCurrentLocation current location of patient
      */
-    private void showPatientOnMap(LatLng patientCurrentLocation) {
-        try {
-            updatePatientOnMap(patientCurrentLocation);
-            mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 15.0f));
-        } catch (Exception e) {
-            toast("A Marker could not be placed.");
-        }
-    }
-
     private void updatePatientOnMap(LatLng patientCurrentLocation) {
         if (patientMarker == null) {
             patientMarker = mMap.addMarker(new MarkerOptions()
@@ -824,6 +815,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             .icon(BitmapDescriptorFactory
                                     .defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
             );
+            mMap.moveCamera(newLatLngZoom(patientMarker.getPosition(), 15.0f));
         }
         updatePatientLocationOnMap(patientMarker, patientCurrentLocation, false);
     }
