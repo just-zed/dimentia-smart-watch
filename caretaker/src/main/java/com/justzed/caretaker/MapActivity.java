@@ -198,7 +198,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     public void onMapLongClick(LatLng latLng) {
         if (!editMode) {
             int pos = posFenceWhenClicked(latLng);
-            if (pos != -1) {
+            if (pos > -1) {
                 clickEditButton(pos);
             }
         }
@@ -428,6 +428,12 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     LatLng center = mTempCircle.getCenter();
                     double radius = mTempCircle.getRadius();
 
+                    //test
+                    toast("Before add new into database");
+                    int size = patientFenceList.size();
+                    String t = String.valueOf(size);
+                    toast("patientFenceList.size() Before ADD : " + t);
+
                     new PatientFence(patient, mTempCircle.getCenter(),
                             mTempCircle.getRadius(),
                             txtFenceTitle.getText().toString().trim())
@@ -436,8 +442,16 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     patientFence -> {
+                                        //test
+                                        toast("Inside new fence.");
+                                        toast("patienFence objectID : "
+                                                + patientFence.getObjectId().toString());
                                         // updates the object in the list
                                         patientFenceList.add(patientFence);
+                                        int size1 = patientFenceList.size();
+                                        String t1 = String.valueOf(size1);
+                                        toast("patientFenceList.size() After ADD : " + t1);
+
                                         strFencesList.add(patientFence.getDescription());
                                         markerList.add(drawMarker(mMap, patientFence.getCenter(),
                                                 patientFence.getDescription()));
@@ -469,7 +483,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         if (editMode) {
             try {
-                if (checkTitleFence(txtFenceTitle.getText().toString())) {
+                if (checkTitleFence(txtFenceTitle.getText().toString().trim())) {
                     saveEditMode();
                 } else {
                     toast("The title is blank. Please type the title of the fence.");
@@ -489,11 +503,26 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private void saveEditMode() {
         //toast("saveEditMode");
 
-        String title = txtFenceTitle.getText().toString();
+        String title = txtFenceTitle.getText().toString().trim();
         LatLng center = mTempCircle.getCenter();
         double radius = mTempCircle.getRadius();
 
         PatientFence fence = patientFenceList.get(curPosFence);
+
+        //test
+        toast("Before fence.set all.");
+        toast("fence objectID : " + fence.getObjectId().toString());
+        toast("Title : " + title);
+        double d = radius;
+        String t = String.valueOf(d);
+        toast("Radius : " + t);
+
+        double tempLat = center.latitude;
+        double tempLong = center.longitude;
+
+        String tLat = String.valueOf(tempLat);
+        String tLong = String.valueOf(tempLong);
+        toast("Center : " + tempLat + " , " + tempLong);
 
         fence.setDescription(title);
         fence.setCenter(center);
@@ -503,6 +532,10 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         patientFence -> {
+                            //test: Cannot go here. So cannot save successfully.
+                            toast("Inside fence.save");
+                            toast("Inside fence objectID : "
+                                    + patientFence.getObjectId().toString());
                             // updates the object in the list
                             strFencesList.set(curPosFence, patientFence.getDescription());
                             markerList.get(curPosFence).setPosition(patientFence.getCenter());
@@ -637,8 +670,9 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * @param progress The value of Seekbar progress.
      */
     private void changedSeekBar(int progress) {
-        if (progress >= 0) {
-            mTempCircle.setRadius((double) progress);
+        double d = (double)progress;
+        if (d >= 0) {
+            mTempCircle.setRadius(d);
             txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress)
                     + " meters.");
         } else {
