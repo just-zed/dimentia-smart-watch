@@ -11,7 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by freeman on 9/20/15.
+ * This is a custom Push Notification receiver that catches ParsePush notifications
+ * and show them as alert dialogs
+ *
+ * @author Freeman Man
+ * @since 2015-8-22
  */
 public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
     private static final String TAG = PushBroadcastReceiver.class.getSimpleName();
@@ -21,7 +25,7 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
     @Override
     protected void onPushReceive(Context context, Intent intent) {
-        // pop notification
+        // do normal notification
         super.onPushReceive(context, intent);
 
         // then run custom alert
@@ -33,6 +37,8 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
             if (json.has(KEY_ALERT)) {
                 Intent dialogIntent = new Intent(context, DialogActivity.class);
                 dialogIntent.putExtra(DialogActivity.INTENT_KEY_MESSAGE, json.getString(KEY_ALERT));
+
+                // run this as new task
                 dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(dialogIntent);
             }
