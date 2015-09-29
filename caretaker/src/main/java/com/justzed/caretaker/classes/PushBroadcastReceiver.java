@@ -15,6 +15,7 @@ import org.json.JSONObject;
  * and show them as alert dialogs
  *
  * @author Freeman Man
+ * @version 1.0
  * @since 2015-8-22
  */
 public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {

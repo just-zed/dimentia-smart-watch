@@ -170,8 +170,8 @@ public class NfcActivity extends Activity {
 
             //TODO: improve this to single subscribe. move these to a repository class
             Observable.combineLatest(
-                    Person.getByUniqueToken(patientToken),
-                    Person.getByUniqueToken(caretakerToken),
+                    Person.findByUniqueToken(patientToken),
+                    Person.findByUniqueToken(caretakerToken),
                     (PatientLink::new))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

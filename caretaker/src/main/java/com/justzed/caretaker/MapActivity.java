@@ -278,7 +278,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         circlesList.clear();
         patientFenceList.clear();
 
-        PatientFence.getPatientFences(patient)
+        PatientFence.findPatientFences(patient)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientFences -> {
@@ -905,7 +905,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * This gets the current location of the patient from the database.
      */
     private Observable<LatLng> getPatientLocation() {
-        return PatientLocation.getLatestPatientLocation(patient)
+        return PatientLocation.findLatestPatientLocation(patient)
                 .filter(patientLocation1 -> patientLocation1 != null)
                 .map(PatientLocation::getLatLng);
     }

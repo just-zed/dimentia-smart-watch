@@ -1,19 +1,14 @@
 package com.justzed.common.model;
 
-import android.text.TextUtils;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.justzed.common.LocationHelper;
+import com.justzed.common.FenceUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 
 import rx.Observable;
 
@@ -24,7 +19,7 @@ import rx.Observable;
  * Geo fences are saved in circles only.
  * Each database row contains patient, center point and radius.
  *
- * @author Freeman
+ * @author Freeman Man
  * @version 1.0
  * @since 2015-08-23
  */
@@ -39,89 +34,17 @@ public class PatientFence {
     private static final String KEY_END_TIME = "endTime";
     private static final String KEY_GROUP_ID = "groupId";
 
-    private static final String TIME_FORMATTER = "HH:MM";
-    private static final DateFormat df = new SimpleDateFormat(TIME_FORMATTER, Locale.ENGLISH);
 
     //Variables
     private Person patient;
-
-    public void setCenter(LatLng center) {
-        this.center = center;
-    }
-
-    public void setRadius(double radius) {
-        this.radius = radius;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     private LatLng center;
     private double radius;
     private String description;
-
     private String objectId = null;
     private ParseObject parseObject = null;
-
     private long groupId = 0;
-
-    public Person getPatient() {
-        return patient;
-    }
-
-    public LatLng getCenter() {
-        return center;
-    }
-
-    public double getRadius() {
-        return radius;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getObjectId() {
-        return objectId;
-    }
-
-    public long getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(long groupId) {
-        this.groupId = groupId;
-    }
-
     private Calendar startTime;
     private Calendar endTime;
-
-    public void setStartTime(Calendar startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(Calendar endTime) {
-        this.endTime = endTime;
-    }
-
-    public Calendar getStartTime() {
-        return startTime;
-    }
-
-    public Calendar getEndTime() {
-        return endTime;
-    }
-
-    public ParseObject getParseObject() {
-        if (parseObject != null) {
-            return parseObject;
-        } else if (objectId != null) {
-            return ParseObject.createWithoutData(KEY_PERSONFENCE, objectId);
-        } else {
-            return null;
-        }
-    }
 
     public PatientFence(Person patient, LatLng center, double radius) {
         this.patient = patient;
@@ -163,66 +86,130 @@ public class PatientFence {
 
     }
 
+    public static PatientFence deserialize(ParseObject parseObject) throws ParseException {
+        return new PatientFence(parseObject,
+                Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
+                FenceUtils.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
+                parseObject.getDouble(KEY_RADIUS),
+                parseObject.getString(KEY_DESCRIPTION),
+                FenceUtils.timeStringToCalendar(parseObject.getString(KEY_START_TIME)),
+                FenceUtils.timeStringToCalendar(parseObject.getString(KEY_END_TIME)),
+                parseObject.getLong(KEY_GROUP_ID)
+        );
+    }
+
+    /**
+     * This method gets the whole list of geo fences by patient.
+     *
+     * @param patient a Person Object
+     * @return List of PatientFence Observable
+     */
+    public static Observable<List<PatientFence>> findPatientFences(Person patient) {
+        return Observable.create(subscriber -> {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);
+            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+            query.findInBackground((list, e) -> {
+                try {
+                    if (e == null && list != null && list.size() >= 1) {
+                        List<PatientFence> patientFences = new ArrayList<>();
+                        for (int i = 0; i < list.size(); i++) {
+                            patientFences.add(deserialize(list.get(i)));
+                        }
+                        subscriber.onNext(patientFences);
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(e);
+                    }
+                } catch (ParseException pe) {
+                    subscriber.onError(pe);
+                }
+            });
+        });
+    }
+
+    public Person getPatient() {
+        return patient;
+    }
+
+    public LatLng getCenter() {
+        return center;
+    }
+
+    public void setCenter(LatLng center) {
+        this.center = center;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+
+    public Calendar getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Calendar startTime) {
+        this.startTime = startTime;
+    }
+
+    public Calendar getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Calendar endTime) {
+        this.endTime = endTime;
+    }
+
+    public ParseObject getParseObject() {
+        if (parseObject != null) {
+            return parseObject;
+        } else if (objectId != null) {
+            return ParseObject.createWithoutData(KEY_PERSONFENCE, objectId);
+        } else {
+            return null;
+        }
+    }
+
     private ParseObject serialize() {
         return serialize(new ParseObject(KEY_PERSONFENCE));
     }
 
     private ParseObject serialize(ParseObject parseObject) {
         parseObject.put(KEY_PATIENT, patient.getParseObject());
-        parseObject.put(KEY_CENTER, LocationHelper.toParseGeoPoint(center));
+        parseObject.put(KEY_CENTER, FenceUtils.toParseGeoPoint(center));
         parseObject.put(KEY_RADIUS, radius);
         if (description != null) {
             parseObject.put(KEY_DESCRIPTION, description);
         }
         if (startTime != null && endTime != null) {
-            parseObject.put(KEY_START_TIME, calendarToTimeString(startTime));
-            parseObject.put(KEY_END_TIME, calendarToTimeString(endTime));
+            parseObject.put(KEY_START_TIME, FenceUtils.calendarToTimeString(startTime));
+            parseObject.put(KEY_END_TIME, FenceUtils.calendarToTimeString(endTime));
         }
         parseObject.put(KEY_GROUP_ID, groupId);
         return parseObject;
-    }
-
-    public static PatientFence deserialize(ParseObject parseObject) throws ParseException {
-        return new PatientFence(parseObject,
-                Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
-                LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
-                parseObject.getDouble(KEY_RADIUS),
-                parseObject.getString(KEY_DESCRIPTION),
-                timeStringToCalendar(parseObject.getString(KEY_START_TIME)),
-                timeStringToCalendar(parseObject.getString(KEY_END_TIME)),
-                parseObject.getLong(KEY_GROUP_ID)
-        );
-    }
-
-
-    /**
-     * @param cal Calendar object of certain hour and minute of any day
-     * @return time string in HH:MM format
-     */
-    public static String calendarToTimeString(Calendar cal) {
-        return df.format(cal.getTime());
-    }
-
-    /**
-     * @param timeString time string in HH:MM format
-     * @return Calendar object of that hour and minute of today
-     */
-    public static Calendar timeStringToCalendar(String timeString) {
-        if (!TextUtils.isEmpty(timeString)) {
-            Calendar now = Calendar.getInstance();
-            Calendar cal = Calendar.getInstance();
-            try {
-                // parse time string
-                cal.setTime(df.parse(timeString));
-                // set date to today's date
-                cal.set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR));
-                cal.set(Calendar.YEAR, now.get(Calendar.YEAR));
-            } catch (java.text.ParseException e) {
-                e.printStackTrace();
-            }
-            return cal;
-        }
-        return null;
     }
 
     /**
@@ -275,35 +262,6 @@ public class PatientFence {
                     });
                 } else {
                     subscriber.onError(e);
-                }
-            });
-        });
-    }
-
-    /**
-     * This method gets the whole list of geo fences by patient.
-     *
-     * @param patient a Person Object
-     * @return List of PatientFence Observable
-     */
-    public static Observable<List<PatientFence>> getPatientFences(Person patient) {
-        return Observable.create(subscriber -> {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);
-            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-            query.findInBackground((list, e) -> {
-                try {
-                    if (e == null && list != null && list.size() >= 1) {
-                        List<PatientFence> patientFences = new ArrayList<>();
-                        for (int i = 0; i < list.size(); i++) {
-                            patientFences.add(deserialize(list.get(i)));
-                        }
-                        subscriber.onNext(patientFences);
-                        subscriber.onCompleted();
-                    } else {
-                        subscriber.onError(e);
-                    }
-                } catch (ParseException pe) {
-                    subscriber.onError(pe);
                 }
             });
         });

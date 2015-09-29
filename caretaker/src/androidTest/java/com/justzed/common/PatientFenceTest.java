@@ -18,11 +18,11 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Tests covers CRD (no update) operations for Person
+ * Tests covers CRUD operations for PatientFence
  *
- * @author Freeman
+ * @author Freeman Man
  * @version 1.0
- * @since 2015-08-16
+ * @since 2015-09-05
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -169,7 +169,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
 
         //read test
-        List<PatientFence> patientFences = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> patientFences = PatientFence.findPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences);
         assertEquals(patientFences.size(), 3);
@@ -204,7 +204,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @Test
     public void testEdit() {
 
-        List<PatientFence> existingList = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> existingList = PatientFence.findPatientFences(patient).toBlocking().single();
 
         int existingSize = existingList != null ? existingList.size() : 0;
         //setUp
@@ -217,7 +217,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
 
         //read test
-        List<PatientFence> patientFences = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> patientFences = PatientFence.findPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences);
         assertEquals(patientFences.size(), existingSize + 1);
@@ -245,7 +245,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         assertEquals(fenceToEdit.getObjectId(), fence.getObjectId());
 
         //re-read
-        List<PatientFence> patientFences1 = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> patientFences1 = PatientFence.findPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences1);
         assertEquals(patientFences1.size(), 1);

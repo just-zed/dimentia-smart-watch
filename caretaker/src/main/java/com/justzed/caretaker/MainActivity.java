@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
 
         //TODO: move these to a splash screen activity?
         getCaretaker()
-                .flatMap(PatientLink::getByCaretaker)
+                .flatMap(PatientLink::findByCaretaker)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(patientLink -> {
@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
             // get person object from database and start service
             token = mPrefs.getString(PREF_PERSON_KEY, "");
 
-            return Person.getByUniqueToken(token)
+            return Person.findByUniqueToken(token)
                     .map(person1 -> {
                         this.caretaker = person1;
                         return person1;

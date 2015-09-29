@@ -98,7 +98,7 @@ public class MainActivity extends Activity {
             //get patient token from cache, get person object from database and start service
             token = mPrefs.getString(PREF_PERSON_KEY, "");
 
-            Person.getByUniqueToken(token)
+            Person.findByUniqueToken(token)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -129,7 +129,7 @@ public class MainActivity extends Activity {
         if (person != null) {
             //TODO: move these to repository class
             //only do this if the patient link does not exist
-            PatientLink.getByPatient(person)
+            PatientLink.findByPatient(person)
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe(patientLink -> {
