@@ -1,13 +1,15 @@
-package com.justzed.caretaker.internal.di;
+package com.justzed.patient.internal.di;
 
-import com.justzed.caretaker.Application;
-import com.justzed.common.ApiKeys;
+import com.justzed.patient.Application;
 import com.parse.Parse;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+
+import static com.justzed.common.R.string.PARSE_APPLICATION_KEY;
+import static com.justzed.common.R.string.PARSE_CLIENT_KEY;
 
 /**
  * Created by freeman on 8/17/15.
@@ -19,10 +21,12 @@ public class ApplicationModule {
 
     public ApplicationModule(Application application) {
         this.application = application;
-        Parse.enableLocalDatastore(application);
+
+
         Parse.initialize(application,
-                ApiKeys.PARSE_API_PROD_APPLICATION_ID,
-                ApiKeys.PARSE_API_PROD_CLIENT_KEY);
+                application.getString(PARSE_APPLICATION_KEY),
+                application.getString(PARSE_CLIENT_KEY));
+
     }
 
     @Provides

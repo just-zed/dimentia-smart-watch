@@ -15,6 +15,7 @@ import android.view.Window;
  * a negative button to simply close the dialog and this activity
  *
  * @author Freeman Man
+ * @version 1.0
  * @since 2015-9-20
  */
 public class DialogActivity extends Activity {
