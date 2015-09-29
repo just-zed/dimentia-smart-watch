@@ -1,13 +1,19 @@
 package com.justzed.common.model;
 
+import android.text.TextUtils;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.justzed.common.LocationHelper;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import rx.Observable;
 
@@ -29,6 +35,8 @@ public class PatientFence {
     private static final String KEY_CENTER = "center";
     private static final String KEY_RADIUS = "radius";
     private static final String KEY_DESCRIPTION = "description";
+    private static final String KEY_START_TIME = "startTime";
+    private static final String KEY_END_TIME = "endTime";
 
     //Variables
     private Person patient;
@@ -72,6 +80,25 @@ public class PatientFence {
         return objectId;
     }
 
+    private Calendar startTime;
+    private Calendar endTime;
+
+    public void setStartTime(Calendar startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Calendar endTime) {
+        this.endTime = endTime;
+    }
+
+    public Calendar getStartTime() {
+        return startTime;
+    }
+
+    public Calendar getEndTime() {
+        return endTime;
+    }
+
     public ParseObject getParseObject() {
         if (parseObject != null) {
             return parseObject;
@@ -87,6 +114,8 @@ public class PatientFence {
         this.center = center;
         this.radius = radius;
         this.description = null;
+        this.startTime = null;
+        this.endTime = null;
     }
 
     public PatientFence(Person patient, LatLng center, double radius, String description) {
@@ -94,15 +123,25 @@ public class PatientFence {
         this.center = center;
         this.radius = radius;
         this.description = description;
+        this.startTime = null;
+        this.endTime = null;
     }
 
-    public PatientFence(ParseObject parseObject, Person patient, LatLng center, double radius, String description) {
+    private PatientFence(ParseObject parseObject,
+                         Person patient,
+                         LatLng center,
+                         double radius,
+                         String description,
+                         Calendar startTime,
+                         Calendar endTime) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.patient = patient;
         this.center = center;
         this.radius = radius;
         this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     private ParseObject serialize() {
@@ -116,6 +155,10 @@ public class PatientFence {
         if (description != null) {
             parseObject.put(KEY_DESCRIPTION, description);
         }
+        if (startTime != null && endTime != null) {
+            parseObject.put(KEY_START_TIME, calendarToTimeString(startTime));
+            parseObject.put(KEY_END_TIME, calendarToTimeString(endTime));
+        }
         return parseObject;
     }
 
@@ -124,8 +167,42 @@ public class PatientFence {
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
                 LocationHelper.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
                 parseObject.getDouble(KEY_RADIUS),
-                parseObject.getString(KEY_DESCRIPTION));
+                parseObject.getString(KEY_DESCRIPTION),
+                timeStringToCalendar(parseObject.getString(KEY_START_TIME)),
+                timeStringToCalendar(parseObject.getString(KEY_END_TIME)));
+    }
 
+    private static final String TIME_FORMATTER = "%tR";
+
+    /**
+     * @param cal Calendar object of certain hour and minute of any day
+     * @return time string in HH:MM format
+     */
+    public static String calendarToTimeString(Calendar cal) {
+        return String.format(TIME_FORMATTER, cal);
+    }
+
+    /**
+     * @param timeString time string in HH:MM format
+     * @return Calendar object of that hour and minute of today
+     */
+    public static Calendar timeStringToCalendar(String timeString) {
+        if (!TextUtils.isEmpty(timeString)) {
+            Calendar now = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance();
+            DateFormat df = new SimpleDateFormat("HH:MM", Locale.ENGLISH);
+            try {
+                // parse time string
+                cal.setTime(df.parse(timeString));
+                // set date to today's date
+                cal.set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR));
+                cal.set(Calendar.YEAR, now.get(Calendar.YEAR));
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+            return cal;
+        }
+        return null;
     }
 
     /**

@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -192,6 +193,8 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         }
     }
 
+    private static final String TIME_STRING_FORMATTER = "%tR";
+
     /**
      * Tests the edit methods
      *
@@ -201,6 +204,9 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @Test
     public void testEdit() {
 
+        List<PatientFence> existingList = PatientFence.getPatientFences(patient).toBlocking().single();
+
+        int existingSize = existingList != null ? existingList.size() : 0;
         //setUp
         PatientFence fence = new PatientFence(patient, center, radius)
                 .save()
@@ -214,19 +220,30 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         List<PatientFence> patientFences = PatientFence.getPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences);
-        assertEquals(patientFences.size(), 1);
+        assertEquals(patientFences.size(), existingSize + 1);
 
         PatientFence fenceToEdit = patientFences.get(0);
         assertEquals(fenceToEdit.getPatient().getObjectId(), patient.getObjectId());
         assertEquals(fenceToEdit.getCenter(), center);
         assertEquals(fenceToEdit.getRadius(), radius);
 
+        Calendar startTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance();
+        endTime.add(Calendar.HOUR, 3);
+
+        String startTimeString = String.format(TIME_STRING_FORMATTER, startTime);
+        String endTimeString = String.format(TIME_STRING_FORMATTER, endTime);
+
+
         fenceToEdit.setCenter(center1);
         fenceToEdit.setRadius(radius1);
+        fenceToEdit.setStartTime(startTime);
+        fenceToEdit.setEndTime(endTime);
         fenceToEdit.save().toBlocking().single();
 
         assertEquals(fenceToEdit.getObjectId(), fence.getObjectId());
-
+        assertEquals(String.format(TIME_STRING_FORMATTER, fenceToEdit.getStartTime()), startTimeString);
+        assertEquals(String.format(TIME_STRING_FORMATTER, fenceToEdit.getEndTime()), endTimeString);
 
         //re-read
         List<PatientFence> patientFences1 = PatientFence.getPatientFences(patient).toBlocking().single();
@@ -239,16 +256,19 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         assertEquals(retrievedFence.getCenter(), center1);
         assertEquals(retrievedFence.getRadius(), radius1);
 
+        assertEquals(String.format(TIME_STRING_FORMATTER, retrievedFence.getStartTime()), startTimeString);
+        assertEquals(String.format(TIME_STRING_FORMATTER, retrievedFence.getEndTime()), endTimeString);
 
-        //tearDown
 
-        try {
-            assertNull(fence.delete().toBlocking().single());
-            assertNull(fence.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+//        //tearDown
+//
+//        try {
+//            assertNull(retrievedFence.delete().toBlocking().single());
+//            assertNull(retrievedFence.getObjectId());
+//            assertTrue(true);
+//        } catch (Exception e) {
+//            assertTrue(false);
+//        }
     }
 
     /**
