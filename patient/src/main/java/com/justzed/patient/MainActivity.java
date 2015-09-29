@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
     private static final int REQ_CODE_SEND_TOKEN = 1;  // The request code
 
     // temp token
-    private String token = getString(R.string.DEVICE_TOKEN);
+    private String token;
 
 
     @Bind(R.id.panic_button)
@@ -56,8 +56,6 @@ public class MainActivity extends Activity {
         ButterKnife.bind(this);
 
 
-        token = getToken();
-
         View decorView = getWindow().getDecorView();
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -78,7 +76,9 @@ public class MainActivity extends Activity {
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
 
-            new Person(Person.PATIENT, getToken())
+            token = getToken();
+
+            new Person(Person.PATIENT, token)
                     .save()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -96,9 +96,9 @@ public class MainActivity extends Activity {
 
         } else {
             //get patient token from cache, get person object from database and start service
-            String uniqueToken = mPrefs.getString(PREF_PERSON_KEY, "");
+            token = mPrefs.getString(PREF_PERSON_KEY, "");
 
-            Person.getByUniqueToken(uniqueToken)
+            Person.getByUniqueToken(token)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -163,10 +163,15 @@ public class MainActivity extends Activity {
     }
 
     private String getToken() {
-        if (!TextUtils.isEmpty(token)) {
+        if (token != null) {
             return token;
         } else {
-            return new SaveSyncToken(this).findMyDeviceId();
+            String debugToken = getString(R.string.DEVICE_TOKEN);
+            if (!TextUtils.isEmpty(debugToken)) {
+                return debugToken;
+            } else {
+                return new SaveSyncToken(this).findMyDeviceId();
+            }
         }
     }
 

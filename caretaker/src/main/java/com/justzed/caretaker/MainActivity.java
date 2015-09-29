@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
     public static final String PREF_PERSON_KEY = "PersonPref";
 
     // temp token
-    private String token = getString(R.string.DEVICE_TOKEN);
+    private String token;
 
     @Bind(R.id.button)
     View button;
@@ -98,8 +98,9 @@ public class MainActivity extends Activity {
 
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
+            token = getToken();
 
-            return new Person(Person.CARETAKER, getToken())
+            return new Person(Person.CARETAKER, token)
                     .save()
                     .map(person1 -> {
                         this.caretaker = person1;
@@ -111,9 +112,9 @@ public class MainActivity extends Activity {
         } else {
             //get patient token from app data,
             // get person object from database and start service
-            String uniqueToken = mPrefs.getString(PREF_PERSON_KEY, "");
+            token = mPrefs.getString(PREF_PERSON_KEY, "");
 
-            return Person.getByUniqueToken(uniqueToken)
+            return Person.getByUniqueToken(token)
                     .map(person1 -> {
                         this.caretaker = person1;
                         return person1;
@@ -149,10 +150,16 @@ public class MainActivity extends Activity {
     }
 
     private String getToken() {
-        if (!TextUtils.isEmpty(token)) {
+        if (token != null) {
             return token;
         } else {
-            return new SaveSyncToken(this).findMyDeviceId();
+            String debugToken = getString(R.string.DEVICE_TOKEN);
+            if (!TextUtils.isEmpty(debugToken)) {
+                return debugToken;
+            } else {
+                return new SaveSyncToken(this).findMyDeviceId();
+            }
         }
+
     }
 }
