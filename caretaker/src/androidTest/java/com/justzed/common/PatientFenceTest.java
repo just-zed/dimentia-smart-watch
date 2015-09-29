@@ -239,11 +239,10 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         fenceToEdit.setRadius(radius1);
         fenceToEdit.setStartTime(startTime);
         fenceToEdit.setEndTime(endTime);
+        fenceToEdit.setGroupId(3);
         fenceToEdit.save().toBlocking().single();
 
         assertEquals(fenceToEdit.getObjectId(), fence.getObjectId());
-        assertEquals(String.format(TIME_STRING_FORMATTER, fenceToEdit.getStartTime()), startTimeString);
-        assertEquals(String.format(TIME_STRING_FORMATTER, fenceToEdit.getEndTime()), endTimeString);
 
         //re-read
         List<PatientFence> patientFences1 = PatientFence.getPatientFences(patient).toBlocking().single();
@@ -258,17 +257,18 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         assertEquals(String.format(TIME_STRING_FORMATTER, retrievedFence.getStartTime()), startTimeString);
         assertEquals(String.format(TIME_STRING_FORMATTER, retrievedFence.getEndTime()), endTimeString);
+        assertEquals(retrievedFence.getGroupId(), 3);
 
 
-//        //tearDown
-//
-//        try {
-//            assertNull(retrievedFence.delete().toBlocking().single());
-//            assertNull(retrievedFence.getObjectId());
-//            assertTrue(true);
-//        } catch (Exception e) {
-//            assertTrue(false);
-//        }
+        //tearDown
+
+        try {
+            assertNull(retrievedFence.delete().toBlocking().single());
+            assertNull(retrievedFence.getObjectId());
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
     }
 
     /**

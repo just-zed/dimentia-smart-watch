@@ -37,6 +37,10 @@ public class PatientFence {
     private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_START_TIME = "startTime";
     private static final String KEY_END_TIME = "endTime";
+    private static final String KEY_GROUP_ID = "groupId";
+
+    private static final String TIME_FORMATTER = "HH:MM";
+    private static final DateFormat df = new SimpleDateFormat(TIME_FORMATTER, Locale.ENGLISH);
 
     //Variables
     private Person patient;
@@ -60,6 +64,8 @@ public class PatientFence {
     private String objectId = null;
     private ParseObject parseObject = null;
 
+    private long groupId = 0;
+
     public Person getPatient() {
         return patient;
     }
@@ -78,6 +84,14 @@ public class PatientFence {
 
     public String getObjectId() {
         return objectId;
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
     }
 
     private Calendar startTime;
@@ -116,6 +130,7 @@ public class PatientFence {
         this.description = null;
         this.startTime = null;
         this.endTime = null;
+        this.groupId = 0;
     }
 
     public PatientFence(Person patient, LatLng center, double radius, String description) {
@@ -125,6 +140,7 @@ public class PatientFence {
         this.description = description;
         this.startTime = null;
         this.endTime = null;
+        this.groupId = 0;
     }
 
     private PatientFence(ParseObject parseObject,
@@ -133,7 +149,8 @@ public class PatientFence {
                          double radius,
                          String description,
                          Calendar startTime,
-                         Calendar endTime) {
+                         Calendar endTime,
+                         long groupId) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.patient = patient;
@@ -142,6 +159,8 @@ public class PatientFence {
         this.description = description;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.groupId = groupId;
+
     }
 
     private ParseObject serialize() {
@@ -159,6 +178,7 @@ public class PatientFence {
             parseObject.put(KEY_START_TIME, calendarToTimeString(startTime));
             parseObject.put(KEY_END_TIME, calendarToTimeString(endTime));
         }
+        parseObject.put(KEY_GROUP_ID, groupId);
         return parseObject;
     }
 
@@ -169,17 +189,18 @@ public class PatientFence {
                 parseObject.getDouble(KEY_RADIUS),
                 parseObject.getString(KEY_DESCRIPTION),
                 timeStringToCalendar(parseObject.getString(KEY_START_TIME)),
-                timeStringToCalendar(parseObject.getString(KEY_END_TIME)));
+                timeStringToCalendar(parseObject.getString(KEY_END_TIME)),
+                parseObject.getLong(KEY_GROUP_ID)
+        );
     }
 
-    private static final String TIME_FORMATTER = "%tR";
 
     /**
      * @param cal Calendar object of certain hour and minute of any day
      * @return time string in HH:MM format
      */
     public static String calendarToTimeString(Calendar cal) {
-        return String.format(TIME_FORMATTER, cal);
+        return df.format(cal.getTime());
     }
 
     /**
@@ -190,7 +211,6 @@ public class PatientFence {
         if (!TextUtils.isEmpty(timeString)) {
             Calendar now = Calendar.getInstance();
             Calendar cal = Calendar.getInstance();
-            DateFormat df = new SimpleDateFormat("HH:MM", Locale.ENGLISH);
             try {
                 // parse time string
                 cal.setTime(df.parse(timeString));
