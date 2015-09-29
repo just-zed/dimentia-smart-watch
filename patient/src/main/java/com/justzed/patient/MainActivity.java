@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -30,7 +31,7 @@ public class MainActivity extends Activity {
     private static final int REQ_CODE_SEND_TOKEN = 1;  // The request code
 
     // temp token
-    private String token = "00000000-6c94-4036-0033-c58700000000";
+    private String token = getString(R.string.DEVICE_TOKEN);
 
 
     @Bind(R.id.panic_button)
@@ -162,7 +163,7 @@ public class MainActivity extends Activity {
     }
 
     private String getToken() {
-        if (token != null) {
+        if (!TextUtils.isEmpty(token)) {
             return token;
         } else {
             return new SaveSyncToken(this).findMyDeviceId();

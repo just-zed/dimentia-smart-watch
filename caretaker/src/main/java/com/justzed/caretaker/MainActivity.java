@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -31,7 +32,7 @@ public class MainActivity extends Activity {
     public static final String PREF_PERSON_KEY = "PersonPref";
 
     // temp token
-    private String token = "ffffffff-fcfb-6ccb-0033-c58700000000";
+    private String token = getString(R.string.DEVICE_TOKEN);
 
     @Bind(R.id.button)
     View button;
@@ -148,7 +149,7 @@ public class MainActivity extends Activity {
     }
 
     private String getToken() {
-        if (token != null) {
+        if (!TextUtils.isEmpty(token)) {
             return token;
         } else {
             return new SaveSyncToken(this).findMyDeviceId();
