@@ -19,6 +19,7 @@
     <string name="title_activity_caretaker_nfc">Pair a Patient</string>
     <string name="center_map_description">button to center the map on the patient.</string>
     <string name="add">Add</string>
+    <string name="add_advance">Add Advance</string>
     <string name="save">save</string>
     <string name="delete">delete</string>
     <string name="clear">clear</string>
@@ -28,5 +29,7 @@
     <string name="title_activity_dialog">DialogActivity</string>
     <string name="launch_caretaker">Launch Caretaker</string>
     <string name="add_fence_title">ADD A GEOFENCE</string>
+    <string name="add_advance_fence_title">ADD A ADVANCE GEOFENCE</string>
     <string name="edit_fence_title">EDIT GEOFENCE</string>
+    <string name="edit_advance_fence_title">EDIT ADVANCE GEOFENCE</string>
 </resources>
