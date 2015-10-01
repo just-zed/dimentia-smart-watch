@@ -66,6 +66,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private Button btnAdd;
     private Button btnAddAdvance;
     private Button btnSave;
+    private Button btnReset;
     private Button btnDelete;
     private Button btnClear;
     private Button btnCancel;
@@ -77,14 +78,20 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private boolean addMode = false;
     private boolean addAdvanceMode = false;
     private boolean editMode = false;
+    private boolean editAdvanceMode = false;
 
     private boolean tempAdvanceCircle1 = false;
     private boolean tempAdvanceCircle2 = false;
     private Circle mTempCircle1;
     private Circle mTempCircle2;
     private Marker mTempMarker1;
-    private Marker mTempMarker2;
-    private List<List<Circle>> advCircleList;
+    private ArrayList<String> strAdvFencesList;
+    private ArrayList<Marker> advMarkerList;
+    private ArrayList<ArrayList<Circle>> advCircleList;
+    private ArrayList<Circle> tempAdvCircleList;
+    private boolean advEditFlag = false;
+    private LatLng curCenFence1;
+    private LatLng curCenFence2;
 
     private Circle mTempCircle;
     private Marker mTempMarker;
@@ -146,6 +153,10 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 case R.id.save_button:
                     //do stuff
                     clickSaveButton();
+                    break;
+                case R.id.reset_button:
+                    //do stuff
+                    clickResetButton();
                     break;
                 case R.id.delete_button:
                     //do stuff
@@ -224,17 +235,41 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      */
     private int posFenceWhenClicked(LatLng latLng) {
         int pos = -1;
+
+        // Search in normal fences.
         int size = circlesList.size();
         for (int i = 0; i < size; i++) {
             LatLng center = circlesList.get(i).getCenter();
             double radius = circlesList.get(i).getRadius();
             float[] distance = new float[1];
-            Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude, center.longitude, distance);
+            Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude,
+                    center.longitude, distance);
 
             boolean clicked = distance[0] < radius;
             if (clicked) {
                 pos = i;
+                advEditFlag = false;
                 break;
+            }
+        }
+
+        // Search in advance fences.
+        size = advCircleList.size();
+        for (int i = 0; i < size; i++){
+            int size1 = advCircleList.get(i).size();
+            for (int j = 0; j < size1; j++){
+                LatLng center = advCircleList.get(i).get(j).getCenter();
+                double radius = advCircleList.get(i).get(j).getRadius();
+                float[] distance = new float[1];
+                Location.distanceBetween(latLng.latitude, latLng.longitude, center.latitude,
+                        center.longitude, distance);
+
+                boolean clicked = distance[0] < radius;
+                if (clicked) {
+                    pos = i;
+                    advEditFlag = true;
+                    break;
+                }
             }
         }
         return pos;
@@ -256,6 +291,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnAdd = (Button) findViewById(R.id.add_button);
         btnAddAdvance = (Button) findViewById(R.id.add_advance_button);
         btnSave = (Button) findViewById(R.id.save_button);
+        btnReset = (Button) findViewById(R.id.reset_button);
         btnDelete = (Button) findViewById(R.id.delete_button);
         btnClear = (Button) findViewById(R.id.clear_button);
         btnCancel = (Button) findViewById(R.id.cancel_button);
@@ -268,6 +304,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnAdd.setOnClickListener(btnClickListener);
         btnAddAdvance.setOnClickListener(btnClickListener);
         btnSave.setOnClickListener(btnClickListener);
+        btnReset.setOnClickListener(btnClickListener);
         btnDelete.setOnClickListener(btnClickListener);
         btnClear.setOnClickListener(btnClickListener);
         btnCancel.setOnClickListener(btnClickListener);
@@ -284,13 +321,21 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         markerList = new ArrayList<Marker>();
         circlesList = new ArrayList<Circle>();
         patientFenceList = new ArrayList<PatientFence>();
-        advCircleList = new ArrayList<List<Circle>>();
+
+        advCircleList = new ArrayList<ArrayList<Circle>>();
+        tempAdvCircleList = new ArrayList<Circle>();
+        strAdvFencesList = new ArrayList<String>();
+        advMarkerList = new ArrayList<Marker>();
 
         strFencesList.clear();
         markerList.clear();
         circlesList.clear();
         patientFenceList.clear();
+
         advCircleList.clear();
+        tempAdvCircleList.clear();
+        strAdvFencesList.clear();
+        advMarkerList.clear();
 
         PatientFence.findPatientFences(patient)
                 .subscribeOn(Schedulers.io())
@@ -377,6 +422,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private void clickAddAdvanceButton(){
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
+        btnReset.setVisibility(View.VISIBLE);
         btnDelete.setVisibility(View.GONE);
         btnAdd.setVisibility(View.GONE);
         btnAddAdvance.setVisibility(View.GONE);
@@ -399,6 +445,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         int size = markerList.size();
         for (int i = 0; i < size; i++) {
             markerList.get(i).setVisible(flag);
+        }
+
+        size = advMarkerList.size();
+        for (int i = 0; i < size; i++){
+            advMarkerList.get(i).setVisible(flag);
         }
     }
 
@@ -426,20 +477,55 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         ibtnMapCenter.setVisibility(View.GONE);
         btnDelete.setVisibility(View.VISIBLE);
         btnAdd.setVisibility(View.GONE);
+        btnAddAdvance.setVisibility(View.GONE);
         btnCancel.setVisibility(View.VISIBLE);
-        txvFenceMode.setText(R.string.edit_fence_title);
-        editMode = true;
+
         showMarkers(false);
 
         curPosFence = pos;
-        curTitleFence = strFencesList.get(pos);
-        curCenFence = circlesList.get(pos).getCenter();
-        curRadFence = circlesList.get(pos).getRadius();
 
-        markerList.get(pos).setVisible(true);
+        if (!advEditFlag) {
+            editMode = true;
+            txvFenceMode.setText(R.string.edit_fence_title);
 
-        drawTempMarker(mMap, curCenFence, curTitleFence);
-        drawTempFence(mMap, curCenFence, curRadFence);
+            curTitleFence = strFencesList.get(pos);
+            curCenFence = circlesList.get(pos).getCenter();
+            curRadFence = circlesList.get(pos).getRadius();
+
+            markerList.get(pos).setVisible(true);
+
+            drawTempMarker(mMap, curCenFence, curTitleFence);
+            drawTempFence(mMap, curCenFence, curRadFence);
+        } else {
+            editAdvanceMode = true;
+            btnReset.setVisibility(View.VISIBLE);
+            txvFenceMode.setText(R.string.edit_advance_fence_title);
+
+            curTitleFence = strAdvFencesList.get(pos);
+            curCenFence1 = advCircleList.get(pos).get(0).getCenter();
+            int size = advCircleList.get(pos).size();
+            curCenFence2 = advCircleList.get(pos).get(size-1).getCenter();
+            curRadFence = advCircleList.get(pos).get(0).getRadius();
+
+            advMarkerList.get(pos).setVisible(true);
+
+            drawTempAdvanceMarker1(mMap, curCenFence1, curTitleFence);
+
+            drawTempAdvanceFence1(mMap, curCenFence1, curRadFence);
+            drawTempAdvanceFence2(mMap, curCenFence2, curRadFence);
+
+            if (!tempAdvCircleList.isEmpty()){
+                tempAdvCircleList.clear();
+            }
+
+            boolean checkAddAll = tempAdvCircleList.addAll(advCircleList.get(pos));
+
+            if (checkAddAll){
+                drawAdvanceCircles(mTempCircle1, mTempCircle2, tempAdvCircleList);
+            } else {
+                toast("There is not any advance fence.");
+            }
+        }
 
         txtFenceTitle.setText(curTitleFence);
         int i = (int) curRadFence;
@@ -451,7 +537,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     /**
      * Created by Nguyen Nam Cuong Tran.
      * This method is used to implement actions of Save Button.
-     * Saving fence. There are 2 mode: Add mode and Edit mode.
+     * Saving fence. There are 4 modes: Add mode, Edit mode, Add Advance mode and Edit Advance mode.
      */
     private void clickSaveButton() {
         if (addMode) {
@@ -491,7 +577,76 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 Log.e(TAG, "clickSaveButton: editMode is wrong.");
             }
         }
+
+        if (editAdvanceMode) {
+            try {
+                if (checkTitleFence(txtFenceTitle.getText().toString().trim())) {
+                    saveEditAdvanceMode();
+                } else {
+                    toast("The title is blank. Please type the title of the fence.");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "clickSaveButton: editMode is wrong.");
+            }
+        }
+
         showMarkers(false);
+    }
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Save Button.
+     * Saving advance fence in Edit Advance mode.
+     */
+    private void saveEditAdvanceMode(){
+        String title = txtFenceTitle.getText().toString().trim();
+        LatLng center = mTempCircle1.getCenter();
+        double radius = mTempCircle1.getRadius();
+
+        // Add to database.
+        strAdvFencesList.set(curPosFence, title);
+        advMarkerList.get(curPosFence).setPosition(center);
+        advMarkerList.get(curPosFence).setTitle(title);
+
+        int size = advCircleList.get(curPosFence).size();
+        for (int i = 0; i < size; i++){
+            advCircleList.get(curPosFence).get(i).remove();
+        }
+
+        advCircleList.remove(curPosFence);
+
+        size = tempAdvCircleList.size();
+        ArrayList<Circle> circleArrayList = new ArrayList<Circle>();
+        circleArrayList.ensureCapacity(size);
+
+        for (int i = 0; i < size; i++){
+            circleArrayList.add(drawCircle(mMap, tempAdvCircleList.get(i).getCenter(),
+                    tempAdvCircleList.get(i).getRadius()));
+        }
+        advCircleList.add(circleArrayList);
+
+        for (int i = 0; i < size; i++){
+            tempAdvCircleList.get(i).remove();
+        }
+
+        tempAdvCircleList.clear();
+
+        mTempMarker1.remove();
+        mTempCircle1.remove();
+        mTempCircle2.remove();
+
+        tempAdvanceCircle1 = false;
+        tempAdvanceCircle2 = false;
+
+        fenceLayout.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        btnAddAdvance.setVisibility(View.VISIBLE);
+        btnCancel.setVisibility(View.GONE);
+        btnReset.setVisibility(View.GONE);
+        editAdvanceMode = false;
+
+        toast("Edited Advance fence successfully.");
     }
 
     /**
@@ -500,9 +655,43 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Saving advance fence in Add Advance mode.
      */
     private void saveAddAdvanceMode(){
-        String title = txtFenceTitle.getText().toString();
+        String title = txtFenceTitle.getText().toString().trim();
         LatLng center = mTempCircle1.getCenter();
         double radius = mTempCircle1.getRadius();
+
+        // Add to database.
+        strAdvFencesList.add(title);
+        advMarkerList.add(drawMarker(mMap, center, title));
+
+        int size = tempAdvCircleList.size();
+        ArrayList<Circle> circleArrayList = new ArrayList<Circle>();
+        circleArrayList.ensureCapacity(size);
+
+        for (int i = 0; i < size; i++){
+            circleArrayList.add(drawCircle(mMap, tempAdvCircleList.get(i).getCenter(),
+                    tempAdvCircleList.get(i).getRadius()));
+        }
+        advCircleList.add(circleArrayList);
+
+        for (int i = 0; i < size; i++){
+            tempAdvCircleList.get(i).remove();
+        }
+
+        tempAdvCircleList.clear();
+        mTempMarker1.remove();
+        mTempCircle1.remove();
+        mTempCircle2.remove();
+
+        fenceLayout.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        btnAddAdvance.setVisibility(View.VISIBLE);
+        btnCancel.setVisibility(View.GONE);
+        btnReset.setVisibility(View.GONE);
+
+        addAdvanceMode = false;
+
+        toast("Saved fence successfully.");
     }
 
     /**
@@ -538,6 +727,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             fenceLayout.setVisibility(View.GONE);
                             ibtnMapCenter.setVisibility(View.VISIBLE);
                             btnAdd.setVisibility(View.VISIBLE);
+                            btnAddAdvance.setVisibility(View.VISIBLE);
                             btnCancel.setVisibility(View.GONE);
                             addMode = false;
 
@@ -585,10 +775,120 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             fenceLayout.setVisibility(View.GONE);
                             ibtnMapCenter.setVisibility(View.VISIBLE);
                             btnAdd.setVisibility(View.VISIBLE);
+                            btnAddAdvance.setVisibility(View.VISIBLE);
                             btnCancel.setVisibility(View.GONE);
                             editMode = false;
 
                             toast("Edited fence successfully.");
+                        },
+                        throwable -> {
+                            Log.e(TAG, throwable.getMessage());
+                        }
+                );
+    }
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Reset Button.
+     * Reset all actions in Add Advance mode or Edit Advance mode.
+     */
+    private void clickResetButton(){
+        if ((addAdvanceMode) || (editAdvanceMode)){
+            if (mTempMarker1 != null) {
+                mTempMarker1.remove();
+            }
+
+            if (mTempCircle1 != null) {
+                mTempCircle1.remove();
+            }
+
+            if (mTempCircle2 != null) {
+                mTempCircle2.remove();
+            }
+
+            if (!tempAdvCircleList.isEmpty()){
+                int size = tempAdvCircleList.size();
+                for (int i = 0; i < size; i++){
+                    tempAdvCircleList.get(i).remove();
+                }
+                tempAdvCircleList.clear();
+            }
+        }
+    }
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Delete Button.
+     * Deleting advance fence in Edit Advance mode.
+     */
+    private void deleteAdvanceFence(){
+        mTempMarker1.remove();
+        mTempCircle1.remove();
+        mTempCircle2.remove();
+
+        int size = tempAdvCircleList.size();
+        for (int i = 0; i < size; i++){
+            tempAdvCircleList.get(i).remove();
+            advCircleList.get(curPosFence).get(i).remove();
+        }
+
+        tempAdvCircleList.clear();
+        advCircleList.remove(curPosFence);
+
+        advMarkerList.get(curPosFence).remove();
+        advMarkerList.remove(curPosFence);
+
+        strAdvFencesList.remove(curPosFence);
+
+        fenceLayout.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.VISIBLE);
+        btnAdd.setVisibility(View.VISIBLE);
+        btnAddAdvance.setVisibility(View.VISIBLE);
+        btnCancel.setVisibility(View.GONE);
+        editAdvanceMode = false;
+
+        toast("Deleted successfully.");
+
+        showMarkers(false);
+    }
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Delete Button.
+     * Deleting normal fence in Edit mode.
+     */
+    private void deleteNormalFence(){
+        PatientFence fence = patientFenceList.get(curPosFence);
+        fence.delete()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        patientFence -> {
+                            if (patientFence == null) {
+                                mTempMarker.remove();
+                                mTempCircle.remove();
+
+                                markerList.get(curPosFence).remove();
+                                circlesList.get(curPosFence).remove();
+
+                                markerList.remove(curPosFence);
+                                circlesList.remove(curPosFence);
+
+                                strFencesList.remove(curPosFence);
+
+                                patientFenceList.remove(curPosFence);
+
+                                fenceLayout.setVisibility(View.GONE);
+                                ibtnMapCenter.setVisibility(View.VISIBLE);
+                                btnAdd.setVisibility(View.VISIBLE);
+                                btnAddAdvance.setVisibility(View.VISIBLE);
+                                btnCancel.setVisibility(View.GONE);
+                                editMode = false;
+
+                                toast("Deleted successfully.");
+
+                                showMarkers(false);
+                            }
                         },
                         throwable -> {
                             Log.e(TAG, throwable.getMessage());
@@ -610,41 +910,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    PatientFence fence = patientFenceList.get(curPosFence);
-                    fence.delete()
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    patientFence -> {
-                                        if (patientFence == null) {
-                                            mTempMarker.remove();
-                                            mTempCircle.remove();
-
-                                            markerList.get(curPosFence).remove();
-                                            circlesList.get(curPosFence).remove();
-
-                                            markerList.remove(curPosFence);
-                                            circlesList.remove(curPosFence);
-
-                                            strFencesList.remove(curPosFence);
-
-                                            patientFenceList.remove(curPosFence);
-
-                                            fenceLayout.setVisibility(View.GONE);
-                                            ibtnMapCenter.setVisibility(View.VISIBLE);
-                                            btnAdd.setVisibility(View.VISIBLE);
-                                            btnCancel.setVisibility(View.GONE);
-                                            editMode = false;
-
-                                            toast("Deleted successfully.");
-
-                                            showMarkers(false);
-                                        }
-                                    },
-                                    throwable -> {
-                                        Log.e(TAG, throwable.getMessage());
-                                    }
-                            );
+                    if (!advEditFlag) {
+                        deleteNormalFence();
+                    } else {
+                        deleteAdvanceFence();
+                    }
                 }
             });
 
@@ -680,10 +950,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         fenceLayout.setVisibility(View.GONE);
         ibtnMapCenter.setVisibility(View.VISIBLE);
         btnAdd.setVisibility(View.VISIBLE);
+        btnAddAdvance.setVisibility(View.VISIBLE);
         btnCancel.setVisibility(View.GONE);
+        btnReset.setVisibility(View.GONE);
+
         addMode = false;
         addAdvanceMode = false;
         editMode = false;
+        editAdvanceMode = false;
 
         tempAdvanceCircle1 = false;
         tempAdvanceCircle2 = false;
@@ -694,10 +968,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         if (mTempMarker1 != null) {
             mTempMarker1.remove();
-        }
-
-        if (mTempMarker2 != null) {
-            mTempMarker2.remove();
         }
 
         if (mTempCircle != null) {
@@ -712,7 +982,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             mTempCircle2.remove();
         }
 
-        btnCancel.setVisibility(View.GONE);
+        if (!tempAdvCircleList.isEmpty()){
+            int size = tempAdvCircleList.size();
+            for (int i = 0; i < size; i++){
+                tempAdvCircleList.get(i).remove();
+            }
+            tempAdvCircleList.clear();
+        }
+
         showMarkers(false);
     }
 
@@ -753,17 +1030,13 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Created by Nguyen Nam Cuong Tran.
      * This method is used to initialize some setups for clicking on map.
      */
-     private void initClickMap(){
+    private void initClickMap(){
         if (mTempMarker != null) {
             mTempMarker.remove();
         }
 
         if (mTempMarker1 != null) {
             mTempMarker1.remove();
-        }
-
-        if (mTempMarker2 != null) {
-            mTempMarker2.remove();
         }
 
         if (mTempCircle != null) {
@@ -777,6 +1050,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         if (mTempCircle2 != null) {
             mTempCircle2.remove();
         }
+
+        if (!tempAdvCircleList.isEmpty()){
+            int size = tempAdvCircleList.size();
+            for (int i = 0; i < size; i++){
+                tempAdvCircleList.get(i).remove();
+            }
+            tempAdvCircleList.clear();
+        }
     }
 
     /**
@@ -785,9 +1066,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      *
      * @param latLng The location which user clicked on the map.
      */
-    private void clickMapAddMode(LatLng latLng){
+    private void clickMapAddEditMode(LatLng latLng){
         try {
-            skbFenceRadius.setEnabled(true);
+            if (!editMode) {
+                skbFenceRadius.setEnabled(true);
+            }
 
             drawTempMarker(mMap, latLng, TITLE_DEFAULT);
             drawTempFence(mMap, latLng, RADIUS_DEFAULT);
@@ -797,27 +1080,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             String t = Integer.toString(i);
             txvFenceRadius.setText("Radius of fence : " + t + " meters.");
         } catch (Exception e) {
-            Log.e(TAG, "clickMap: addMode is Wrong.");
-        }
-    }
-
-    /**
-     * Created by Nguyen Nam Cuong Tran.
-     * This method is used to implement actions of Edit mode in clickMap Method.
-     *
-     * @param latLng The location which user clicked on the map.
-     */
-    private void clickMapEditMode(LatLng latLng){
-        try {
-            drawTempMarker(mMap, latLng, curTitleFence);
-            drawTempFence(mMap, latLng, curRadFence);
-
-            int i = (int) mTempCircle.getRadius();
-            skbFenceRadius.setProgress(i);
-            String t = Integer.toString(i);
-            txvFenceRadius.setText("Radius of fence : " + t + " meters.");
-        } catch (Exception e) {
-            Log.e(TAG, "clickMap: editMode is Wrong.");
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -827,24 +1090,48 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      *
      * @param latLng The location which user clicked on the map.
      */
-    private void clickMapAddAdvanceMode(LatLng latLng){
+    private void clickMapAddEditAdvanceMode(LatLng latLng){
         try{
-            skbFenceRadius.setEnabled(true);
+            String st;
+            if (!editAdvanceMode) {
+                skbFenceRadius.setEnabled(true);
+                st = "Add Advance Fence";
+            } else {
+                st = "Edit Advance Fence";
+            }
 
-            if (tempAdvanceCircle1 == false){
-                tempAdvanceCircle1 = true;
-                drawTempMarker(mMap, latLng, TITLE_DEFAULT);
-                drawTempAdvanceFence1(mMap, latLng, RADIUS_DEFAULT);
+            if (tempAdvanceCircle1 == false) {
+                AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
-                int i = (int) mTempCircle1.getRadius();
-                skbFenceRadius.setProgress(i);
-                String t = Integer.toString(i);
-                txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+                b.setTitle(st);
+                b.setMessage("Do you finish determining the fence 1 ?");
+                b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tempAdvanceCircle1 = true;
+                        drawTempAdvanceMarker1(mMap, latLng, TITLE_DEFAULT);
+                        drawTempAdvanceFence1(mMap, latLng, RADIUS_DEFAULT);
+
+                        int i = (int) mTempCircle1.getRadius();
+                        skbFenceRadius.setProgress(i);
+                        String t = Integer.toString(i);
+                        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+                    }
+                });
+
+                b.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                b.create().show();
             } else {
                 if (tempAdvanceCircle2 == false){
                     AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
-                    b.setTitle("Add Advance Fence");
+                    b.setTitle(st);
                     b.setMessage("Do you finish determining the fence 2 ?");
                     b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
@@ -853,7 +1140,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             drawTempAdvanceFence2(mMap, latLng, RADIUS_DEFAULT);
 
                             // Draw all Circles
-                            drawAdvanceCircles(mTempCircle1, mTempCircle2, advCircleList);
+                            drawAdvanceCircles(mTempCircle1, mTempCircle2, tempAdvCircleList);
                         }
                     });
 
@@ -876,7 +1163,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Created by Nguyen Nam Cuong Tran.
      * This method is used to draw Advance Fences.
      */
-    private void drawAdvanceCircles(Circle circle1, Circle circle2, List<Circle> mList){
+    private void drawAdvanceCircles(Circle circle1, Circle circle2, ArrayList<Circle> mList){
         if ((circle1 != null) && (circle2 != null)) {
             LatLng center1 = circle1.getCenter();
             LatLng center2 = circle2.getCenter();
@@ -889,7 +1176,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             mList.clear();
             mList.add(drawCircle(mMap, center1, radius));
 
-            for (int i = 1; i < number + 1; i++) {
+            for (int i = 1; i < number - 1; i++) {
                 double x = coordinateOfFence(center1, center2, rate, true, i);
                 double y = coordinateOfFence(center1, center2, rate, false, i);
                 mList.add(drawCircle(mMap, new LatLng(x, y), radius));
@@ -983,24 +1270,32 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     public void clickMap(LatLng latLng) {
         initClickMap();
 
-        if (!addMode && !editMode && !addAdvanceMode) {
+        if (!addMode && !editMode && !addAdvanceMode && !editAdvanceMode) {
             int pos = posFenceWhenClicked(latLng);
             if (pos != -1) {
                 showMarkers(false);
-                markerList.get(pos).setVisible(true);
+                if (!advEditFlag) {
+                    markerList.get(pos).setVisible(true);
+                } else {
+                    advMarkerList.get(pos).setVisible(true);
+                }
             }
         }
 
-        if (addMode) {
-            clickMapAddMode(latLng);
+        if (addMode){
+            clickMapAddEditMode(latLng);
         }
 
         if (addAdvanceMode){
-            clickMapAddAdvanceMode(latLng);
+            clickMapAddEditMode(latLng);
         }
 
-        if (editMode) {
-            clickMapEditMode(latLng);
+        if (editMode){
+            clickMapAddEditAdvanceMode(latLng);
+        }
+
+        if (editAdvanceMode){
+            clickMapAddEditAdvanceMode(latLng);
         }
     }
 
@@ -1014,21 +1309,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      */
     private void drawTempAdvanceMarker1(GoogleMap mMap, LatLng latLng, String title) {
         mTempMarker1 = mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(title)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-    }
-
-    /**
-     * Created by Nguyen Nam Cuong Tran
-     * This method is used to draw temporary advance marker 2 for adding and editing advance fence.
-     *
-     * @param mMap   An object of Google map.
-     * @param latLng The center of the temporary marker on the map.
-     * @param title  The title of the temporary marker.
-     */
-    private void drawTempAdvanceMarker2(GoogleMap mMap, LatLng latLng, String title) {
-        mTempMarker2 = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(title)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
