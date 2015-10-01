@@ -10,7 +10,10 @@ import com.justzed.common.model.Person;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -105,6 +108,7 @@ public class GeofencingCheck {
     @Status
     public int checkIfInsideGeofences(List<PatientFence> patientFences, PatientLocation deviceLocation) {
         float[] distance = new float[1];
+        DateFormat dateform = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
 
@@ -112,23 +116,22 @@ public class GeofencingCheck {
             currentlyInAFence = OUTSIDE_FENCE;
 
             for (int indexOfGeofences = 0; indexOfGeofences < patientFences.size(); indexOfGeofences++) {
-                Location.distanceBetween(patientFences.get(indexOfGeofences).getCenter().latitude,
-                        patientFences.get(indexOfGeofences).getCenter().longitude,
-                        deviceLocation.getLatLng().latitude,
-                        deviceLocation.getLatLng().longitude,
-                        distance);
+
+                Calendar currentDate = Calendar.getInstance();
+                Calendar geofenceEndDate /*TODO = patientFences.get(indexOfGeofences).getEndTimer()*/ = Calendar.getInstance();
+
+                if(currentDate.getTime().before(geofenceEndDate.getTime()) || currentDate.getTime().equals(geofenceEndDate.getTime())) {
+                    Location.distanceBetween(patientFences.get(indexOfGeofences).getCenter().latitude,
+                            patientFences.get(indexOfGeofences).getCenter().longitude,
+                            deviceLocation.getLatLng().latitude,
+                            deviceLocation.getLatLng().longitude,
+                            distance);
 
                 distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
 
-                //Uses the equation Math.sqrt((lat2-lat1)*(lat2-lat1) + (long2-long1)*(long2-long1))to check if the distance between the two points is less than
-                //the radius.
-                //distanceBetweenTwoPoints = Math.sqrt((geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
-                //       * (geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
-                //        + (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX])
-                //        * (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX]));
-
-                if (distanceBetweenTwoPoints < patientFences.get(indexOfGeofences).getRadius()) {
-                    currentlyInAFence = INSIDE_FENCE;
+                    if (distanceBetweenTwoPoints < patientFences.get(indexOfGeofences).getRadius()) {
+                        currentlyInAFence = INSIDE_FENCE;
+                    }
                 }
             }
 
