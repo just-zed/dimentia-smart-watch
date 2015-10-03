@@ -34,7 +34,7 @@ public class PatientLocation {
         this.latLng = latLng;
     }
 
-    public PatientLocation(ParseObject parseObject, Person patient, LatLng latLng) {
+    private PatientLocation(ParseObject parseObject, Person patient, LatLng latLng) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.patient = patient;
