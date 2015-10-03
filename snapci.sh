@@ -7,12 +7,9 @@ set -e
 INITIALIZATION_FILE="$ANDROID_HOME/.initialized-dependencies-$(git log -n 1 --format=%h -- $0)"
 ADB_INSTALL_TIMEOUT=100
 
-if [ ! -e ${ANDROID_HOME} ]; then
-# fetch and initialize $ANDROID_HOME
-  download-android
-fi
-
 if [ ! -e ${INITIALIZATION_FILE} ]; then
+  # fetch and initialize $ANDROID_HOME
+  download-android
   # Use the latest android sdk tools
   echo y | android update sdk --no-ui --filter platform-tool > /dev/null
   echo y | android update sdk --no-ui --filter tool > /dev/null
