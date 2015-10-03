@@ -92,8 +92,8 @@ public class PatientFence {
                 FenceUtils.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
                 parseObject.getDouble(KEY_RADIUS),
                 parseObject.getString(KEY_DESCRIPTION),
-                FenceUtils.timeStringToCalendar(parseObject.getString(KEY_START_TIME)),
-                FenceUtils.timeStringToCalendar(parseObject.getString(KEY_END_TIME)),
+                FenceUtils.dateToCalendar(parseObject.getDate(KEY_START_TIME)),
+                FenceUtils.dateToCalendar(parseObject.getDate(KEY_END_TIME)),
                 parseObject.getLong(KEY_GROUP_ID)
         );
     }
@@ -205,8 +205,8 @@ public class PatientFence {
             parseObject.put(KEY_DESCRIPTION, description);
         }
         if (startTime != null && endTime != null) {
-            parseObject.put(KEY_START_TIME, FenceUtils.calendarToTimeString(startTime));
-            parseObject.put(KEY_END_TIME, FenceUtils.calendarToTimeString(endTime));
+            parseObject.put(KEY_START_TIME, startTime.getTime());
+            parseObject.put(KEY_END_TIME, endTime.getTime());
         }
         parseObject.put(KEY_GROUP_ID, groupId);
         return parseObject;

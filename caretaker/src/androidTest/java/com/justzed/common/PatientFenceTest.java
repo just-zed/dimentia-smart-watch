@@ -193,7 +193,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         }
     }
 
-    private static final String TIME_STRING_FORMATTER = "%tR";
+    private static final String TIME_STRING_FORMATTER = "%tc";
 
     /**
      * Tests the edit methods

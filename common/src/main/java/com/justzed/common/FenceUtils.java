@@ -9,6 +9,7 @@ import com.parse.ParseGeoPoint;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -78,5 +79,21 @@ public class FenceUtils {
      */
     public static String calendarToTimeString(Calendar cal) {
         return df.format(cal.getTime());
+    }
+
+    /**
+     * Convert Date to Calendar object, null if date is null
+     *
+     * @param date Date object
+     * @return Calender object
+     */
+    public static Calendar dateToCalendar(Date date) {
+        if (date != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            return cal;
+        } else {
+            return null;
+        }
     }
 }
