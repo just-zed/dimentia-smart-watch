@@ -108,7 +108,6 @@ public class GeofencingCheck {
     @Status
     public int checkIfInsideGeofences(List<PatientFence> patientFences, PatientLocation deviceLocation) {
         float[] distance = new float[1];
-        DateFormat dateform = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
 
@@ -118,24 +117,32 @@ public class GeofencingCheck {
             for (int indexOfGeofences = 0; indexOfGeofences < patientFences.size(); indexOfGeofences++) {
 
                 Calendar currentDate = Calendar.getInstance();
-                Calendar geofenceEndDate /*TODO = patientFences.get(indexOfGeofences).getEndTimer()*/ = Calendar.getInstance();
+                Calendar geofenceEndDate = patientFences.get(indexOfGeofences).getEndTime();
+                Calendar geofenceStartDate = patientFences.get(indexOfGeofences).getStartTime();
 
-                if(currentDate.getTime().before(geofenceEndDate.getTime()) || currentDate.getTime().equals(geofenceEndDate.getTime())) {
+                /* If the geofence has no end date
+                 * or if the geofence has and end date and the current time is before or equal to the end time,
+                 * check if the patient is inside or outside the fence.
+                 */
+                if (geofenceEndDate == null
+                        || geofenceEndDate.before(geofenceStartDate)
+                        || geofenceEndDate.after(currentDate)
+                        || currentDate.equals(geofenceEndDate)) {
+
                     Location.distanceBetween(patientFences.get(indexOfGeofences).getCenter().latitude,
                             patientFences.get(indexOfGeofences).getCenter().longitude,
                             deviceLocation.getLatLng().latitude,
                             deviceLocation.getLatLng().longitude,
                             distance);
 
-                distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
+                    distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
 
                     if (distanceBetweenTwoPoints < patientFences.get(indexOfGeofences).getRadius()) {
                         currentlyInAFence = INSIDE_FENCE;
+
                     }
                 }
             }
-
-
         }
         return currentlyInAFence;
     }
