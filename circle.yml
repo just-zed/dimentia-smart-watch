@@ -2,17 +2,20 @@ machine:
   java:
     version: oraclejdk8
   environment:
-    ADB_INSTALL_TIMEOUT: 100
+    ADB_INSTALL_TIMEOUT: 8
 dependencies:
   pre:
-    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.0,android-23"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.0,android-23,android-22"
 test:
   override:
     # start the emulator
-    - emulator -avd circleci-android22 -no-audio -no-window:
+    - emulator -avd circleci-android22 -no-audio -no-window -netdelay none -netspeed full:
         background: true
         parallel: true
     # wait for it to have booted
     - circle-android wait-for-boot
     # run tests  against the emulator.
     - ./gradlew connectedAndroidTest -PpreDexEnable=false
+    - ./gradlew assembleRelease
+    - cp -r caretaker/build/outputs $CIRCLE_ARTIFACTS
+    - cp -r patient/build/outputs $CIRCLE_ARTIFACTS
