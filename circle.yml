@@ -2,7 +2,7 @@ machine:
   java:
     version: oraclejdk8
   environment:
-    ADB_INSTALL_TIMEOUT: 8
+    ADB_INSTALL_TIMEOUT: 100
 dependencies:
   pre:
     - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.0,android-23,android-22"
