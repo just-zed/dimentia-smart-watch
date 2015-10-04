@@ -1,15 +1,15 @@
 language: android
 jdk: oraclejdk8
 env:
-  matrix:
-    - ANDROID_TARGET=android-22  ANDROID_ABI=armeabi-v7a
   global:
      # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
      - secure: "KrvvTUepiJ71g3cdM/CBGqlHCh3jUJqVguIX4vReaINW0SDBHktLTSDBn9y+vjSS8QbAOWqFhioySVS+6WVA4+eBM7N0Pjx4bo0SbYytmDFhSffXlc6hlluGzykhMzFCtCXCliOVAlFXs2aIuhKwp45WFT4Lu6qn1SJiNJ9iJKuzHzTNSob/w61be+vy/onLnbmZ3Dz4gSr9FDpLTonbHS3vGvLxQuepKPpCcybZJDTTtAl3OPqTPdaDGRY+D9IsSQSWGgyrcquRwOousUOdIm36+HjHZs+DI7TcJBe1111bNW1wEQ/1MAWx4SMAn2Th3x593q+HK5k/jIhW1b5qIEIzEyQBo+a3PEKxvgu2Bdo2/dJrJIQ0Ktxj5GeIKyLG4CPkmW/qEuY7J4Egk6EuEXZjWEU7pPAGY3Bg5WbI4vHx8dyHYPkNRfSRSQntM12cFibVDWZ7JmyKi0Fxr0YVTi8UWHGCOUd7G++nb6UuoyegR1yaloyWjrAx9+S6sHC1VvJvFC2JLaeojqcTfznLm+6A2f8QTbSL/Vhyva89Pr8TWDvfWEiv+YtKgfRpvLr9s1sFjXMzDJ7yOlR0RovZaK89jSE1F9JQ3AcG1yqgutaCJaKsuta0jRfbjWEmDy2SB5L6RsOaxROSMqkobMXbAmxT2r0t0FvXb4L1pL6hmWY="
      - ADB_INSTALL_TIMEOUT=100
 android:
   components:
-    - build-tools-23.0.0
+    - platform-tools
+    - tools
+    - build-tools-23.0.1
     - android-23
     - android-22
     - extra-android-support
@@ -19,8 +19,9 @@ android:
     - sys-img-armeabi-v7a-android-22
 before_script:
   # Create and start emulator
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
+  - android list target
+  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+  - emulator -avd test -no-skin -no-audio -no-window -netdelay none -netspeed full &
   - adb wait-for-device
   - adb shell input keyevent 82 &
 script: ./gradlew connectedAndroidTest -PpreDexEnable=false

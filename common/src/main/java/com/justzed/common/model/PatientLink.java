@@ -38,7 +38,7 @@ public class PatientLink {
         this.caretaker = caretaker;
     }
 
-    public PatientLink(ParseObject parseObject, Person patient, Person caretaker) {
+    private PatientLink(ParseObject parseObject, Person patient, Person caretaker) {
         this.parseObject = parseObject;
         this.objectId = parseObject.getObjectId();
         this.patient = patient;

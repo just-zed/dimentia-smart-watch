@@ -17,7 +17,9 @@ import rx.Observable;
  * PatientFence object + data layer.
  * <p>
  * Geo fences are saved in circles only.
- * Each database row contains patient, center point and radius.
+ * Each database row contains patient, center point and radius and description
+ * startTime, endTime - are for timer based fences
+ * groupId - is for "tunnels"
  *
  * @author Freeman Man
  * @version 1.0
