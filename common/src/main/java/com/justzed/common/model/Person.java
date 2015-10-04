@@ -14,10 +14,12 @@ import java.lang.annotation.RetentionPolicy;
 import rx.Observable;
 
 /**
- * Person object + data access layer, implements parcelable
- * person object can be parceled and passed between activities through intent
- * <p>
- * Created by freeman on 8/16/15.
+ * Person object + data access layer, implements parcelable.
+ * person object can be parceled and passed between activities through intent.
+ *
+ * @author Freeman
+ * @version 1.0
+ * @since 2015-08-16
  */
 public class Person implements Parcelable {
 
@@ -88,8 +90,8 @@ public class Person implements Parcelable {
 
 
     /**
-     * if parseObject is empty but objectId is not, this creates an empty ParseObject("Person")
-     * with only objectId inside, and can be used for parse.com pointer relationship
+     * If parseObject is empty but objectId is not, this creates an empty ParseObject("Person")
+     * with only objectId inside, and can be used for parse.com pointer relationship.
      *
      * @return ParseObject of person
      */
