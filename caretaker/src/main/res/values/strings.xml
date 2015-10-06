@@ -29,8 +29,8 @@
     <string name="cancel">cancel</string>
     <string name="title_activity_dialog">DialogActivity</string>
     <string name="launch_caretaker">Launch Caretaker</string>
-    <string name="add_fence_title">ADD A GEOFENCE</string>
-    <string name="add_advance_fence_title">ADD A ADVANCE GEOFENCE</string>
+    <string name="add_fence_title">ADD GEOFENCE</string>
+    <string name="add_advance_fence_title">ADD ADV GEOFENCE</string>
     <string name="edit_fence_title">EDIT GEOFENCE</string>
-    <string name="edit_advance_fence_title">EDIT ADVANCE GEOFENCE</string>
+    <string name="edit_advance_fence_title">EDIT ADV GEOFENCE</string>
 </resources>
