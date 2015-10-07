@@ -107,18 +107,18 @@ public class Person implements Parcelable {
     private Person(ParseObject parseObject,
                    @Type int type,
                    String uniqueToken,
-                   boolean DisableGeofenceChecks,
+                   boolean disableGeofenceChecks,
                    String name) {
         this.objectId = parseObject.getObjectId();
         this.parseObject = parseObject;
         this.type = type;
         this.uniqueToken = uniqueToken;
-        this.disableGeofenceChecks = DisableGeofenceChecks;
+        this.disableGeofenceChecks = disableGeofenceChecks;
         this.name = name;
     }
 
 
-    public static Person deserialize(ParseObject parseObject) {
+    protected static Person deserialize(ParseObject parseObject) {
         return new Person(parseObject,
                 parseType(parseObject.getInt(KEY_TYPE_ID)),
                 parseObject.getString(KEY_UNIQUE_TOKEN),

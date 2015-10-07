@@ -88,7 +88,7 @@ public class PatientFence {
 
     }
 
-    private static PatientFence deserialize(ParseObject parseObject) throws ParseException {
+    protected static PatientFence deserialize(ParseObject parseObject) throws ParseException {
         return new PatientFence(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
                 FenceUtils.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),

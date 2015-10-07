@@ -4,11 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by freeman on 9/5/15.
@@ -21,8 +18,8 @@ import java.util.Locale;
  */
 public class FenceUtils {
 
-    private static final String TIME_FORMATTER = "HH:MM";
-    private static final DateFormat df = new SimpleDateFormat(TIME_FORMATTER, Locale.ENGLISH);
+//    private static final String TIME_FORMATTER = "HH:MM";
+//    private static final DateFormat df = new SimpleDateFormat(TIME_FORMATTER, Locale.ENGLISH);
 
     /**
      * convert ParseGeoPoint to google LatLng

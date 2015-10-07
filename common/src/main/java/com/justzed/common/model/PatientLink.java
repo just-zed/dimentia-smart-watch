@@ -50,7 +50,7 @@ public class PatientLink {
 //        }
     }
 
-    public static PatientLink deserialize(ParseObject parseObject) throws ParseException {
+    protected static PatientLink deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLink(
                 parseObject,
                 Person.deserialize(parseObject.getParseObject(KEY_PATIENT).fetchIfNeeded()),
