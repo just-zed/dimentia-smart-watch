@@ -25,8 +25,8 @@ import org.junit.runner.RunWith;
 public class PatientLinkTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientLinkTest.class.getName();
 
-    private final String patientToken = "someyadayadahardcodedpatienttoken";
-    private final String caretakerToken = "someyadayadahardcodedcaretakertoken";
+    private final String patientToken = "test_patient_" + Math.random() * 1000;
+    private final String caretakerToken = "test_caretaker_" + Math.random() * 1000;
 
 
     private Person patient;

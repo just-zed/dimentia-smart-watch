@@ -29,7 +29,7 @@ import java.util.List;
 public class PatientFenceTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientFenceTest.class.getName();
 
-    private final String patientToken = "someyadayadahardcodedpatienttoken";
+    private final String patientToken = "test_patient_" + Math.random() * 1000;
 
 
     private Person patient;
