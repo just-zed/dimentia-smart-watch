@@ -41,7 +41,7 @@ public class PatientLocation {
         this.latLng = latLng;
     }
 
-    public static PatientLocation deserialize(ParseObject parseObject) throws ParseException {
+    protected static PatientLocation deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLocation(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
                 FenceUtils.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_LATLNG)));
