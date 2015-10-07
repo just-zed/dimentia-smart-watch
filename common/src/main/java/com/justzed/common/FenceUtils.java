@@ -1,7 +1,5 @@
 package com.justzed.common;
 
-import android.text.TextUtils;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -9,6 +7,7 @@ import com.parse.ParseGeoPoint;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -50,33 +49,49 @@ public class FenceUtils {
         return new ParseGeoPoint(latLng.latitude, latLng.longitude);
     }
 
-    /**
-     * @param timeString time string in HH:MM format
-     * @return Calendar object of that hour and minute of today
-     */
-    public static Calendar timeStringToCalendar(String timeString) {
-        if (!TextUtils.isEmpty(timeString)) {
-            Calendar now = Calendar.getInstance();
-            Calendar cal = Calendar.getInstance();
-            try {
-                // parse time string
-                cal.setTime(df.parse(timeString));
-                // set date to today's date
-                cal.set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR));
-                cal.set(Calendar.YEAR, now.get(Calendar.YEAR));
-            } catch (java.text.ParseException e) {
-                e.printStackTrace();
-            }
-            return cal;
-        }
-        return null;
-    }
+//    /**
+//     * @param timeString time string in HH:MM format
+//     * @return Calendar object of that hour and minute of today
+//     */
+//    public static Calendar timeStringToCalendar(String timeString) {
+//        if (!TextUtils.isEmpty(timeString)) {
+//            Calendar now = Calendar.getInstance();
+//            Calendar cal = Calendar.getInstance();
+//            try {
+//                // parse time string
+//                cal.setTime(df.parse(timeString));
+//                // set date to today's date
+//                cal.set(Calendar.DAY_OF_YEAR, now.get(Calendar.DAY_OF_YEAR));
+//                cal.set(Calendar.YEAR, now.get(Calendar.YEAR));
+//            } catch (java.text.ParseException e) {
+//                e.printStackTrace();
+//            }
+//            return cal;
+//        }
+//        return null;
+//    }
+//
+//    /**
+//     * @param cal Calendar object of certain hour and minute of any day
+//     * @return time string in HH:MM format
+//     */
+//    public static String calendarToTimeString(Calendar cal) {
+//        return df.format(cal.getTime());
+//    }
 
     /**
-     * @param cal Calendar object of certain hour and minute of any day
-     * @return time string in HH:MM format
+     * Convert Date to Calendar object, null if date is null
+     *
+     * @param date Date object
+     * @return Calender object
      */
-    public static String calendarToTimeString(Calendar cal) {
-        return df.format(cal.getTime());
+    public static Calendar dateToCalendar(Date date) {
+        if (date != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            return cal;
+        } else {
+            return null;
+        }
     }
 }

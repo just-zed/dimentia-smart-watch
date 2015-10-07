@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -49,6 +50,11 @@ public class GeofencingCheckTest extends TestCase {
     private final double[] POSITION_TWO = new double[]{100,2};
     private final double[] POSITION_NEGATIVE = new double[]{-27.471011,-153.023449};
     private final double[] POSITION_SMALL = new double[]{0.0000415,0.0001535};
+
+    private final int TIME_MODIFIER_NEGATIVE_HIGH = -10;
+    private final int TIME_MODIFIER_NEGATIVE_LOW = -5;
+    private final int TIME_MODIFIER_POSITIVE = 10;
+    private final int TIME_MODIFIER_NEGATIVE = -10;
 
     /**
      * Sets up the tests.
@@ -314,7 +320,7 @@ public class GeofencingCheckTest extends TestCase {
         int previousStatus = GeofencingCheck.OUTSIDE_FENCE;
         int result;
 
-        result = geofenceCheck.checkIfStatusHasChanged(currentStatus,previousStatus) ;
+        result = geofenceCheck.checkIfStatusHasChanged(currentStatus, previousStatus) ;
         assertTrue(result == GeofencingCheck.NOTHING_HAS_CHANGED);
     }
 
@@ -349,6 +355,134 @@ public class GeofencingCheckTest extends TestCase {
         result = geofenceCheck.checkIfStatusHasChanged(currentStatus,previousStatus) ;
 
         assertTrue(result == GeofencingCheck.REENTERED_A_FENCE);
+    }
+
+
+    /**
+     * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE when inside a fence
+     * with a timer that has not expired.
+     *
+     * @return Nothing.
+     */
+    @Test
+    public void testCheckIfInsideGeofenceWithTimerWithinTime(){
+        int result;
+        Calendar startTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance();
+        Calendar currentTime = Calendar.getInstance();
+
+        startTime.set(currentTime.get(Calendar.YEAR),
+                currentTime.get(Calendar.MONTH),
+                currentTime.get(Calendar.DAY_OF_MONTH),
+                currentTime.get(Calendar.HOUR_OF_DAY),
+                currentTime.get(Calendar.MINUTE)
+                        + TIME_MODIFIER_NEGATIVE );
+
+        endTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                currentTime.get(Calendar.DAY_OF_MONTH),
+                currentTime.get(Calendar.HOUR_OF_DAY),
+                currentTime.get(Calendar.MINUTE)
+                        + TIME_MODIFIER_POSITIVE) ;
+
+        geofences.add(createAGeofence(GEOFENCE_ONE, startTime, endTime));
+        geofences.add(createAGeofence(GEOFENCE_FAR));
+
+        currentLocation = POSITION_ONE;
+
+        result = geofenceCheck.checkIfInsideGeofences(geofences, createALocation(currentLocation));
+        assertTrue(result == GeofencingCheck.INSIDE_FENCE);
+    }
+
+    /**
+     * Test passes if the checkIfInsideGeofences returns an OUTSIDE_FENCE when inside a fence
+     * with a timer that has expired.
+     *
+     * @return Nothing.
+     */
+    @Test
+    public void testCheckIfInsideGeofenceWithTimerOutsideTime(){
+        int result;
+        Calendar startTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance();
+        Calendar currentTime = Calendar.getInstance();
+
+        startTime.set(currentTime.get(Calendar.YEAR),
+                currentTime.get(Calendar.MONTH),
+                currentTime.get(Calendar.DAY_OF_MONTH),
+                currentTime.get(Calendar.HOUR_OF_DAY),
+                currentTime.get(Calendar.MINUTE)
+                        + TIME_MODIFIER_NEGATIVE_HIGH);
+
+        endTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                currentTime.get(Calendar.DAY_OF_MONTH),
+                currentTime.get(Calendar.HOUR_OF_DAY),
+                currentTime.get(Calendar.MINUTE)
+                        + TIME_MODIFIER_NEGATIVE_LOW) ;
+
+        geofences.add(createAGeofence(GEOFENCE_ONE, startTime, endTime));
+        geofences.add(createAGeofence(GEOFENCE_FAR));
+
+        currentLocation = POSITION_ONE;
+
+        result = geofenceCheck.checkIfInsideGeofences(geofences, createALocation(currentLocation));
+        assertTrue(result == GeofencingCheck.OUTSIDE_FENCE);
+    }
+
+    /**
+     * Test passes if the checkIfInsideGeofences returns an INSIDE_FENCE when inside a fence
+     * with a timer that has expired but the start time is after the end time.
+     *
+     * @return Nothing.
+     */
+    @Test
+    public void testCheckIfInsideGeofenceWithTimerEndTimeBeforeStartTime(){
+        int result;
+        Calendar startTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance();
+        Calendar currentTime = Calendar.getInstance();
+
+        startTime.set(currentTime.get(Calendar.YEAR),
+                currentTime.get(Calendar.MONTH),
+                currentTime.get(Calendar.DAY_OF_MONTH),
+                currentTime.get(Calendar.HOUR_OF_DAY),
+                currentTime.get(Calendar.MINUTE)
+                        + TIME_MODIFIER_NEGATIVE_LOW);
+
+        endTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
+                currentTime.get(Calendar.DAY_OF_MONTH),
+                currentTime.get(Calendar.HOUR_OF_DAY),
+                currentTime.get(Calendar.MINUTE)
+                        + TIME_MODIFIER_NEGATIVE_HIGH) ;
+
+        geofences.add(createAGeofence(GEOFENCE_ONE, startTime, endTime));
+        geofences.add(createAGeofence(GEOFENCE_FAR));
+
+        currentLocation = POSITION_ONE;
+
+        result = geofenceCheck.checkIfInsideGeofences(geofences, createALocation(currentLocation));
+        assertTrue(result == GeofencingCheck.INSIDE_FENCE);
+    }
+
+    /**
+     * This method creates a new PatientFence object.
+     *
+     * @param geofenceData This contains the coordinates and radius for a geofence.
+     * @param startTime the start time of a timer.
+     * @param endTime the end time of a timer.
+     * @return PatientFence This returns a PatientFence with the radius and coordinates of the geofenceData.
+     */
+    private PatientFence createAGeofence(double[] geofenceData, Calendar startTime, Calendar endTime){
+        final int LATITUDE = 0;
+        final int LONGITUDE = 1;
+        final int CENTER = 2;
+        final String noGroupId = null;
+        PatientFence fence;
+
+        fence = new PatientFence(patient, new LatLng(geofenceData[LATITUDE],geofenceData[LONGITUDE]), geofenceData[CENTER]);
+
+        fence.setStartTime(startTime);
+        fence.setEndTime(endTime);
+        return fence;
     }
 
     /**
