@@ -88,7 +88,7 @@ public class PatientFence {
 
     }
 
-    public static PatientFence deserialize(ParseObject parseObject) throws ParseException {
+    private static PatientFence deserialize(ParseObject parseObject) throws ParseException {
         return new PatientFence(parseObject,
                 Person.deserialize(parseObject.fetchIfNeeded().getParseObject(KEY_PATIENT)),
                 FenceUtils.toLatLng(parseObject.fetchIfNeeded().getParseGeoPoint(KEY_CENTER)),
@@ -124,6 +124,23 @@ public class PatientFence {
                     }
                 } catch (ParseException pe) {
                     subscriber.onError(pe);
+                }
+            });
+        });
+    }
+
+    public static Observable<Long> findMaxGroupId(Person patient) {
+        return Observable.create(subscriber -> {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);
+            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+            query.addDescendingOrder(KEY_GROUP_ID);
+            query.setLimit(1);
+            query.findInBackground((list, e) -> {
+                if (e == null && list != null && list.size() >= 1) {
+                    subscriber.onNext(list.get(0).getLong(KEY_GROUP_ID));
+                    subscriber.onCompleted();
+                } else {
+                    subscriber.onError(e);
                 }
             });
         });

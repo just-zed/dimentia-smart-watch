@@ -144,24 +144,29 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     public void testRead() {
 
         //setUp
-        PatientFence fence = new PatientFence(patient, center, radius)
-                .save()
+        PatientFence fence = new PatientFence(patient, center, radius);
+        fence.setGroupId(1);
+
+        fence.save()
                 .toBlocking()
                 .single();
 
         assertNotNull(fence.getObjectId());
 
         //test second
-        PatientFence fence1 = new PatientFence(patient, center1, radius1)
-                .save()
+        PatientFence fence1 = new PatientFence(patient, center1, radius1);
+        fence1.setGroupId(3);
+
+        fence1.save()
                 .toBlocking()
                 .single();
 
         assertNotNull(fence1.getObjectId());
 
         //test third
-        PatientFence fence2 = new PatientFence(patient, center2, radius2)
-                .save()
+        PatientFence fence2 = new PatientFence(patient, center2, radius2);
+        fence2.setGroupId(2);
+        fence2.save()
                 .toBlocking()
                 .single();
 
@@ -176,6 +181,10 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         assertEquals(patientFences.get(0).getPatient().getObjectId(), patient.getObjectId());
         assertEquals(patientFences.get(0).getCenter(), center);
         assertEquals(patientFences.get(0).getRadius(), radius);
+
+        Long maxGroupId = PatientFence.findMaxGroupId(patient).toBlocking().single();
+
+        assertTrue(maxGroupId == 3);
 
 
         //tearDown
