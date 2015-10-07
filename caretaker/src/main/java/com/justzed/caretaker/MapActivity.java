@@ -89,6 +89,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private ArrayList<String> strAdvFencesList;
     private ArrayList<Marker> advMarkerList;
     private ArrayList<ArrayList<Circle>> advCircleList;
+    private ArrayList<ArrayList<PatientFence>> patientAdvFenceList;
     private ArrayList<Circle> tempAdvCircleList;
     private boolean advEditFlag = false;
     private LatLng curCenFence1;
@@ -324,6 +325,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         patientFenceList = new ArrayList<PatientFence>();
 
         advCircleList = new ArrayList<ArrayList<Circle>>();
+        patientAdvFenceList = new ArrayList<ArrayList<PatientFence>>();
         tempAdvCircleList = new ArrayList<Circle>();
         strAdvFencesList = new ArrayList<String>();
         advMarkerList = new ArrayList<Marker>();
@@ -334,6 +336,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         patientFenceList.clear();
 
         advCircleList.clear();
+        patientAdvFenceList.clear();
         tempAdvCircleList.clear();
         strAdvFencesList.clear();
         advMarkerList.clear();
@@ -616,16 +619,16 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         double radius = mTempCircle1.getRadius();
 
         // Add to database.
-        strAdvFencesList.set(curPosFence, title);
-        advMarkerList.get(curPosFence).setPosition(center);
-        advMarkerList.get(curPosFence).setTitle(title);
-
         int size = advCircleList.get(curPosFence).size();
         for (int i = 0; i < size; i++){
             advCircleList.get(curPosFence).get(i).remove();
         }
+        advMarkerList.get(curPosFence).remove();
 
         advCircleList.remove(curPosFence);
+        strAdvFencesList.remove(curPosFence);
+        advMarkerList.remove(curPosFence);
+        //patientAdvFenceList.remove(curPosFence);
 
         size = tempAdvCircleList.size();
         ArrayList<Circle> circleArrayList = new ArrayList<Circle>();
@@ -635,7 +638,13 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             circleArrayList.add(drawCircle(mMap, tempAdvCircleList.get(i).getCenter(),
                     tempAdvCircleList.get(i).getRadius()));
         }
+
         advCircleList.add(circleArrayList);
+        strAdvFencesList.add(title);
+        advMarkerList.add(drawMarker(mMap, center, title));
+
+        //connect database to do it
+        //patientAdvFenceList.add()
 
         for (int i = 0; i < size; i++){
             tempAdvCircleList.get(i).remove();
