@@ -345,11 +345,25 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientFences -> {
+                    ArrayList<PatientFence> tempAdvFenceList = new ArrayList<PatientFence>();
                     int size = patientFences.size();
                     for (int i = 0; i < size; i++){
                         if (patientFences.get(i).getGroupId() == 0){
                             patientFenceList.add(patientFences.get(i));
+                        } else {
+                            tempAdvFenceList.add(patientFences.get(i));
                         }
+                    }
+
+                    boolean tempFlag = false;
+                    size = tempAdvFenceList.size();
+                    long curTempGroupID = tempAdvFenceList.get(0).getGroupId();
+                    patientAdvFenceList.add(new PatientFence(curTempGroupID))
+                    for (int i = 1; i < size; i++){
+                        if (!tempFlag){
+                            curTempGroupID = tempAdvFenceList.get(i).getGroupId();
+                        }
+
                     }
 
                     //patientFenceList = patientFences;
