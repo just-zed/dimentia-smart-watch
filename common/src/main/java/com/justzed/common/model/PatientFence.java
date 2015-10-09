@@ -68,6 +68,17 @@ public class PatientFence {
         this.groupId = 0;
     }
 
+    public PatientFence(Person patient, LatLng center, double radius, String description,
+                        long groupId) {
+        this.patient = patient;
+        this.center = center;
+        this.radius = radius;
+        this.description = description;
+        this.startTime = null;
+        this.endTime = null;
+        this.groupId = groupId;
+    }
+
     private PatientFence(ParseObject parseObject,
                          Person patient,
                          LatLng center,
