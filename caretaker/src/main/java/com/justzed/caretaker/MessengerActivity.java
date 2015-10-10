@@ -14,7 +14,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.justzed.common.model.Person;
-
+/**
+ * This activity runs the messenging system on the caretaker's device.
+ *
+ * @author Tristan Dubois
+ * @version 1.0
+ * @since 2015-09-29
+ */
 public class MessengerActivity extends Activity {
     private EditText message;
     private Button sendButton;
@@ -36,6 +42,12 @@ public class MessengerActivity extends Activity {
         }
     };
 
+
+    /**
+     *The main method of this activity
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +104,13 @@ public class MessengerActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Checks if the textbox contains any words in it and
+     * disables the send button accordingly.
+     *
+     * @param wordsInTextBox a string of the words in the textbox being checked.
+     * @return Nothing.
+     */
     public void checkIfSendButtonNeeded(String wordsInTextBox){
         if(wordsInTextBox.isEmpty()) {
             sendButton.setEnabled(false);
@@ -101,7 +120,12 @@ public class MessengerActivity extends Activity {
         }
     }
 
-
+    /**
+     * sends a notification containing a message to another a patient
+     *
+     * @param messageToSend a string containing a message.
+     * @return Nothing.
+     */
     public void sendMessage(String messageToSend){
 
         /**TODO add a mechanism for the caretaker to be able to send notifications from his side.*/
@@ -119,6 +143,12 @@ public class MessengerActivity extends Activity {
         }
     }
 
+    /**
+     * shows a toast message on the screen.
+     *
+     * @param toastMessage  a string to be turned into a toast message.
+     * @return Nothing.
+     */
     private void toast(String toastMessage) {
         try {
             Toast.makeText(MessengerActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
