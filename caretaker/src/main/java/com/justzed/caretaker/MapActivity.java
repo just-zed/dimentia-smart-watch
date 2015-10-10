@@ -32,6 +32,7 @@ import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -346,18 +347,16 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientFences -> {
-                    ArrayList<PatientFence> tempAdvFenceList = new ArrayList<PatientFence>();
+                    ArrayList<PatientFence> prePatientAdvFenceList = new ArrayList<PatientFence>();
                     int size = patientFences.size();
-                    for (int i = 0; i < size; i++){
-                        if (patientFences.get(i).getGroupId() == 0){
+                    for (int i = 0; i < size; i++) {
+                        if (patientFences.get(i).getGroupId() == 0) {
                             patientFenceList.add(patientFences.get(i));
                         } else {
-                            tempAdvFenceList.add(patientFences.get(i));
+                            prePatientAdvFenceList.add(patientFences.get(i));
                         }
                     }
 
-                    //patientFenceList = patientFences;
-                    //loop through the list and add markers and circles...
                     size = patientFenceList.size();
                     for (int i = 0; i < size; i++) {
                         String title = patientFenceList.get(i).getDescription();
@@ -369,28 +368,33 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                         circlesList.add(drawCircle(mMap, center, radius));
                     }
 
-                    size = tempAdvFenceList.size();
-                    long curTempGroupID = tempAdvFenceList.get(0).getGroupId();
-                    ArrayList<PatientFence> tempPatientAdvFences = new ArrayList<PatientFence>();
-                    tempPatientAdvFences.add(tempAdvFenceList.get(0));
+                    // Advance Fences
+                    size = prePatientAdvFenceList.size();
+                    long curTempGroupID = prePatientAdvFenceList.get(0).getGroupId();
+                    ArrayList<PatientFence> childPatientAdvFenceList = new ArrayList<PatientFence>();
 
-                    for (int i = 1; i < size; i++){
-                        if (curTempGroupID > largestGroupID){
+                    for (int i = 0; i < size; i++) {
+                        if (curTempGroupID > largestGroupID) {
                             largestGroupID = curTempGroupID;
                         }
 
-                        if (curTempGroupID == tempAdvFenceList.get(i).getGroupId()){
-                            tempPatientAdvFences.add(tempAdvFenceList.get(i));
+                        if (curTempGroupID == prePatientAdvFenceList.get(i).getGroupId()) {
+                            childPatientAdvFenceList.add(prePatientAdvFenceList.get(i));
+                            if (i == (size - 1)) {
+                                patientAdvFenceList.add(new ArrayList<PatientFence>(childPatientAdvFenceList));
+                            }
                         } else {
-                            curTempGroupID = tempAdvFenceList.get(i).getGroupId();
-                            patientAdvFenceList.add(tempPatientAdvFences);
-                            tempPatientAdvFences.clear();
-                            tempPatientAdvFences.add(tempAdvFenceList.get(i));
+                            curTempGroupID = prePatientAdvFenceList.get(i).getGroupId();
+                            patientAdvFenceList.add(new ArrayList<PatientFence>(childPatientAdvFenceList));
+                            childPatientAdvFenceList.clear();
+                            childPatientAdvFenceList.add(prePatientAdvFenceList.get(i));
                         }
                     }
 
                     size = patientAdvFenceList.size();
-                    for (int i = 0; i < size; i++){
+                    advCircleList.ensureCapacity(size);
+
+                    for (int i = 0; i < size; i++) {
                         int size1 = patientAdvFenceList.get(i).size();
                         String title = patientAdvFenceList.get(i).get(0).getDescription();
                         LatLng center = patientAdvFenceList.get(i).get(0).getCenter();
@@ -402,13 +406,12 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                         ArrayList<Circle> circleArrayList = new ArrayList<Circle>();
                         circleArrayList.ensureCapacity(size1);
 
-                        for (int j = 0; j < size1; j++){
+                        for (int j = 0; j < size1; j++) {
                             circleArrayList.add(drawCircle(mMap,
                                     patientAdvFenceList.get(i).get(j).getCenter(),
                                     radius));
                         }
-                        advCircleList.add(circleArrayList);
-                        circleArrayList.clear();
+                        advCircleList.add(new ArrayList<Circle>(circleArrayList));
                     }
                 }, throwable -> {
                     Log.e(TAG, throwable.getMessage());
@@ -563,16 +566,27 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             txvFenceMode.setText(R.string.edit_advance_fence_title);
 
             curTitleFence = strAdvFencesList.get(pos);
+
             curCenFence1 = advCircleList.get(pos).get(0).getCenter();
             int size = advCircleList.get(pos).size();
             curCenFence2 = advCircleList.get(pos).get(size-1).getCenter();
             curRadFence = advCircleList.get(pos).get(0).getRadius();
-            //curGroupIDFence =
 
             advMarkerList.get(pos).setVisible(true);
 
-            drawTempAdvanceMarker1(mMap, curCenFence1, curTitleFence);
+            if (mTempMarker1 != null){
+                mTempMarker1.remove();
+            }
 
+            if (mTempCircle1 != null){
+                mTempCircle1.remove();
+            }
+
+            if (mTempCircle2 != null){
+                mTempCircle2.remove();
+            }
+
+            drawTempAdvanceMarker1(mMap, curCenFence1, curTitleFence);
             drawTempAdvanceFence1(mMap, curCenFence1, curRadFence);
             drawTempAdvanceFence2(mMap, curCenFence2, curRadFence);
 
@@ -580,12 +594,10 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 tempAdvCircleList.clear();
             }
 
-            boolean checkAddAll = tempAdvCircleList.addAll(advCircleList.get(pos));
-
-            if (checkAddAll){
-                drawAdvanceCircles(mTempCircle1, mTempCircle2, tempAdvCircleList);
-            } else {
-                toast("There is not any advance fence.");
+            int size1 = advCircleList.get(pos).size();
+            for (int i = 0; i < size; i++){
+                tempAdvCircleList.add(drawCircle(mMap, advCircleList.get(pos).get(i).getCenter()
+                        , advCircleList.get(pos).get(i).getRadius()));
             }
         }
 
@@ -647,7 +659,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     toast("The title is blank. Please type the title of the fence.");
                 }
             } catch (Exception e) {
-                Log.e(TAG, "clickSaveButton: editMode is wrong.");
+                Log.e(TAG, "clickSaveButton: editAdvanceMode is wrong. " + e.getMessage());
             }
         }
 
@@ -661,27 +673,35 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      */
     private void saveEditAdvanceMode(){
         int size = advCircleList.get(curPosFence).size();
+        Log.i(TAG, "advCircleList.get(curPosFence).size() : " + advCircleList.get(curPosFence).size());
+        Log.i(TAG, "patientAdvFenceList.get(curPosFence).size() : " + patientAdvFenceList.get(curPosFence).size());
+
         long curGroupIDFence = patientAdvFenceList.get(curPosFence).get(0).getGroupId();
-        for (int i = 0; i < size; i++){
+
+        for (int i = 0; i < size; i++) {
             advCircleList.get(curPosFence).get(i).remove();
             //Delete fence in database.
             PatientFence fence = patientAdvFenceList.get(curPosFence).get(i);
             fence.delete()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            patientFence -> {
-                                // TODO
-                            },
-                            throwable -> {
-                                Log.e(TAG, throwable.getMessage());
-                            }
-                    );
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                patientFence -> {
+                                    // TODO
+                                    Log.i(TAG, "Edit advance mode : Delete fence ok.");
+                                },
+                                throwable -> {
+                                    Log.e(TAG, throwable.getMessage());
+                                }
+                        );
+            Log.i(TAG, "Edit advance mode : After Delete fence.");
         }
         advMarkerList.get(curPosFence).remove();
 
         advCircleList.remove(curPosFence);
+        Log.i(TAG, "advCircleList.size() : " + advCircleList.size());
         patientAdvFenceList.remove(curPosFence);
+        Log.i(TAG, "patientAdvFenceList.size() : " + patientAdvFenceList.size());
 
         strAdvFencesList.remove(curPosFence);
         advMarkerList.remove(curPosFence);
@@ -694,14 +714,17 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         advMarkerList.add(drawMarker(mMap, center, title));
 
         size = tempAdvCircleList.size();
+
         ArrayList<Circle> circleArrayList = new ArrayList<Circle>();
         circleArrayList.ensureCapacity(size);
-        ArrayList<PatientFence> tempPatientAdvFences = new ArrayList<PatientFence>();
-        tempPatientAdvFences.ensureCapacity(size);
+        ArrayList<PatientFence> childPatientAdvFenceList = new ArrayList<PatientFence>();
+        childPatientAdvFenceList.ensureCapacity(size);
 
         for (int i = 0; i < size; i++){
             center = tempAdvCircleList.get(i).getCenter();
             circleArrayList.add(drawCircle(mMap, center, radius));
+            childPatientAdvFenceList.add(new PatientFence(patient, center, radius, title
+                    , curGroupIDFence));
             // save database
             new PatientFence(patient, center, radius, title, curGroupIDFence)
                     .save()
@@ -710,15 +733,17 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     .subscribe(
                             patientFence -> {
                                 // updates the object in the list
-                                tempPatientAdvFences.add(patientFence);
+                                Log.i(TAG, "Edit advance mode : Add fence ok.");
                             },
                             throwable -> {
                                 Log.e(TAG, throwable.getMessage());
                             }
                     );
         }
-        advCircleList.add(circleArrayList);
-        patientAdvFenceList.add(tempPatientAdvFences);
+        advCircleList.add(new ArrayList<Circle>(circleArrayList));
+        Log.i(TAG, "advCircleList.get(size - 1).size() : " + advCircleList.get(size - 1).size());
+        patientAdvFenceList.add(new ArrayList<PatientFence>(childPatientAdvFenceList));
+        Log.i(TAG, "patientAdvFenceList.get(size - 1).size() : " + patientAdvFenceList.get(size - 1).size());
 
         for (int i = 0; i < size; i++){
             tempAdvCircleList.get(i).remove();
@@ -762,8 +787,8 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         int size = tempAdvCircleList.size();
         ArrayList<Circle> circleArrayList = new ArrayList<Circle>();
         circleArrayList.ensureCapacity(size);
-        ArrayList<PatientFence> tempPatientAdvFences = new ArrayList<PatientFence>();
-        tempPatientAdvFences.ensureCapacity(size);
+        ArrayList<PatientFence> childPatientAdvFenceList = new ArrayList<PatientFence>();
+        childPatientAdvFenceList.ensureCapacity(size);
 
         for (int i = 0; i < size; i++){
             center = tempAdvCircleList.get(i).getCenter();
@@ -777,15 +802,15 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     .subscribe(
                             patientFence -> {
                                 // updates the object in the list
-                                tempPatientAdvFences.add(patientFence);
+                                childPatientAdvFenceList.add(patientFence);
                             },
                             throwable -> {
                                 Log.e(TAG, throwable.getMessage());
                             }
                     );
         }
-        advCircleList.add(circleArrayList);
-        patientAdvFenceList.add(tempPatientAdvFences);
+        advCircleList.add(new ArrayList<Circle>(circleArrayList));
+        patientAdvFenceList.add(new ArrayList<PatientFence>(childPatientAdvFenceList));
 
         for (int i = 0; i < size; i++){
             tempAdvCircleList.get(i).remove();
@@ -1207,17 +1232,106 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      *
      * @param latLng The location which user clicked on the map.
      */
-    private void clickMapAddEditAdvanceMode(LatLng latLng){
+    private void clickMapEditAdvanceMode(LatLng latLng){
         try{
-            String st;
-            if (!editAdvanceMode) {
-                st = "Add Advance Fence";
-            } else {
-                st = "Edit Advance Fence";
-            }
+            String st = "Edit Advance Fence";
 
             if (tempAdvanceCircle1 == false) {
+                if (mTempMarker1 != null) {
+                    mTempMarker1.remove();
+                }
 
+                if (mTempCircle1 != null) {
+                    mTempCircle1.remove();
+                }
+
+                if (mTempCircle2 != null) {
+                    mTempCircle2.remove();
+                }
+
+                if (!tempAdvCircleList.isEmpty()){
+                    int size = tempAdvCircleList.size();
+                    for (int i = 0; i < size; i++){
+                        tempAdvCircleList.get(i).remove();
+                    }
+                    tempAdvCircleList.clear();
+                }
+
+                AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
+
+                b.setTitle(st);
+                b.setMessage("Do you finish determining the fence 1 ?");
+                b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        skbFenceRadius.setEnabled(true);
+                        tempAdvanceCircle1 = true;
+                        btnSave.setEnabled(false);
+
+                        drawTempAdvanceMarker1(mMap, latLng, TITLE_DEFAULT);
+                        drawTempAdvanceFence1(mMap, latLng, RADIUS_DEFAULT);
+
+                        int i = (int) mTempCircle1.getRadius();
+                        skbFenceRadius.setProgress(i);
+                        String t = Integer.toString(i);
+                        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+                    }
+                });
+
+                b.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                b.create().show();
+            } else {
+                if (tempAdvanceCircle2 == false){
+                    AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
+
+                    b.setTitle(st);
+                    b.setMessage("Do you finish determining the fence 2 ?");
+                    b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            tempAdvanceCircle2 = true;
+                            drawTempAdvanceFence2(mMap, latLng, mTempCircle1.getRadius());
+
+                            // Draw all Circles
+                            drawAdvanceCircles(mTempCircle1, mTempCircle2, tempAdvCircleList);
+
+                            skbFenceRadius.setEnabled(false);
+                            btnSave.setEnabled(true);
+                        }
+                    });
+
+                    b.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    b.create().show();
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement actions of Add Advance mode in clickMap Method.
+     *
+     * @param latLng The location which user clicked on the map.
+     */
+    private void clickMapAddAdvanceMode(LatLng latLng){
+        try{
+            String st = "Add Advance Fence";
+
+            if (tempAdvanceCircle1 == false) {
                 if (mTempMarker1 != null) {
                     mTempMarker1.remove();
                 }
@@ -1434,7 +1548,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
 
         if (addAdvanceMode){
-            clickMapAddEditAdvanceMode(latLng);
+            clickMapAddAdvanceMode(latLng);
         }
 
         if (editMode) {
@@ -1450,7 +1564,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
 
         if (editAdvanceMode){
-            clickMapAddEditAdvanceMode(latLng);
+            clickMapEditAdvanceMode(latLng);
         }
     }
 
