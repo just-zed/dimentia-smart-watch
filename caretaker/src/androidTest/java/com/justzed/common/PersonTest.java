@@ -106,6 +106,10 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person3.getType(), Person.PATIENT);
 
 
+        person1.delete().toBlocking().single();
+        person2.delete().toBlocking().single();
+        person3.delete().toBlocking().single();
+
     }
 
     //read
