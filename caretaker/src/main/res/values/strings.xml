@@ -29,7 +29,7 @@
     <string name="launch_caretaker">Launch Caretaker</string>
     <string name="add_fence_title">ADD A GEOFENCE</string>
     <string name="edit_fence_title">EDIT GEOFENCE</string>
-    <string name="title_activity_messenger">Messenger</string>
+    <string name="title_activity_messenger">Message My Patient</string>
     <string name="messenger_textbox_hint">Type your message</string>
     <string name="button_send">Send</string>
     <string name="default_message_reciever_name">Searching for a recipient...</string>

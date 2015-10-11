@@ -49,6 +49,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    @OnClick(R.id.button_messenger)
+    void messengerButtonClick() {
+
+        Intent intent = new Intent(this,MessengerActivity.class);
+        intent.putExtra(Person.PARCELABLE_KEY, patient);
+        startActivity(intent);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
