@@ -88,10 +88,7 @@ public class PatientActivity extends Activity {
             button.setText(String.format(getString(R.string.find_my_patient_button_text), patient.getName()));
             buttonMessenger.setText(String.format(getString(R.string.message_my_patient_button_text), patient.getName()));
             switchPatientDisableCheck.setText(String.format(getString(R.string.patient_nearby_text), patient.getName()));
-
             switchPatientDisableCheck.setChecked(patient.getDisableGeofenceChecks());
-            toggleSubscription(!patient.getDisableGeofenceChecks());
-
             switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 patient.setDisableGeofenceChecks(isChecked);
 

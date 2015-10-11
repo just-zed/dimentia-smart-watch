@@ -15,6 +15,7 @@ import com.justzed.common.DeviceUtils;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
+import com.parse.ParsePush;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,7 +142,9 @@ public class MainActivity extends Activity {
                                 personList.clear();
                                 for (int i = 0; i < patientLinks.size(); i++) {
                                     PatientLink link = patientLinks.get(i);
-                                    personList.add(link.getPatient());
+                                    Person patient = link.getPatient();
+                                    personList.add(patient);
+                                    ParsePush.subscribeInBackground("patient-" + patient.getUniqueToken());
                                 }
                                 adapter.notifyDataSetChanged();
 
