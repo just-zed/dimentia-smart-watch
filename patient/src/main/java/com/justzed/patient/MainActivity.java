@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.justzed.common.NotificationMessage;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;

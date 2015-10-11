@@ -3,6 +3,8 @@ package com.justzed.patient;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
+import com.justzed.common.NotificationMessage;
+
 import junit.framework.TestCase;
 
 import org.junit.Test;

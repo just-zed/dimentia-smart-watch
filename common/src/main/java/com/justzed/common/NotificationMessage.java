@@ -1,4 +1,4 @@
-package com.justzed.patient;
+package com.justzed.common;
 
 import com.parse.ParsePush;
 
@@ -10,6 +10,7 @@ import com.parse.ParsePush;
 public class NotificationMessage {
 
     /*This is used to send a message in a particular channel.
+
     * @param channel  the channel name
     * @param  message the message itself
     * @pre

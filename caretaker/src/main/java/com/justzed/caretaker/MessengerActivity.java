@@ -131,7 +131,7 @@ public class MessengerActivity extends Activity {
         /**TODO add a mechanism for the caretaker to be able to send notifications from his side.*/
         try{
             //NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
-            String MESSAGE_SUCCESS = "Your message was sent successfully.";
+            String MESSAGE_SUCCESS = "A message has been sent: " + messageToSend;
             toast(MESSAGE_SUCCESS);
             message.setText("");
 
