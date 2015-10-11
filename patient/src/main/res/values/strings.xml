@@ -10,4 +10,10 @@
     <string name="reentered_fence_notificiation" formatted="false">%s has re-entered a safe zone.</string>
     <string name="panic_message" formatted="false">%s is in trouble!</string>
     <string name="default_patient_name">Anonymous Patient</string>
+
+    <string name="title_activity_premade_messages">PremadeMessages</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
 </resources>
