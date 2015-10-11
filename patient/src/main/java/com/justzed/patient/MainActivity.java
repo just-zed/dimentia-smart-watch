@@ -11,9 +11,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.justzed.common.NotificationMessage;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
+import com.parse.ParsePush;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -123,6 +125,9 @@ public class MainActivity extends Activity {
         Intent serviceIntent = new Intent(this, PatientService.class);
         serviceIntent.putExtra(Person.PARCELABLE_KEY, person);
         startService(serviceIntent);
+        //subscribe to caretaker notifications
+        ParsePush.subscribeInBackground("caretaker-" + getToken());
+
     }
 
     private void startTokenSenderActivity() {
@@ -168,11 +173,14 @@ public class MainActivity extends Activity {
         } else {
             String debugToken = getString(R.string.DEVICE_TOKEN);
             if (!TextUtils.isEmpty(debugToken)) {
-                return debugToken;
+                token = debugToken;
+                return token;
             } else {
-                return new SaveSyncToken(this).findMyDeviceId();
+                token = new SaveSyncToken(this).findMyDeviceId();
+                return token;
             }
         }
+
     }
 
 }

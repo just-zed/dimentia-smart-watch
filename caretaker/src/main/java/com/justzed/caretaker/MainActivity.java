@@ -49,6 +49,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    @OnClick(R.id.button_messenger)
+    void messengerButtonClick() {
+
+        Intent intent = new Intent(this, MessengerActivity.class);
+        intent.putExtra(Person.PARCELABLE_KEY, patient);
+        startActivity(intent);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +139,6 @@ public class MainActivity extends Activity {
         switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (patient != null) {
                 patient.setDisableGeofenceChecks(isChecked);
-                toggleSubscription(!isChecked);
 
                 patient.save().subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -155,9 +162,11 @@ public class MainActivity extends Activity {
         } else {
             String debugToken = getString(R.string.DEVICE_TOKEN);
             if (!TextUtils.isEmpty(debugToken)) {
-                return debugToken;
+                token = debugToken;
+                return token;
             } else {
-                return new SaveSyncToken(this).findMyDeviceId();
+                token = new SaveSyncToken(this).findMyDeviceId();
+                return token;
             }
         }
 

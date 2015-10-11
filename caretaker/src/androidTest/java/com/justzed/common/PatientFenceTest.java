@@ -29,7 +29,7 @@ import java.util.List;
 public class PatientFenceTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientFenceTest.class.getName();
 
-    private final String patientToken = "test_patient_" + Math.random() * 1000;
+    private String patientToken;
 
 
     private Person patient;
@@ -53,6 +53,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
 
+        patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
@@ -178,9 +179,10 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         assertNotNull(patientFences);
         assertEquals(patientFences.size(), 3);
-        assertEquals(patientFences.get(0).getPatient().getObjectId(), patient.getObjectId());
-        assertEquals(patientFences.get(0).getCenter(), center);
-        assertEquals(patientFences.get(0).getRadius(), radius);
+        // first one should be at last
+        assertEquals(patientFences.get(2).getPatient().getObjectId(), patient.getObjectId());
+        assertEquals(patientFences.get(2).getCenter(), center);
+        assertEquals(patientFences.get(2).getRadius(), radius);
 
         Long maxGroupId = PatientFence.findMaxGroupId(patient).toBlocking().single();
 

@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 public class PatientLocationTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientLocationTest.class.getName();
 
-    private final String patientToken = "test_patient_" + Math.random() * 1000;
+    private String patientToken;
 
 
     private Person patient;
@@ -40,6 +40,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
 
+        patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
