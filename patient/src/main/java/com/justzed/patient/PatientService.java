@@ -143,11 +143,11 @@ public class PatientService extends IntentService {
                     break;
                 case GeofencingCheck.EXITED_A_FENCE:
                     //Exited a fence notification
-                    NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
+                    NotificationMessage.sendMessage(channelName, String.format(getString(R.string.exited_fence_notificiation), patient.getName()));
                     break;
                 case GeofencingCheck.REENTERED_A_FENCE:
                     //The patient has re-entered a fence notification
-                    NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
+                    NotificationMessage.sendMessage(channelName, String.format(getString(R.string.reentered_fence_notificiation), patient.getName()));
                     break;
             }
         } else {
