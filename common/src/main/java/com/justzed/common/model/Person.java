@@ -152,10 +152,10 @@ public class Person implements Parcelable {
             query.whereEqualTo(KEY_UNIQUE_TOKEN, uniqueToken);
             query.setLimit(1);
             query.findInBackground((list, e) -> {
-                if (e == null && list.size() == 1) {
+                if (e == null && list != null && list.size() == 1) {
                     subscriber.onNext(deserialize(list.get(0)));
                     subscriber.onCompleted();
-                } else if (list.size() == 0) {
+                } else if (list != null && list.size() == 0) {
                     subscriber.onNext(null);
                     subscriber.onCompleted();
                 } else {

@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 
-    private final String testToken = "test_person_" + Math.random() * 1000;
+    private String testToken;
     private final boolean testDGchecks = false;
 
     private Person person;
@@ -39,7 +39,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
 
-
+        testToken = "test_person_" + Math.random() * 1000;
         //test creation
         person = new Person(Person.PATIENT, testToken)
                 .save()
