@@ -103,7 +103,13 @@ public class PatientLink {
      */
     public static Observable<PatientLink> findLatestByPatient(Person patient) {
         return findByPerson(patient, Person.PATIENT, 1)
-                .map(patientLinks -> patientLinks.get(0));
+                .map(patientLinks -> {
+                    if (patientLinks == null) {
+                        return null;
+                    } else {
+                        return patientLinks.get(0);
+                    }
+                });
     }
 
     /**
@@ -126,7 +132,13 @@ public class PatientLink {
      */
     public static Observable<PatientLink> findLatestByCaretaker(Person caretaker) {
         return findByPerson(caretaker, Person.CARETAKER, 1)
-                .map(patientLinks -> patientLinks.get(0));
+                .map(patientLinks -> {
+                    if (patientLinks == null) {
+                        return null;
+                    } else {
+                        return patientLinks.get(0);
+                    }
+                });
     }
 
     /**

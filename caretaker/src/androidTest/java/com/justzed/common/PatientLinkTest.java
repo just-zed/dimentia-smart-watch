@@ -191,6 +191,9 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
 
     @LargeTest
     public void testSearch() {
+
+        assertNull(PatientLink.findLatestByPatient(patient).toBlocking().single());
+
         //setUp
 
         /**
