@@ -173,11 +173,14 @@ public class MainActivity extends Activity {
         } else {
             String debugToken = getString(R.string.DEVICE_TOKEN);
             if (!TextUtils.isEmpty(debugToken)) {
-                return debugToken;
+                token = debugToken;
+                return token;
             } else {
-                return new SaveSyncToken(this).findMyDeviceId();
+                token = new SaveSyncToken(this).findMyDeviceId();
+                return token;
             }
         }
+
     }
 
 }
