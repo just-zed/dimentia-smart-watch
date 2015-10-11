@@ -98,9 +98,9 @@ public class PatientService extends IntentService {
                         .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
                         .flatMap(latLng -> new PatientLocation(patient, latLng).save()),
                 // save geofence into geofenceCheck object
-                PatientFence.getPatientFences(patient).repeat(),
+                PatientFence.findPatientFences(patient).repeat(),
                 // refresh patient object in case it is changed
-                Person.getByUniqueToken(patient.getUniqueToken()).repeat()
+                Person.findByUniqueToken(patient.getUniqueToken()).repeat()
                 , (patientLocation, patientFences, person1) -> {
                     geofenceCheck.getGeofencesFromDatabase(patientFences);
                     patient = person1;

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -31,7 +32,7 @@ public class MainActivity extends Activity {
     public static final String PREF_PERSON_KEY = "PersonPref";
 
     // temp token
-    private String token = "ffffffff-fcfb-6ccb-0033-c58700000000";
+    private String token;
 
     @Bind(R.id.button)
     View button;
@@ -61,7 +62,7 @@ public class MainActivity extends Activity {
 
         //TODO: move these to a splash screen activity?
         getCaretaker()
-                .flatMap(PatientLink::getByCaretaker)
+                .flatMap(PatientLink::findByCaretaker)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(patientLink -> {
@@ -97,8 +98,9 @@ public class MainActivity extends Activity {
 
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
+            token = getToken();
 
-            return new Person(Person.CARETAKER, getToken())
+            return new Person(Person.CARETAKER, token)
                     .save()
                     .map(person1 -> {
                         this.caretaker = person1;
@@ -110,9 +112,9 @@ public class MainActivity extends Activity {
         } else {
             //get patient token from app data,
             // get person object from database and start service
-            String uniqueToken = mPrefs.getString(PREF_PERSON_KEY, "");
+            token = mPrefs.getString(PREF_PERSON_KEY, "");
 
-            return Person.getByUniqueToken(uniqueToken)
+            return Person.findByUniqueToken(token)
                     .map(person1 -> {
                         this.caretaker = person1;
                         return person1;
@@ -151,7 +153,13 @@ public class MainActivity extends Activity {
         if (token != null) {
             return token;
         } else {
-            return new SaveSyncToken(this).findMyDeviceId();
+            String debugToken = getString(R.string.DEVICE_TOKEN);
+            if (!TextUtils.isEmpty(debugToken)) {
+                return debugToken;
+            } else {
+                return new SaveSyncToken(this).findMyDeviceId();
+            }
         }
+
     }
 }

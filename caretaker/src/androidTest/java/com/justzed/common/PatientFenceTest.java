@@ -14,21 +14,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Calendar;
 import java.util.List;
 
 /**
- * Tests covers CRD (no update) operations for Person
+ * Tests covers CRUD operations for PatientFence
  *
- * @author Freeman
+ * @author Freeman Man
  * @version 1.0
- * @since 2015-08-16
+ * @since 2015-09-05
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class PatientFenceTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientFenceTest.class.getName();
 
-    private final String patientToken = "someyadayadahardcodedpatienttoken";
+    private final String patientToken = "test_patient_" + Math.random() * 1000;
 
 
     private Person patient;
@@ -143,24 +144,29 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     public void testRead() {
 
         //setUp
-        PatientFence fence = new PatientFence(patient, center, radius)
-                .save()
+        PatientFence fence = new PatientFence(patient, center, radius);
+        fence.setGroupId(1);
+
+        fence.save()
                 .toBlocking()
                 .single();
 
         assertNotNull(fence.getObjectId());
 
         //test second
-        PatientFence fence1 = new PatientFence(patient, center1, radius1)
-                .save()
+        PatientFence fence1 = new PatientFence(patient, center1, radius1);
+        fence1.setGroupId(3);
+
+        fence1.save()
                 .toBlocking()
                 .single();
 
         assertNotNull(fence1.getObjectId());
 
         //test third
-        PatientFence fence2 = new PatientFence(patient, center2, radius2)
-                .save()
+        PatientFence fence2 = new PatientFence(patient, center2, radius2);
+        fence2.setGroupId(2);
+        fence2.save()
                 .toBlocking()
                 .single();
 
@@ -168,13 +174,17 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
 
         //read test
-        List<PatientFence> patientFences = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> patientFences = PatientFence.findPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences);
         assertEquals(patientFences.size(), 3);
         assertEquals(patientFences.get(0).getPatient().getObjectId(), patient.getObjectId());
         assertEquals(patientFences.get(0).getCenter(), center);
         assertEquals(patientFences.get(0).getRadius(), radius);
+
+        Long maxGroupId = PatientFence.findMaxGroupId(patient).toBlocking().single();
+
+        assertTrue(maxGroupId == 3);
 
 
         //tearDown
@@ -192,6 +202,8 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         }
     }
 
+    private static final String TIME_STRING_FORMATTER = "%tc";
+
     /**
      * Tests the edit methods
      *
@@ -201,6 +213,9 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @Test
     public void testEdit() {
 
+        List<PatientFence> existingList = PatientFence.findPatientFences(patient).toBlocking().single();
+
+        int existingSize = existingList != null ? existingList.size() : 0;
         //setUp
         PatientFence fence = new PatientFence(patient, center, radius)
                 .save()
@@ -211,25 +226,35 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
 
         //read test
-        List<PatientFence> patientFences = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> patientFences = PatientFence.findPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences);
-        assertEquals(patientFences.size(), 1);
+        assertEquals(patientFences.size(), existingSize + 1);
 
         PatientFence fenceToEdit = patientFences.get(0);
         assertEquals(fenceToEdit.getPatient().getObjectId(), patient.getObjectId());
         assertEquals(fenceToEdit.getCenter(), center);
         assertEquals(fenceToEdit.getRadius(), radius);
 
+        Calendar startTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance();
+        endTime.add(Calendar.HOUR, 3);
+
+        String startTimeString = String.format(TIME_STRING_FORMATTER, startTime);
+        String endTimeString = String.format(TIME_STRING_FORMATTER, endTime);
+
+
         fenceToEdit.setCenter(center1);
         fenceToEdit.setRadius(radius1);
+        fenceToEdit.setStartTime(startTime);
+        fenceToEdit.setEndTime(endTime);
+        fenceToEdit.setGroupId(3);
         fenceToEdit.save().toBlocking().single();
 
         assertEquals(fenceToEdit.getObjectId(), fence.getObjectId());
 
-
         //re-read
-        List<PatientFence> patientFences1 = PatientFence.getPatientFences(patient).toBlocking().single();
+        List<PatientFence> patientFences1 = PatientFence.findPatientFences(patient).toBlocking().single();
 
         assertNotNull(patientFences1);
         assertEquals(patientFences1.size(), 1);
@@ -239,12 +264,16 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         assertEquals(retrievedFence.getCenter(), center1);
         assertEquals(retrievedFence.getRadius(), radius1);
 
+        assertEquals(String.format(TIME_STRING_FORMATTER, retrievedFence.getStartTime()), startTimeString);
+        assertEquals(String.format(TIME_STRING_FORMATTER, retrievedFence.getEndTime()), endTimeString);
+        assertEquals(retrievedFence.getGroupId(), 3);
+
 
         //tearDown
 
         try {
-            assertNull(fence.delete().toBlocking().single());
-            assertNull(fence.getObjectId());
+            assertNull(retrievedFence.delete().toBlocking().single());
+            assertNull(retrievedFence.getObjectId());
             assertTrue(true);
         } catch (Exception e) {
             assertTrue(false);

@@ -13,7 +13,7 @@ import rx.Observable;
  * <p>
  * Database contains connection between 2 Persons, 1 as patient, 1 as caretaker.
  *
- * @author Freeman
+ * @author Freeman Man
  * @version 1.0
  * @since 2015-08-15
  */
@@ -29,41 +29,16 @@ public class PatientLink {
 
     //this can only be set by internal operation
     private String objectId = null;
-
-    public ParseObject getParseObject() {
-        if (parseObject != null) {
-            return parseObject;
-        } else if (objectId != null) {
-            return ParseObject.createWithoutData(KEY_PATIENT_LINK, objectId);
-        } else {
-            return null;
-        }
-    }
-
     private ParseObject parseObject;
-
-
-    public Person getPatient() {
-        return patient;
-    }
-
-    public Person getCaretaker() {
-        return caretaker;
-    }
-
     private Person patient;
     private Person caretaker;
-
-    public String getObjectId() {
-        return objectId;
-    }
 
     public PatientLink(Person patient, Person caretaker) {
         this.patient = patient;
         this.caretaker = caretaker;
     }
 
-    public PatientLink(ParseObject parseObject, Person patient, Person caretaker) {
+    private PatientLink(ParseObject parseObject, Person patient, Person caretaker) {
         this.parseObject = parseObject;
         this.objectId = parseObject.getObjectId();
         this.patient = patient;
@@ -75,53 +50,12 @@ public class PatientLink {
 //        }
     }
 
-    private ParseObject serialize() {
-        return serialize(new ParseObject(KEY_PATIENT_LINK));
-    }
-
-    private ParseObject serialize(ParseObject link) {
-        link.put(KEY_PATIENT, patient.getParseObject());
-        link.put(KEY_CARETAKER, caretaker.getParseObject());
-        return link;
-    }
-
-
-    public static PatientLink deserialize(ParseObject parseObject) throws ParseException {
+    protected static PatientLink deserialize(ParseObject parseObject) throws ParseException {
         return new PatientLink(
                 parseObject,
                 Person.deserialize(parseObject.getParseObject(KEY_PATIENT).fetchIfNeeded()),
                 Person.deserialize(parseObject.getParseObject(KEY_CARETAKER).fetchIfNeeded())
         );
-    }
-
-    /**
-     * This method automatically checks for duplicate and save the personlink object to database.
-     *
-     * @return PatientLink Observable that contains a link between the patient and the caretaker.
-     */
-    public Observable<PatientLink> save() {
-        return Observable.defer(() -> Observable.create(subscriber -> {
-            PatientLink link = null;
-            link = getByPersons(patient, caretaker).toBlocking().first();
-
-            if (link == null) {
-                ParseObject parseObject = this.serialize();
-                parseObject.saveInBackground(e -> {
-                    if (e == null) {
-                        objectId = parseObject.getObjectId();
-                        subscriber.onNext(this);
-                        subscriber.onCompleted();
-                    } else {
-                        subscriber.onError(e);
-                    }
-                });
-            } else {
-                Log.e(TAG, "patientLink exists");
-                subscriber.onNext(link);
-                subscriber.onCompleted();
-            }
-
-        }));
     }
 
     /**
@@ -131,7 +65,7 @@ public class PatientLink {
      * @param caretaker an other Person Object.
      * @return PatientLink Observable  that contains a link between the patient and the caretaker.
      */
-    public static Observable<PatientLink> getByPersons(Person patient, Person caretaker) {
+    public static Observable<PatientLink> findByPersons(Person patient, Person caretaker) {
 
         return Observable.create(subscriber -> {
             ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
@@ -164,7 +98,7 @@ public class PatientLink {
      * @param patient a Person Object.
      * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
-    public static Observable<PatientLink> getByPatient(Person patient) {
+    public static Observable<PatientLink> findByPatient(Person patient) {
 
         //TODO: handle multiple patient links of the same patient
         return Observable.create(subscriber -> {
@@ -196,7 +130,7 @@ public class PatientLink {
      * @param caretaker a Person Object.
      * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
-    public static Observable<PatientLink> getByCaretaker(Person caretaker) {
+    public static Observable<PatientLink> findByCaretaker(Person caretaker) {
 
         //TODO: handle multiple patient links of the same patient
         return Observable.create(subscriber -> {
@@ -220,6 +154,68 @@ public class PatientLink {
             });
         });
 
+    }
+
+    public ParseObject getParseObject() {
+        if (parseObject != null) {
+            return parseObject;
+        } else if (objectId != null) {
+            return ParseObject.createWithoutData(KEY_PATIENT_LINK, objectId);
+        } else {
+            return null;
+        }
+    }
+
+    public Person getPatient() {
+        return patient;
+    }
+
+    public Person getCaretaker() {
+        return caretaker;
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    private ParseObject serialize() {
+        return serialize(new ParseObject(KEY_PATIENT_LINK));
+    }
+
+    private ParseObject serialize(ParseObject link) {
+        link.put(KEY_PATIENT, patient.getParseObject());
+        link.put(KEY_CARETAKER, caretaker.getParseObject());
+        return link;
+    }
+
+    /**
+     * This method automatically checks for duplicate and save the personlink object to database.
+     *
+     * @return PatientLink Observable that contains a link between the patient and the caretaker.
+     */
+    public Observable<PatientLink> save() {
+        return Observable.defer(() -> Observable.create(subscriber -> {
+            PatientLink link = null;
+            link = findByPersons(patient, caretaker).toBlocking().first();
+
+            if (link == null) {
+                ParseObject parseObject = this.serialize();
+                parseObject.saveInBackground(e -> {
+                    if (e == null) {
+                        objectId = parseObject.getObjectId();
+                        subscriber.onNext(this);
+                        subscriber.onCompleted();
+                    } else {
+                        subscriber.onError(e);
+                    }
+                });
+            } else {
+                Log.e(TAG, "patientLink exists");
+                subscriber.onNext(link);
+                subscriber.onCompleted();
+            }
+
+        }));
     }
 
     /**

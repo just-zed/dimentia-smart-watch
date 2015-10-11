@@ -7,7 +7,11 @@ import com.parse.Parse;
 import com.parse.ParseInstallation;
 
 /**
- * Created by freeman on 8/16/15.
+ * Custom Application class that initiates and setup Parse.com libraries
+ *
+ * @author Freeman Man
+ * @version 1.0
+ * @since 2015-8-22
  */
 public class Application extends android.app.Application {
 

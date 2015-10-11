@@ -15,15 +15,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Created by freeman on 8/16/15.
- * tests covers CRD (no update) operations for Person
+ * tests covers CRUD operations for Person
+ *
+ * @author Freeman Man
+ * @version 1.0
+ * @since 2015-08-16
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 
-    private final String testToken = "someyadayadahardcodedtoken";
+    private final String testToken = "test_person_" + Math.random() * 1000;
     private final boolean testDGchecks = false;
 
     private Person person;
@@ -111,7 +114,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         //read
 
         Person person1 = Person
-                .getByUniqueToken(testToken)
+                .findByUniqueToken(testToken)
                 .toBlocking()
                 .first();
 
@@ -128,7 +131,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     public void testEdit() {
 
         Person person1 = Person
-                .getByUniqueToken(testToken)
+                .findByUniqueToken(testToken)
                 .toBlocking()
                 .first();
 
@@ -172,7 +175,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         }
 
         Person person1 = Person
-                .getByUniqueToken(testToken)
+                .findByUniqueToken(testToken)
                 .toBlocking()
                 .first();
 

@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -31,7 +32,7 @@ public class MainActivity extends Activity {
     private static final int REQ_CODE_SEND_TOKEN = 1;  // The request code
 
     // temp token
-    private String token = "00000000-6c94-4036-0033-c58700000000";
+    private String token;
 
 
     @Bind(R.id.panic_button)
@@ -56,8 +57,6 @@ public class MainActivity extends Activity {
         ButterKnife.bind(this);
 
 
-        token = getToken();
-
         View decorView = getWindow().getDecorView();
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -78,7 +77,9 @@ public class MainActivity extends Activity {
         if (!mPrefs.contains(PREF_PERSON_KEY)) {
             //create patient and save
 
-            new Person(Person.PATIENT, getToken())
+            token = getToken();
+
+            new Person(Person.PATIENT, token)
                     .save()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -96,9 +97,9 @@ public class MainActivity extends Activity {
 
         } else {
             //get patient token from cache, get person object from database and start service
-            String uniqueToken = mPrefs.getString(PREF_PERSON_KEY, "");
+            token = mPrefs.getString(PREF_PERSON_KEY, "");
 
-            Person.getByUniqueToken(uniqueToken)
+            Person.findByUniqueToken(token)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -129,7 +130,7 @@ public class MainActivity extends Activity {
         if (person != null) {
             //TODO: move these to repository class
             //only do this if the patient link does not exist
-            PatientLink.getByPatient(person)
+            PatientLink.findByPatient(person)
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe(patientLink -> {
@@ -166,7 +167,12 @@ public class MainActivity extends Activity {
         if (token != null) {
             return token;
         } else {
-            return new SaveSyncToken(this).findMyDeviceId();
+            String debugToken = getString(R.string.DEVICE_TOKEN);
+            if (!TextUtils.isEmpty(debugToken)) {
+                return debugToken;
+            } else {
+                return new SaveSyncToken(this).findMyDeviceId();
+            }
         }
     }
 

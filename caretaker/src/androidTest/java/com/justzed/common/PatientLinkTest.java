@@ -14,20 +14,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Created by freeman on 8/16/15.
- * tests covers CRD (no update) operations for Person
+ * tests covers CRD operations for PatientLink
  *
- * @author Freeman
+ * @author Freeman Man
  * @version 1.0
- * @since 2015-08-16
+ * @since 2015-08-18
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class PatientLinkTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientLinkTest.class.getName();
 
-    private final String patientToken = "someyadayadahardcodedpatienttoken";
-    private final String caretakerToken = "someyadayadahardcodedcaretakertoken";
+    private final String patientToken = "test_patient_" + Math.random() * 1000;
+    private final String caretakerToken = "test_caretaker_" + Math.random() * 1000;
 
 
     private Person patient;
@@ -125,7 +124,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
 
 
         //read test
-        PatientLink link = PatientLink.getByPersons(patient, caretaker)
+        PatientLink link = PatientLink.findByPersons(patient, caretaker)
                 .toBlocking().single();
 
         assertNotNull(link);

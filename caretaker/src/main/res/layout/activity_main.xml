@@ -18,7 +18,6 @@
 
     <Button
         android:id="@+id/button"
-        style="@style/Widget.AppCompat.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_maps_my_location"

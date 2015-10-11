@@ -10,7 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Created by freeman on 8/16/15.
+ * @author Freeman Man
+ * @version 1.0
+ * @since 2015-8-21
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
