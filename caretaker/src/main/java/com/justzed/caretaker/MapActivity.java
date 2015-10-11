@@ -798,6 +798,30 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         //Add advance fences in database.
         int sizeAdd = addDatabase.size();
+        List<Observable<PatientFence>> addObservables = new ArrayList<>();
+
+        for (int i = 0; i < sizeAdd; i++) {
+            addObservables.add(new PatientFence(patient, addDatabase.get(i).getCenter(),
+                    addDatabase.get(i).getRadius(), addDatabase.get(i).getDescription(),
+                    largestGroupID)
+                    .save());
+        }
+
+        Observable.zip(addObservables, args -> null)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        patientFence -> {
+                            // TODO
+                        },
+                        throwable -> {
+                            Log.e(TAG, throwable.getMessage());
+                        }
+                );
+
+/*
+        //Add advance fences in database.
+        int sizeAdd = addDatabase.size();
         for (int i = 0; i < sizeAdd; i++) {
             new PatientFence(patient, addDatabase.get(i).getCenter(),
                     addDatabase.get(i).getRadius(), addDatabase.get(i).getDescription(),
@@ -814,7 +838,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             }
                     );
         }
-
+*/
         for (int i = 0; i < size; i++) {
             tempAdvCircleList.get(i).remove();
         }
