@@ -8,9 +8,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
+import android.widget.Button;
 import android.widget.Switch;
 
+import com.justzed.common.DeviceUtils;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
@@ -35,7 +36,10 @@ public class MainActivity extends Activity {
     private String token;
 
     @Bind(R.id.button)
-    View button;
+    Button button;
+
+    @Bind(R.id.button_messenger)
+    Button buttonMessenger;
 
     @Bind(R.id.switch_patient_disable_check)
     Switch switchPatientDisableCheck;
@@ -66,11 +70,12 @@ public class MainActivity extends Activity {
 
         ButterKnife.bind(this);
         button.setEnabled(false);
+        buttonMessenger.setEnabled(false);
         switchPatientDisableCheck.setEnabled(false);
 
         //TODO: move these to a splash screen activity?
         getCaretaker()
-                .flatMap(PatientLink::findByCaretaker)
+                .flatMap(PatientLink::findLatestByCaretaker)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(patientLink -> {
@@ -108,7 +113,11 @@ public class MainActivity extends Activity {
             //create patient and save
             token = getToken();
 
-            return new Person(Person.CARETAKER, token)
+            Person caretaker = new Person(Person.CARETAKER, token);
+            caretaker.setName(DeviceUtils.getDeviceOwnerName(getApplication(),
+                    getString(R.string.default_caretaker_name)));
+
+            return caretaker
                     .save()
                     .map(person1 -> {
                         this.caretaker = person1;
@@ -131,13 +140,19 @@ public class MainActivity extends Activity {
     }
 
     private void finishActivityWithResult() {
-        button.setEnabled(true);
-        switchPatientDisableCheck.setEnabled(true);
-        switchPatientDisableCheck.setChecked(patient.getDisableGeofenceChecks());
-        toggleSubscription(!patient.getDisableGeofenceChecks());
+        if (patient != null) {
+            button.setEnabled(true);
+            buttonMessenger.setEnabled(true);
+            switchPatientDisableCheck.setEnabled(true);
 
-        switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (patient != null) {
+            button.setText(String.format(getString(R.string.find_my_patient_button_text), patient.getName()));
+            buttonMessenger.setText(String.format(getString(R.string.message_my_patient_button_text), patient.getName()));
+            switchPatientDisableCheck.setText(String.format(getString(R.string.patient_nearby_text), patient.getName()));
+
+            switchPatientDisableCheck.setChecked(patient.getDisableGeofenceChecks());
+            toggleSubscription(!patient.getDisableGeofenceChecks());
+
+            switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 patient.setDisableGeofenceChecks(isChecked);
 
                 patient.save().subscribeOn(Schedulers.io())
@@ -145,8 +160,10 @@ public class MainActivity extends Activity {
                         .subscribe(person -> {
                             //do nothing
                         }, throwable -> Log.e(TAG, throwable.getMessage()));
-            }
-        });
+            });
+        }
+
+
         // if activity is called by NfcActivity, close and return result
         if (getCallingActivity() != null && caretaker != null) {
             Intent result = new Intent();

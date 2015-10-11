@@ -38,6 +38,12 @@
     <string name="title_activity_messenger">Message My Patient</string>
     <string name="messenger_textbox_hint">Type your message</string>
     <string name="button_send">Send</string>
-    <string name="default_message_reciever_name">Searching for a recipient...</string>
 
+    <string name="default_message_reciever_name">Searching for a recipient…</string>
+    <string name="default_caretaker_name">Anonymous Caretaker</string>
+
+
+    <string name="find_my_patient_button_text" formatted="false">Find $s</string>
+    <string name="message_my_patient_button_text" formatted="false">Message $s</string>
+    <string name="patient_nearby_text" formatted="false">$s is with me</string>
 </resources>

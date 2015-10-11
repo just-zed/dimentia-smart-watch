@@ -6,7 +6,8 @@
     <string name="title_activity_token_sender">Pairing Devices</string>
 
     <string name="title_patient_service">Background Service</string>
-    <string name="exited_fence_notificiation">Bob has left a safe zone. Consider sending him a message.</string>
-    <string name="reentered_fence_notificiation">Bob has re-entered a safe zone.</string>
-    <string name="panic_message">Bob is in trouble!</string>
+    <string name="exited_fence_notificiation" formatted="false">$s has left a safe zone. Consider sending him a message.</string>
+    <string name="reentered_fence_notificiation" formatted="false">$s has re-entered a safe zone.</string>
+    <string name="panic_message" formatted="false">$s is in trouble!</string>
+    <string name="default_patient_name">Anonymous Patient</string>
 </resources>

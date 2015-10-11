@@ -3,8 +3,6 @@ package com.justzed.common;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,22 +14,7 @@ import org.junit.runner.RunWith;
  * @since 2015-08-30
  */
 @RunWith(AndroidJUnit4.class)
-public class SaveSyncTokenTest extends AndroidTestCase {
-
-
-    public SaveSyncTokenTest() {
-    }
-
-    /**
-     * Sets up the tests.
-     *
-     * @return Nothing.
-     */
-    @Before
-    protected void setUp() throws Exception {
-        super.setUp();
-        //setup
-    }
+public class ContextUtilsTest extends AndroidTestCase {
 
     /**
      * Fails if a Exception occurs.
@@ -49,10 +32,16 @@ public class SaveSyncTokenTest extends AndroidTestCase {
         assertNotNull(testToken);
     }
 
-    @After
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        //de-setup
+    @Test
+    public void testGetDeviceOwnerName() {
+        String defaultName = "Temp Name";
+
+        String ownerName = DeviceUtils.getDeviceOwnerName(getContext(), defaultName);
+        String ownerNullName = DeviceUtils.getDeviceOwnerName(null, defaultName);
+
+        assertNotSame(ownerName, defaultName);
+        assertEquals(ownerNullName, defaultName);
+
     }
 }
 
