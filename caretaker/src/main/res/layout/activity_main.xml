@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,25 +11,16 @@
     tools:context="com.justzed.caretaker.MainActivity">
 
 
-    <Switch
-        android:id="@+id/switch_patient_disable_check"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/patient_nearby_text" />
 
-    <Button
-        android:id="@+id/button"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/choose_patient_text" />
+
+    <ListView
+        android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_maps_my_location"
-        android:text="@string/find_my_patient_button_text" />
-
-    <Button
-        android:id="@+id/button_messenger"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_communication_email"
-        android:text="@string/message_my_patient_button_text"
-        />
-
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 </LinearLayout>

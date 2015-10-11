@@ -36,7 +36,7 @@ public class NfcActivity extends Activity {
 
     public static final String INTENT_TOKEN_KEY = "personUniqueToken";
     private static final int REQ_CODE_MAIN = 1;
-    private static final String TAG = NfcActivity.class.getName();
+    public static final String TAG = NfcActivity.class.getName();
 
     private NfcAdapter mNfcAdapter;
     private PendingIntent mNfcPendingIntent;
@@ -74,6 +74,7 @@ public class NfcActivity extends Activity {
             // start main activity if pref key not present
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("TAG", TAG);
             startActivityForResult(intent, REQ_CODE_MAIN);
         } else {
             caretakerToken = mPrefs.getString(MainActivity.PREF_PERSON_KEY, "");

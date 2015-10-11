@@ -16,13 +16,13 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MainActivityTest extends ActivityTestCase {
+public class PatientActivityTest extends ActivityTestCase {
 
-    private static final String TAG = MainActivityTest.class.getName();
+    private static final String TAG = PatientActivityTest.class.getName();
 
-    public MainActivityTest() {
+    public PatientActivityTest() {
         super();
-        setActivity(new MainActivity());
+        setActivity(new PatientActivity());
     }
 
     @Before

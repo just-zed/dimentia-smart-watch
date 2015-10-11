@@ -324,4 +324,9 @@ public class Person implements Parcelable {
         });
     }
 
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
