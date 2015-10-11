@@ -8,17 +8,20 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.widget.Switch;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
+import com.justzed.common.DeviceUtils;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
 import com.parse.ParsePush;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -26,78 +29,55 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private Person caretaker;
-    private Person patient;
+
 
     public static final String PREF_PERSON_KEY = "PersonPref";
+    private Person caretaker;
+
 
     // temp token
     private String token;
 
-    @Bind(R.id.button)
-    View button;
+    @Bind(android.R.id.list)
+    ListView listView;
 
-    @Bind(R.id.switch_patient_disable_check)
-    Switch switchPatientDisableCheck;
-
-    @OnClick(R.id.button)
-    void mapButtonClick() {
-        if (patient != null) {
-            Intent intent = new Intent(this, MapActivity.class);
-            intent.putExtra(Person.PARCELABLE_KEY, patient);
-            startActivity(intent);
-        }
-    }
-
-    @OnClick(R.id.button_messenger)
-    void messengerButtonClick() {
-
-        Intent intent = new Intent(this, MessengerActivity.class);
-        intent.putExtra(Person.PARCELABLE_KEY, patient);
-        startActivity(intent);
-
-    }
+    List<Person> personList = new ArrayList<>();
+    ArrayAdapter<Person> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-
         ButterKnife.bind(this);
-        button.setEnabled(false);
-        switchPatientDisableCheck.setEnabled(false);
-
-        //TODO: move these to a splash screen activity?
-        getCaretaker()
-                .flatMap(PatientLink::findByCaretaker)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(patientLink -> {
-                    this.patient = patientLink.getPatient();
-                    return patientLink;
-                })
-                .subscribe(
-                        patientLink -> {
-                            // subscribe to patient's push channel
-                            finishActivityWithResult();
-                        },
-                        throwable -> Log.e(TAG, throwable.getMessage()));
-
-
-    }
-
-    private void toggleSubscription(boolean subscribe) {
-        if (patient != null) {
-            String channelName = "patient-" + patient.getUniqueToken();
-            if (subscribe) {
-                ParsePush.subscribeInBackground(channelName);
-            } else {
-                ParsePush.unsubscribeInBackground(channelName);
-            }
+        if (caretaker == null) {
+            getCaretaker()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            person -> finishActivityWithResult(),
+                            throwable -> Log.e(TAG, throwable.getMessage())
+                    );
         }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, personList);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            // launch patient activity
+            Intent intent = new Intent(this, PatientActivity.class);
+            Person patient = personList.get(position);
+            if (parent != null) {
+                intent.putExtra(Person.PARCELABLE_KEY, patient);
+                startActivity(intent);
+            }
+        });
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        populatePatientList();
+    }
 
     @NonNull
     private Observable<Person> getCaretaker() {
@@ -108,7 +88,11 @@ public class MainActivity extends Activity {
             //create patient and save
             token = getToken();
 
-            return new Person(Person.CARETAKER, token)
+            Person caretaker = new Person(Person.CARETAKER, token);
+            caretaker.setName(DeviceUtils.getDeviceOwnerName(getApplication(),
+                    getString(R.string.default_caretaker_name)));
+
+            return caretaker
                     .save()
                     .map(person1 -> {
                         this.caretaker = person1;
@@ -131,29 +115,44 @@ public class MainActivity extends Activity {
     }
 
     private void finishActivityWithResult() {
-        button.setEnabled(true);
-        switchPatientDisableCheck.setEnabled(true);
-        switchPatientDisableCheck.setChecked(patient.getDisableGeofenceChecks());
-        toggleSubscription(!patient.getDisableGeofenceChecks());
 
-        switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (patient != null) {
-                patient.setDisableGeofenceChecks(isChecked);
-
-                patient.save().subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(person -> {
-                            //do nothing
-                        }, throwable -> Log.e(TAG, throwable.getMessage()));
-            }
-        });
         // if activity is called by NfcActivity, close and return result
-        if (getCallingActivity() != null && caretaker != null) {
+        String extraTag = getIntent().getStringExtra("TAG");
+        if (getCallingActivity() != null
+                && extraTag != null
+                && extraTag.equals(NfcActivity.TAG)
+                && caretaker != null) {
             Intent result = new Intent();
             result.putExtra(Person.PARCELABLE_KEY, caretaker);
             setResult(RESULT_OK, result);
             finish();
+        } else {
+            populatePatientList();
         }
+    }
+
+    private void populatePatientList() {
+        if (caretaker != null && adapter != null) {
+            // populate list of patients
+            PatientLink.findAllByCaretaker(caretaker)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            patientLinks -> {
+                                personList.clear();
+                                for (int i = 0; i < patientLinks.size(); i++) {
+                                    PatientLink link = patientLinks.get(i);
+                                    Person patient = link.getPatient();
+                                    personList.add(patient);
+                                    ParsePush.subscribeInBackground("patient-" + patient.getUniqueToken());
+                                }
+                                adapter.notifyDataSetChanged();
+
+                            },
+                            throwable -> Log.e(TAG, throwable.getMessage())
+                    );
+        }
+
     }
 
     private String getToken() {
@@ -171,4 +170,5 @@ public class MainActivity extends Activity {
         }
 
     }
+
 }

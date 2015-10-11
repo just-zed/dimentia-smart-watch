@@ -6,6 +6,9 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import rx.Observable;
 
 /**
@@ -92,55 +95,88 @@ public class PatientLink {
     }
 
     /**
-     * get the first PatientLink by patient
-     * - can be extended to multiple.
+     * get the latest PatientLink by patient,
+     * the only use case right now is to find if there is any caretaker exist for particular patient
      *
-     * @param patient a Person Object.
+     * @param patient the patient's Person object
      * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
-    public static Observable<PatientLink> findByPatient(Person patient) {
-
-        //TODO: handle multiple patient links of the same patient
-        return Observable.create(subscriber -> {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
-            query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
-            query.setLimit(1);
-            query.findInBackground((list, e) -> {
-                try {
-                    if (e == null && list.size() == 1) {
-                        subscriber.onNext(deserialize(list.get(0)));
-                        subscriber.onCompleted();
-                    } else if (list.size() == 0) {
-                        subscriber.onNext(null);
-                        subscriber.onCompleted();
+    public static Observable<PatientLink> findLatestByPatient(Person patient) {
+        return findByPerson(patient, Person.PATIENT, 1)
+                .map(patientLinks -> {
+                    if (patientLinks == null) {
+                        return null;
                     } else {
-                        subscriber.onError(e);
+                        return patientLinks.get(0);
                     }
-                } catch (ParseException pe) {
-                    subscriber.onError(pe);
-                }
-            });
-        });
+                });
     }
 
     /**
-     * get first PatientLink by caretaker
-     * - can be extended to multiple.
+     * get a list of PatientLinks by patient
+     * it is unused at the moment
      *
-     * @param caretaker a Person Object.
+     * @param patient the patient's Person object
+     * @return List&lt;PatientLink&gt; Observable that contains list of links between the patient and all associated caretakers.
+     */
+    @SuppressWarnings("unused")
+    public static Observable<List<PatientLink>> findAllByPatient(Person patient) {
+        return findByPerson(patient, Person.PATIENT, -1);
+    }
+
+    /**
+     * get latest PatientLink by caretaker
+     *
+     * @param caretaker the caretaker's Person object
      * @return PatientLink Observable that contains a link between the patient and the caretaker.
      */
-    public static Observable<PatientLink> findByCaretaker(Person caretaker) {
+    public static Observable<PatientLink> findLatestByCaretaker(Person caretaker) {
+        return findByPerson(caretaker, Person.CARETAKER, 1)
+                .map(patientLinks -> {
+                    if (patientLinks == null) {
+                        return null;
+                    } else {
+                        return patientLinks.get(0);
+                    }
+                });
+    }
 
-        //TODO: handle multiple patient links of the same patient
+    /**
+     * get a list of PatientLinks by caretaker
+     *
+     * @param caretaker the caretaker's Person object
+     * @return List&lt;PatientLink&gt; Observable that contains list of links between the caretaker and all associated patients.
+     */
+    public static Observable<List<PatientLink>> findAllByCaretaker(Person caretaker) {
+        return findByPerson(caretaker, Person.CARETAKER, -1);
+    }
+
+    /**
+     * get all PatientLinks by caretaker
+     *
+     * @param person     a Person Object.
+     * @param personType type of person
+     * @param limit      number of results
+     * @return List&lt;PatientLink&gt; Observable that contains links between the patient and the caretaker.
+     */
+    private static Observable<List<PatientLink>> findByPerson(Person person, @Person.Type int personType, int limit) {
         return Observable.create(subscriber -> {
             ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PATIENT_LINK);
-            query.whereEqualTo(KEY_CARETAKER, caretaker.getParseObject());
-            query.setLimit(1);
+            String personTypeKey = (personType == Person.PATIENT) ? KEY_PATIENT : KEY_CARETAKER;
+            query.whereEqualTo(personTypeKey, person.getParseObject());
+            // latest first
+            query.addDescendingOrder("createdAt");
+            if (limit > 0) {
+                query.setLimit(limit);
+            }
             query.findInBackground((list, e) -> {
                 try {
-                    if (e == null && list.size() == 1) {
-                        subscriber.onNext(deserialize(list.get(0)));
+                    if (e == null && list.size() >= 1) {
+                        List<PatientLink> patientLinks = new ArrayList<>();
+                        for (int i = 0; i < list.size(); i++) {
+                            patientLinks.add(deserialize(list.get(i)));
+                        }
+                        subscriber.onNext(patientLinks);
                         subscriber.onCompleted();
                     } else if (list.size() == 0) {
                         subscriber.onNext(null);
@@ -153,7 +189,6 @@ public class PatientLink {
                 }
             });
         });
-
     }
 
     public ParseObject getParseObject() {

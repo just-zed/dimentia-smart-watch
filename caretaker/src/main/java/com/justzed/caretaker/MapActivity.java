@@ -1820,7 +1820,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * This gets the name of the patient from the database.
      */
     private String getPatientName() {
-        patientMarkerName = "Bob";
+        patientMarkerName = patient.getName();
         return patientMarkerName;
     }
 

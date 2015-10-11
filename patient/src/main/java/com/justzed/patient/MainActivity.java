@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.justzed.common.DeviceUtils;
 import com.justzed.common.NotificationMessage;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
@@ -35,17 +36,16 @@ public class MainActivity extends Activity {
     // temp token
     private String token;
 
-
     @Bind(R.id.panic_button)
     ImageButton panicButton;
 
     @OnClick(R.id.panic_button)
     void onClickPanicButton() {
-        if (token != null) {
+        if (token != null && person != null) {
             // push to channel, channel name is patient's unique id
             // channel name must start with letter
             String channelName = "patient-" + getToken();
-            NotificationMessage.sendMessage(channelName, getString(R.string.panic_message));
+            NotificationMessage.sendMessage(channelName, String.format(getString(R.string.panic_message), person.getName()));
         }
     }
 
@@ -80,7 +80,11 @@ public class MainActivity extends Activity {
 
             token = getToken();
 
-            new Person(Person.PATIENT, token)
+            Person personToSave = new Person(Person.PATIENT, token);
+            personToSave.setName(DeviceUtils.getDeviceOwnerName(getApplication(),
+                    getString(R.string.default_patient_name)));
+
+            personToSave
                     .save()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -134,7 +138,7 @@ public class MainActivity extends Activity {
         if (person != null) {
             //TODO: move these to repository class
             //only do this if the patient link does not exist
-            PatientLink.findByPatient(person)
+            PatientLink.findLatestByPatient(person)
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe(patientLink -> {

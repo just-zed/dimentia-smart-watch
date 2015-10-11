@@ -22,6 +22,6 @@ public class NotificationMessageTest extends TestCase {
     //In this test, a simple message is sent
     @Test
     public void testSendMessageException(){
-       NM.sendMessage("testChannel", "testMessage");
+       NotificationMessage.sendMessage("testChannel", "testMessage");
     }
 }

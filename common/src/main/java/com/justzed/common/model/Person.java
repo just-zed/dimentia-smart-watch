@@ -25,10 +25,11 @@ import rx.Observable;
 public class Person implements Parcelable {
 
 
+    public static final int INACTIVE_USER = -1;
     public static final int PATIENT = 0;
     public static final int CARETAKER = 1;
 
-    @IntDef({PATIENT, CARETAKER})
+    @IntDef({INACTIVE_USER, PATIENT, CARETAKER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {
     }
@@ -38,8 +39,10 @@ public class Person implements Parcelable {
         switch (typeId) {
             case PATIENT:
                 return PATIENT;
-            default:
+            case CARETAKER:
                 return CARETAKER;
+            default:
+                return INACTIVE_USER;
         }
     }
 
@@ -321,4 +324,9 @@ public class Person implements Parcelable {
         });
     }
 
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
