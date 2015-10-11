@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.justzed.common.NotificationMessage;
 import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;

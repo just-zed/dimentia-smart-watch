@@ -23,4 +23,12 @@
         android:drawableStart="@drawable/ic_maps_my_location"
         android:text="Find My Patient" />
 
+    <Button
+        android:id="@+id/button_messenger"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_communication_email"
+        android:text="Message My Patient"
+        />
+
 </LinearLayout>
