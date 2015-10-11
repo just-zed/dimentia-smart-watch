@@ -330,17 +330,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         strAdvFencesList = new ArrayList<String>();
         advMarkerList = new ArrayList<Marker>();
 
-        strFencesList.clear();
-        markerList.clear();
-        circlesList.clear();
-        patientFenceList.clear();
-
-        advCircleList.clear();
-        patientAdvFenceList.clear();
-        tempAdvCircleList.clear();
-        strAdvFencesList.clear();
-        advMarkerList.clear();
-
         PatientFence.findPatientFences(patient)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -537,7 +526,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * @param pos The position of the fence in Lists.
      */
     private void clickEditButton(int pos) {
-
         fenceLayout.setVisibility(View.VISIBLE);
         ibtnMapCenter.setVisibility(View.GONE);
         btnDelete.setVisibility(View.VISIBLE);
@@ -677,18 +665,12 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         //Delete advance fences in database.
         int sizeDel = delDatabase.size();
-        Log.i(TAG, "======= Before Delete fences in database =======");
-
-
         List<Observable<PatientFence>> delObservables = new ArrayList<>();
 
         for (int i = 0; i < sizeDel; i++) {
             PatientFence fence = delDatabase.get(i);
             delObservables.add(fence.delete());
         }
-
-
-        Log.i(TAG, "======= After Delete fences in database =======");
 
         int size = advCircleList.get(curPosFence).size();
         for (int i = 0; i < size; i++) {
@@ -731,10 +713,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         //Add advance fences in database.
         int sizeAdd = addDatabase.size();
-        Log.i(TAG, "======= Before Add fences in database =======");
-
         List<Observable<PatientFence>> addObservables = new ArrayList<>();
-
 
         for (int i = 0; i < sizeAdd; i++) {
             addObservables.add(new PatientFence(patient, addDatabase.get(i).getCenter(),
@@ -742,7 +721,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     largestGroupID)
                     .save());
         }
-        Log.i(TAG, "======= After Add fences in database =======");
 
         Observable.concat(
                 Observable.zip(delObservables, args -> null),
@@ -752,7 +730,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .subscribe(
                         patientFence -> {
                             // TODO
-                            Log.i(TAG, "============== Add OK. ==============");
                         },
                         throwable -> {
                             Log.e(TAG, throwable.getMessage());
@@ -821,7 +798,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         //Add advance fences in database.
         int sizeAdd = addDatabase.size();
-        Log.i(TAG, "addDatabase.size() : " + size);
         for (int i = 0; i < sizeAdd; i++) {
             new PatientFence(patient, addDatabase.get(i).getCenter(),
                     addDatabase.get(i).getRadius(), addDatabase.get(i).getDescription(),
@@ -1261,7 +1237,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     /**
      * Created by Nguyen Nam Cuong Tran.
-     * This method is used to implement actions of Add Advance mode in clickMap Method.
+     * This method is used to implement actions of Edit Advance mode in clickMap Method.
      *
      * @param latLng The location which user clicked on the map.
      */

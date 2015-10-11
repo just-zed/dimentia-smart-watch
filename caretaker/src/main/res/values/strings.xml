@@ -32,12 +32,12 @@
     <string name="add_fence_title">ADD GEOFENCE</string>
     <string name="add_advance_fence_title">ADD ADV GEOFENCE</string>
     <string name="edit_fence_title">EDIT GEOFENCE</string>
-<<<<<<< HEAD
+
     <string name="edit_advance_fence_title">EDIT ADV GEOFENCE</string>
-=======
+
     <string name="title_activity_messenger">Message My Patient</string>
     <string name="messenger_textbox_hint">Type your message</string>
     <string name="button_send">Send</string>
     <string name="default_message_reciever_name">Searching for a recipient...</string>
->>>>>>> develop
+
 </resources>
