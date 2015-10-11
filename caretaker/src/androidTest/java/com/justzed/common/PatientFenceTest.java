@@ -29,7 +29,7 @@ import java.util.List;
 public class PatientFenceTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientFenceTest.class.getName();
 
-    private final String patientToken = "test_patient_" + Math.random() * 1000;
+    private String patientToken;
 
 
     private Person patient;
@@ -53,6 +53,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
 
+        patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
@@ -178,9 +179,10 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         assertNotNull(patientFences);
         assertEquals(patientFences.size(), 3);
-        assertEquals(patientFences.get(0).getPatient().getObjectId(), patient.getObjectId());
-        assertEquals(patientFences.get(0).getCenter(), center);
-        assertEquals(patientFences.get(0).getRadius(), radius);
+        // first one should be at last
+        assertEquals(patientFences.get(2).getPatient().getObjectId(), patient.getObjectId());
+        assertEquals(patientFences.get(2).getCenter(), center);
+        assertEquals(patientFences.get(2).getRadius(), radius);
 
         Long maxGroupId = PatientFence.findMaxGroupId(patient).toBlocking().single();
 
@@ -278,6 +280,80 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         } catch (Exception e) {
             assertTrue(false);
         }
+    }
+
+    @Test
+    public void testComplexRead() {
+        //setUp
+        PatientFence fence = new PatientFence(patient, center, radius);
+
+        fence.save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(fence.getObjectId());
+
+        //test second
+        PatientFence fence1 = new PatientFence(patient, center1, radius1);
+
+        fence1.save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(fence1.getObjectId());
+
+        //test third
+        PatientFence fence2 = new PatientFence(patient, center2, radius2);
+        fence2.save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(fence2.getObjectId());
+
+
+        //read test
+        List<PatientFence> patientFences = PatientFence.findPatientFences(patient).toBlocking().single();
+
+        assertNotNull(patientFences);
+        assertEquals(patientFences.size(), 3);
+
+        // test for adding fence into cached list then do a edit
+        PatientFence fence4 = new PatientFence(patient, center1, radius1);
+
+        patientFences.add(fence4.save()
+                .toBlocking()
+                .single());
+
+        PatientFence fenceToEdit = patientFences.get(3);
+        fenceToEdit.setCenter(center2);
+
+        fenceToEdit.save()
+                .toBlocking()
+                .single();
+
+
+        List<PatientFence> patientFences1 = PatientFence.findPatientFences(patient).toBlocking().single();
+
+        PatientFence editedFence = patientFences1.get(0);
+
+        assertEquals(editedFence.getCenter(), center2);
+
+
+        //tearDown
+
+        try {
+            assertNull(fence.delete().toBlocking().single());
+            assertNull(fence.getObjectId());
+            assertNull(fence1.delete().toBlocking().single());
+            assertNull(fence1.getObjectId());
+            assertNull(fence2.delete().toBlocking().single());
+            assertNull(fence2.getObjectId());
+            assertTrue(true);
+        } catch (Exception e) {
+            assertTrue(false);
+        }
+
+
     }
 
     /**

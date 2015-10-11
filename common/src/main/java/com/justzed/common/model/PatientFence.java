@@ -110,6 +110,7 @@ public class PatientFence {
         return Observable.create(subscriber -> {
             ParseQuery<ParseObject> query = ParseQuery.getQuery(KEY_PERSONFENCE);
             query.whereEqualTo(KEY_PATIENT, patient.getParseObject());
+            query.addDescendingOrder("createdAt");
             query.findInBackground((list, e) -> {
                 try {
                     if (e == null && list != null && list.size() >= 1) {
@@ -247,6 +248,7 @@ public class PatientFence {
             parseObject.saveInBackground(e -> {
                 if (e == null) {
                     objectId = parseObject.getObjectId();
+                    this.parseObject = parseObject;
                     subscriber.onNext(this);
                     subscriber.onCompleted();
                 } else {

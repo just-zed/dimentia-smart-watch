@@ -25,8 +25,8 @@ import org.junit.runner.RunWith;
 public class PatientLinkTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientLinkTest.class.getName();
 
-    private final String patientToken = "test_patient_" + Math.random() * 1000;
-    private final String caretakerToken = "test_caretaker_" + Math.random() * 1000;
+    private String patientToken;
+    private String caretakerToken;
 
 
     private Person patient;
@@ -39,6 +39,9 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
     @Before
     protected void setUp() throws Exception {
         super.setUp();
+
+        patientToken = "test_patient_" + Math.random() * 1000;
+        caretakerToken = "test_caretaker_" + Math.random() * 1000;
 
         //test creation
         patient = new Person(Person.PATIENT, patientToken)
