@@ -47,8 +47,8 @@ public class DialogActivity extends Activity {
                             (dialog, which) -> {
                                 // launch main activity
                                 // TODO: fix app workflow so we can launch MapActivity instead.
-                                // currently we cannot do that as we requires PatientActivity to get the patient
-                                Intent intent = new Intent(this, PatientActivity.class);
+                                // currently we cannot do that as we don't know which patient the message is from
+                                Intent intent = new Intent(this, MainActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);
                                 finish();
