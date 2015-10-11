@@ -203,6 +203,7 @@ public class PatientLink {
                 parseObject.saveInBackground(e -> {
                     if (e == null) {
                         objectId = parseObject.getObjectId();
+                        this.parseObject = parseObject;
                         subscriber.onNext(this);
                         subscriber.onCompleted();
                     } else {

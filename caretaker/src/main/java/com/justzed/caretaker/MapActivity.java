@@ -874,8 +874,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         LatLng center = mTempCircle.getCenter();
         double radius = mTempCircle.getRadius();
 
-        Log.i(TAG, "saveAddMode() - Before patientFenceList.size() : " + patientFenceList.size());
-
         new PatientFence(patient, center, radius, title)
                 .save()
                 .subscribeOn(Schedulers.io())
@@ -884,7 +882,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                         patientFence -> {
                             // updates the object in the list
                             patientFenceList.add(patientFence);
-                            Log.i(TAG, "saveAddMode() - After patientFenceList.size() : " + patientFenceList.size());
 
                             strFencesList.add(patientFence.getDescription());
                             markerList.add(drawMarker(mMap, patientFence.getCenter(),
@@ -916,28 +913,15 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Saving fence in Edit mode.
      */
     private void saveEditMode() {
-
         String title = txtFenceTitle.getText().toString().trim();
         LatLng center = mTempCircle.getCenter();
         double radius = mTempCircle.getRadius();
 
-        Log.i(TAG, "saveEditMode() - curPosFence : " + curPosFence);
-        Log.i(TAG, "saveEditMode() - patientFenceList.size() : " + patientFenceList.size());
-/*
-        patientFenceList.get(curPosFence).setCenter(center);
-        patientFenceList.get(curPosFence).setRadius(radius);
-        patientFenceList.get(curPosFence).setDescription(title);
-*/
         PatientFence fence = patientFenceList.get(curPosFence);
 
         fence.setDescription(title);
         fence.setCenter(center);
         fence.setRadius(radius);
-
-        Log.i(TAG, "saveEditMode() - fence.getObjectId() : " + fence.getObjectId());
-        Log.i(TAG, "saveEditMode() - fence.getCenter() : " + fence.getCenter().latitude + ", " + fence.getCenter().longitude);
-        Log.i(TAG, "saveEditMode() - fence.getRadius() : " + fence.getRadius());
-        Log.i(TAG, "saveEditMode() - fence.getDescription() : " + fence.getDescription());
 
         fence.save()
                 .subscribeOn(Schedulers.io())
@@ -945,7 +929,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 .subscribe(
                         patientFence -> {
                             // updates the object in the list
-                            Log.i(TAG, "==== saveEditMode() - In Saving Method ======");
                             strFencesList.set(curPosFence, patientFence.getDescription());
                             markerList.get(curPosFence).setPosition(patientFence.getCenter());
                             markerList.get(curPosFence).setTitle(patientFence.getDescription());
