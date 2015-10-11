@@ -7,7 +7,6 @@ env:
      # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
      - ADB_INSTALL_TIMEOUT=100
      - MALLOC_ARENA_MAX=2
-sudo: required
 android:
   components:
     - build-tools-23.0.1
@@ -26,6 +25,6 @@ before_script:
   - adb shell input keyevent 82 &
 script: ./gradlew connectedAndroidTest
 notifications:
-  hipchat: 9a2ee1a055d11705229e675c791952@Travis
+  hipchat: 9a2ee1a055d11705229e675c791952@travis-ci
   email: false
 
