@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
     @OnClick(R.id.button_messenger)
     void messengerButtonClick() {
 
-        Intent intent = new Intent(this,MessengerActivity.class);
+        Intent intent = new Intent(this, MessengerActivity.class);
         intent.putExtra(Person.PARCELABLE_KEY, patient);
         startActivity(intent);
 
@@ -139,7 +139,6 @@ public class MainActivity extends Activity {
         switchPatientDisableCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (patient != null) {
                 patient.setDisableGeofenceChecks(isChecked);
-                toggleSubscription(!isChecked);
 
                 patient.save().subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

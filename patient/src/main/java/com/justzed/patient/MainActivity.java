@@ -15,6 +15,7 @@ import com.justzed.common.NotificationMessage;
 import com.justzed.common.SaveSyncToken;
 import com.justzed.common.model.PatientLink;
 import com.justzed.common.model.Person;
+import com.parse.ParsePush;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -124,6 +125,9 @@ public class MainActivity extends Activity {
         Intent serviceIntent = new Intent(this, PatientService.class);
         serviceIntent.putExtra(Person.PARCELABLE_KEY, person);
         startService(serviceIntent);
+        //subscribe to caretaker notifications
+        ParsePush.subscribeInBackground("caretaker-" + getToken());
+
     }
 
     private void startTokenSenderActivity() {
