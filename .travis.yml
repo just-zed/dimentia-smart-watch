@@ -1,0 +1,30 @@
+language: android
+jdk: oraclejdk8
+env:
+  matrix:
+    - ANDROID_TARGET=android-22  ANDROID_ABI=armeabi-v7a
+  global:
+     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+     - ADB_INSTALL_TIMEOUT=100
+  sudo: required
+android:
+  components:
+    - build-tools-23.0.1
+    - android-23
+    - android-22
+    - extra-android-support
+    - extra-android-m2repository
+    - extra-google-m2repository
+    - extra-google-google_play_services
+    - sys-img-armeabi-v7a-android-22
+before_script:
+  # Create and start emulator
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+  - emulator -avd test -no-skin -no-audio -no-window -netdelay none -netspeed full &
+  - adb wait-for-device
+  - adb shell input keyevent 82 &
+script: ./gradlew connectedAndroidTest -PpreDexEnable=false
+notifications:
+  hipchat: 9a2ee1a055d11705229e675c791952@Travis
+  email: false
+
