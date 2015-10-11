@@ -1,18 +1,17 @@
 package com.justzed.caretaker;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.justzed.common.NotificationMessage;
 import com.justzed.common.model.Person;
 /**
  * This activity runs the messenging system on the caretaker's device.
@@ -25,6 +24,7 @@ public class MessengerActivity extends Activity {
     private EditText message;
     private Button sendButton;
     private TextView recipientName;
+    Person myPatient;
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -52,13 +52,13 @@ public class MessengerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messenger);
-
         recipientName = (TextView) findViewById(R.id.recipient_name);
+
         /**TODO change to name*/
         try {
             Bundle data = getIntent().getExtras();
-            Person myPatient = data.getParcelable(Person.PARCELABLE_KEY);
-            recipientName.setText(myPatient.getUniqueToken());
+            myPatient = data.getParcelable(Person.PARCELABLE_KEY);
+            recipientName.setText(myPatient.getName());
         }
         catch(Exception e){
             String NO_PATIENT = "No recipients could be found.";
@@ -80,28 +80,6 @@ public class MessengerActivity extends Activity {
             }
 
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_messenger, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -127,10 +105,11 @@ public class MessengerActivity extends Activity {
      * @return Nothing.
      */
     public void sendMessage(String messageToSend){
+        String channelName = "caretaker-" + myPatient.getUniqueToken();
 
         /**TODO add a mechanism for the caretaker to be able to send notifications from his side.*/
         try{
-            //NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
+            NotificationMessage.sendMessage(channelName, messageToSend);
             String MESSAGE_SUCCESS = "A message has been sent: " + messageToSend;
             toast(MESSAGE_SUCCESS);
             message.setText("");
