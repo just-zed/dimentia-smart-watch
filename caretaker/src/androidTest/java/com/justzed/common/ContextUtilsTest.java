@@ -31,17 +31,5 @@ public class ContextUtilsTest extends AndroidTestCase {
 
         assertNotNull(testToken);
     }
-
-    @Test
-    public void testGetDeviceOwnerName() {
-        String defaultName = "Temp Name";
-
-        String ownerName = DeviceUtils.getDeviceOwnerName(getContext(), defaultName);
-        String ownerNullName = DeviceUtils.getDeviceOwnerName(null, defaultName);
-
-        assertNotSame(ownerName, defaultName);
-        assertEquals(ownerNullName, defaultName);
-
-    }
 }
 

@@ -121,17 +121,12 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         //test delete
 
-        try {
-            assertNull(fence.delete().toBlocking().single());
-            assertNull(fence.getObjectId());
-            assertNull(fence1.delete().toBlocking().single());
-            assertNull(fence1.getObjectId());
-            assertNull(fence2.delete().toBlocking().single());
-            assertNull(fence2.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(fence.delete().toBlocking().single());
+        assertNull(fence.getObjectId());
+        assertNull(fence1.delete().toBlocking().single());
+        assertNull(fence1.getObjectId());
+        assertNull(fence2.delete().toBlocking().single());
+        assertNull(fence2.getObjectId());
 
     }
 
@@ -191,17 +186,9 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         //tearDown
 
-        try {
-            assertNull(fence.delete().toBlocking().single());
-            assertNull(fence.getObjectId());
-            assertNull(fence1.delete().toBlocking().single());
-            assertNull(fence1.getObjectId());
-            assertNull(fence2.delete().toBlocking().single());
-            assertNull(fence2.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(fence.delete().toBlocking().single());
+        assertNull(fence1.delete().toBlocking().single());
+        assertNull(fence2.delete().toBlocking().single());
     }
 
     private static final String TIME_STRING_FORMATTER = "%tc";
@@ -273,13 +260,7 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         //tearDown
 
-        try {
-            assertNull(retrievedFence.delete().toBlocking().single());
-            assertNull(retrievedFence.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(fence.delete().toBlocking().single());
     }
 
     @Test
@@ -318,9 +299,9 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         assertEquals(patientFences.size(), 3);
 
         // test for adding fence into cached list then do a edit
-        PatientFence fence4 = new PatientFence(patient, center1, radius1);
+        PatientFence fence3 = new PatientFence(patient, center1, radius1);
 
-        patientFences.add(fence4.save()
+        patientFences.add(fence3.save()
                 .toBlocking()
                 .single());
 
@@ -341,18 +322,10 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         //tearDown
 
-        try {
-            assertNull(fence.delete().toBlocking().single());
-            assertNull(fence.getObjectId());
-            assertNull(fence1.delete().toBlocking().single());
-            assertNull(fence1.getObjectId());
-            assertNull(fence2.delete().toBlocking().single());
-            assertNull(fence2.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
-
+        assertNull(fence.delete().toBlocking().single());
+        assertNull(fence1.delete().toBlocking().single());
+        assertNull(fence2.delete().toBlocking().single());
+        assertNull(fence3.delete().toBlocking().single());
 
     }
 
@@ -363,12 +336,8 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
      */
     @After
     protected void tearDown() throws Exception {
-        try {
-            assertNull(patient.delete().toBlocking().single());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+
+        assertNull(patient.delete().toBlocking().single());
 
         patient = null;
 

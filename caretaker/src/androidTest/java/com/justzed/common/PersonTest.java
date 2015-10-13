@@ -105,11 +105,6 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person3.getObjectId());
         assertEquals(person3.getType(), Person.PATIENT);
 
-
-        person1.delete().toBlocking().single();
-        person2.delete().toBlocking().single();
-        person3.delete().toBlocking().single();
-
     }
 
     //read
@@ -163,18 +158,14 @@ public class PersonTest extends ApplicationTestCase<Application> {
     @Test
     public void testDelete() {
 
-        try {
-            assertNull(person.delete().toBlocking().single());
-            assertNull(person.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(person.delete().toBlocking().single());
+        assertNull(person.getObjectId());
 
         try {
             assertNull(person.delete().toBlocking().single());
             assertTrue(false);
         } catch (Exception e) {
+            // re-delete throws exception
             assertTrue(true);
         }
 
@@ -198,12 +189,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
 
     @After
     protected void tearDown() throws Exception {
-        try {
-            assertNull(person.delete().toBlocking().single());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(person.delete().toBlocking().single());
 
         person = null;
 

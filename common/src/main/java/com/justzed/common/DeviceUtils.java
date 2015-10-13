@@ -26,7 +26,7 @@ public class DeviceUtils {
             Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
             if (c != null) {
                 c.moveToFirst();
-                ownerName = c.getString(c.getColumnIndex("display_name"));
+                ownerName = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 c.close();
             }
         }

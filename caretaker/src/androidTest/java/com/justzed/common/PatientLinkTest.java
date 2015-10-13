@@ -256,27 +256,22 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         //tearDown
 
         // loop does not work here because these are observables
-        link0.delete().toBlocking().single();
-        link1.delete().toBlocking().single();
-        link2.delete().toBlocking().single();
-        link3.delete().toBlocking().single();
-        link4.delete().toBlocking().single();
+        assertNull(link0.delete().toBlocking().single());
+        assertNull(link1.delete().toBlocking().single());
+        assertNull(link2.delete().toBlocking().single());
+        assertNull(link3.delete().toBlocking().single());
+        assertNull(link4.delete().toBlocking().single());
 
     }
 
     @After
     protected void tearDown() throws Exception {
-        try {
-            assertNull(patient.delete().toBlocking().single());
-            assertNull(caretaker.delete().toBlocking().single());
-            assertNull(patient1.delete().toBlocking().single());
-            assertNull(caretaker1.delete().toBlocking().single());
-            assertNull(patient2.delete().toBlocking().single());
-            assertNull(caretaker2.delete().toBlocking().single());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(patient.delete().toBlocking().single());
+        assertNull(caretaker.delete().toBlocking().single());
+        assertNull(patient1.delete().toBlocking().single());
+        assertNull(caretaker1.delete().toBlocking().single());
+        assertNull(patient2.delete().toBlocking().single());
+        assertNull(caretaker2.delete().toBlocking().single());
 
         patient = null;
         caretaker = null;
