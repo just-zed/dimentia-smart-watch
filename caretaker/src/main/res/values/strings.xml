@@ -52,7 +52,7 @@
     <string name="title_activity_patient">Patient</string>
     <string name="title_activity_map">Find Patient</string>
     <string name="title_activity_dialog" />
-    <string name="title_activity_messenger">Messager</string>
+    <string name="title_activity_messenger">Send a Message</string>
     <string name="choose_patient_text">Who do you want to take care of?</string>
 
 

@@ -37,7 +37,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     }
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         patientToken = "test_patient_" + Math.random() * 1000;
@@ -168,7 +168,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     }
 
     @After
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         try {
             assertNull(patient.delete().toBlocking().single());
             assertTrue(true);

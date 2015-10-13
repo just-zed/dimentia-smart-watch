@@ -11,7 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Created by Hiroki Takahashi on 10/09/2015.
+ * @author Hiroki Takahashi
+ * @since 2015-9-10
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -21,7 +22,7 @@ public class NotificationMessageTest extends TestCase {
 
     //In this test, a simple message is sent
     @Test
-    public void testSendMessageException(){
-       NotificationMessage.sendMessage("testChannel", "testMessage");
+    public void testSendMessageException() {
+        NotificationMessage.sendMessage("testChannel", "testMessage");
     }
 }

@@ -1,17 +1,32 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <ImageButton
         android:id="@+id/panic_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_gravity="center"
+        android:layout_weight="0.7"
         android:adjustViewBounds="false"
         android:background="#00000000"
+        android:contentDescription="@string/help_button_description"
+        android:padding="30dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_alert_error">
+        android:src="@drawable/ic_alert_error" />
 
-    </ImageButton>
+    <ImageButton
+        android:id="@+id/message_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="0.3"
+        android:adjustViewBounds="false"
+        android:background="#00000000"
+        android:contentDescription="@string/message_button_description"
+        android:padding="30dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_communication_message" />
 
-</FrameLayout>
+</LinearLayout>
