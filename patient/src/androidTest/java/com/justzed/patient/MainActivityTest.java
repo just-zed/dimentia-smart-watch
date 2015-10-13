@@ -1,15 +1,15 @@
 package com.justzed.patient;
 
-import android.test.ActivityTestCase;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.AndroidTestCase;
+
+import org.junit.runner.RunWith;
 
 /**
  * Created by freeman on 8/16/15.
  */
-public class MainActivityTest extends ActivityTestCase {
-    public MainActivityTest() {
-        super();
-        setActivity(new MainActivity());
-    }
+@RunWith(AndroidJUnit4.class)
+public class MainActivityTest extends AndroidTestCase {
 
     @Override
     protected void setUp() throws Exception {

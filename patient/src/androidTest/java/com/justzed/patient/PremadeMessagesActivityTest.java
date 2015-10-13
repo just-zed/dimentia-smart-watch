@@ -1,48 +1,78 @@
 package com.justzed.patient;
 
-import android.support.test.InstrumentationRegistry;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.ActivityTestCase;
-import android.widget.ListView;
+import android.content.Intent;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.AndroidTestCase;
+
+import com.justzed.common.model.Person;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasToString;
 
 /**
- * Created by Hiroki Takahashi on 6/10/2015.
  * Testing is broken (11/10/2015)
+ *
+ * @author Hiroki Takahashi
+ * @since 2015-10-6
  */
-public class PremadeMessagesActivityTest extends ActivityInstrumentationTestCase2<PremadeMessagesActivity> {
+@RunWith(AndroidJUnit4.class)
+public class PremadeMessagesActivityTest extends AndroidTestCase {
 
-    private PremadeMessagesActivity messageActivity;
-    private ListView testListView;
+    /**
+     * http://blog.sqisland.com/2015/04/espresso-21-activitytestrule.html
+     * https://google.github.io/android-testing-support-library/docs/espresso/index.html
+     */
+    @Rule
+    public ActivityTestRule<PremadeMessagesActivity> mActivityRule =
+            new ActivityTestRule<>(
+                    PremadeMessagesActivity.class,
+                    true,
+                    false);
 
-    public PremadeMessagesActivityTest() {
-        super(PremadeMessagesActivity.class);
-    }
 
     /*
      * Set up testing
      * @return nothing
      */
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
-        injectInstrumentation(InstrumentationRegistry.getInstrumentation());
-        messageActivity = getActivity();
-        //setActivityInitialTouchMode(true);
-        //testListView = (ListView)messageActivity.findViewById(R.id.list);
+
+        Person patient = new Person(Person.PATIENT, "testToken");
+        patient.setName("patient");
+
+        Intent intent = new Intent();
+        intent.putExtra(Person.PARCELABLE_KEY, patient);
+        mActivityRule.launchActivity(intent);
     }
 
     @Test
-    public void testList(){
+    public void testOK() {
+        // one of the message in hardcoded list
+        // there should be only 1 match
+        onData(hasToString(equalTo("OK")))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0)
+                .perform(click());
+    }
 
-        onView(withId(R.id.list)).perform(click());
-
+    @Test
+    public void testYes() {
+        // one of the message in hardcoded list
+        // there should be only 1 match
+        onData(hasToString(equalTo("Yes")))
+                .inAdapterView(withId(android.R.id.list))
+                .atPosition(0)
+                .perform(click());
     }
 
     /*
@@ -50,7 +80,7 @@ public class PremadeMessagesActivityTest extends ActivityInstrumentationTestCase
      * @return noting
      */
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
     }
 }
