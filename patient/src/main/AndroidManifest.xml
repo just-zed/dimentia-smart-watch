@@ -26,7 +26,7 @@
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme.FullScreen" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -80,8 +80,8 @@
 
         <activity
             android:name=".PremadeMessagesActivity"
-            android:label="@string/title_activity_premade_messages" >
-        </activity>
+            android:label="@string/title_activity_premade_messages"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

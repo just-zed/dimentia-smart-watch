@@ -1,6 +1,5 @@
 package com.justzed.patient;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,8 +7,8 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.justzed.common.DeviceUtils;
 import com.justzed.common.NotificationMessage;
@@ -27,7 +26,7 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity {
 
-    private Person person;
+    private Person patient;
 
     public static final String PREF_PERSON_KEY = "PersonPref";
 
@@ -39,13 +38,27 @@ public class MainActivity extends Activity {
     @Bind(R.id.panic_button)
     ImageButton panicButton;
 
+    @Bind(R.id.message_button)
+    ImageButton messageButton;
+
     @OnClick(R.id.panic_button)
     void onClickPanicButton() {
-        if (token != null && person != null) {
+        if (patient != null) {
             // push to channel, channel name is patient's unique id
             // channel name must start with letter
             String channelName = "patient-" + getToken();
-            NotificationMessage.sendMessage(channelName, String.format(getString(R.string.panic_message), person.getName()));
+            NotificationMessage.sendMessage(channelName, String.format(getString(R.string.panic_message), patient.getName()));
+            Toast.makeText(getApplicationContext(), R.string.caretakers_alerted, Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    @OnClick(R.id.message_button)
+    void startMessageActivity() {
+        if (patient != null) {
+            Intent intent = new Intent(this, PremadeMessagesActivity.class);
+            intent.putExtra(Person.PARCELABLE_KEY, patient);
+            startActivity(intent);
         }
     }
 
@@ -57,19 +70,8 @@ public class MainActivity extends Activity {
 
         ButterKnife.bind(this);
 
-
-        View decorView = getWindow().getDecorView();
-        // Hide the status bar.
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-        // Remember that you should never show the action bar if the
-        // status bar is hidden, so hide that too if necessary.
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null)
-            actionBar.hide();
-
-
         panicButton.setEnabled(false);
+        messageButton.setEnabled(false);
 
 
         //first run check if patient is already created. if not create it
@@ -89,9 +91,11 @@ public class MainActivity extends Activity {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(person -> {
-                        // save person in app
-                        this.person = person;
+                        // save patient in app
+                        this.patient = person;
                         panicButton.setEnabled(true);
+                        messageButton.setEnabled(true);
+
                         Editor editor = mPrefs.edit();
                         editor.putString(PREF_PERSON_KEY, person.getUniqueToken());
                         editor.apply();
@@ -109,8 +113,10 @@ public class MainActivity extends Activity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             person -> {
-                                this.person = person;
+                                this.patient = person;
                                 panicButton.setEnabled(true);
+                                messageButton.setEnabled(true);
+
                                 startPatientService();
                                 //start token activity
                                 startTokenSenderActivity();
@@ -127,7 +133,7 @@ public class MainActivity extends Activity {
     private void startPatientService() {
         //start service
         Intent serviceIntent = new Intent(this, PatientService.class);
-        serviceIntent.putExtra(Person.PARCELABLE_KEY, person);
+        serviceIntent.putExtra(Person.PARCELABLE_KEY, patient);
         startService(serviceIntent);
         //subscribe to caretaker notifications
         ParsePush.subscribeInBackground("caretaker-" + getToken());
@@ -135,16 +141,16 @@ public class MainActivity extends Activity {
     }
 
     private void startTokenSenderActivity() {
-        if (person != null) {
+        if (patient != null) {
             //TODO: move these to repository class
             //only do this if the patient link does not exist
-            PatientLink.findLatestByPatient(person)
+            PatientLink.findLatestByPatient(patient)
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe(patientLink -> {
                         if (patientLink == null) {
                             Intent intent = new Intent(this, TokenSenderActivity.class);
-                            intent.putExtra(Person.PARCELABLE_KEY, person);
+                            intent.putExtra(Person.PARCELABLE_KEY, patient);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivityForResult(intent, REQ_CODE_SEND_TOKEN);
                         }
