@@ -47,9 +47,9 @@ android {
 
 dependencies {
     compile project(':common')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.dagger:dagger:2.0.1'
-    testCompile 'org.robolectric:robolectric:3.0'
+    apt 'com.google.dagger:dagger-compiler:2.0.1'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:runner:0.4.1'
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
@@ -57,9 +57,4 @@ dependencies {
     androidTestCompile 'com.crittercism.dexmaker:dexmaker:1.4'
     androidTestCompile 'com.crittercism.dexmaker:dexmaker-dx:1.4'
     androidTestCompile 'com.crittercism.dexmaker:dexmaker-mockito:1.4'
-    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.0'
-    apt 'com.google.dagger:dagger-compiler:2.0.1'
-    compile 'com.jakewharton:butterknife:7.0.1'
-    provided 'org.glassfish:javax.annotation:10.0-b28'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
 }
