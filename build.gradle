@@ -21,6 +21,7 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url 'https://maven.parse.com/repo' }
     }
     configurations.all {
         resolutionStrategy.force 'com.android.support:support-annotations:22.2.1'
