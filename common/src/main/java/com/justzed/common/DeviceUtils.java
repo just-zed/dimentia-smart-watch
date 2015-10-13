@@ -16,15 +16,15 @@ public class DeviceUtils {
      * Get owner name of the device
      *
      * @param context       context
-     * @param defaultString string to return if context is null
-     * @return defaultString if context is null, or device's owner name
+     * @param defaultString string to return if context is null or device's owner name is not set
+     * @return device's owner name or defaultString
      */
     public static String getDeviceOwnerName(Context context, String defaultString) {
         String ownerName = defaultString;
 
         if (context != null) {
             Cursor c = context.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-            if (c != null) {
+            if (c != null && c.getCount() > 0) {
                 c.moveToFirst();
                 ownerName = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 c.close();
