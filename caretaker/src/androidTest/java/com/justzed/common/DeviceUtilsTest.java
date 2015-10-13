@@ -100,5 +100,37 @@ public class DeviceUtilsTest extends AndroidTestCase {
 
     }
 
+    @Test
+    public void testGetDeviceOwnerNameIfOwnerNameNotSet() {
+
+
+        String defaultName = "Default Name";
+
+
+        //Step 1: Create data you want to return and put it into a matrix cursor
+        //In this case I am mocking getting phone numbers from Contacts Provider
+        String[] exampleProjection = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+        MatrixCursor matrixCursor = new MatrixCursor(exampleProjection);
+
+        //Step 2: Create a stub content provider and add the matrix cursor as the expected result of the query
+        HashMapMockContentProvider mockProvider = new HashMapMockContentProvider();
+        mockProvider.addQueryResult(ContactsContract.Profile.CONTENT_URI, matrixCursor);
+
+        //Step 3: Create a mock resolver and add the content provider.
+        MockContentResolver mockResolver = new MockContentResolver();
+        mockResolver.addProvider(ContactsContract.AUTHORITY /*Needs to be the same as the authority of the provider you are mocking */, mockProvider);
+
+        //Step 4: Add the mock resolver to the mock context
+        ContextWithMockContentResolver mockContext = new ContextWithMockContentResolver(getContext());
+        mockContext.setContentResolver(mockResolver);
+
+
+        // our test
+        String ownerName = DeviceUtils.getDeviceOwnerName(mockContext, defaultName);
+
+        assertEquals(ownerName, defaultName);
+
+    }
+
 
 }
