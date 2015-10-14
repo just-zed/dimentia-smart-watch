@@ -1,12 +1,15 @@
 language: android
 jdk: oraclejdk8
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+cache:
+  directories:
+    - $HOME/.gradle/caches/
 env:
   matrix:
     - ANDROID_TARGET=android-22  ANDROID_ABI=armeabi-v7a
   global:
-     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-     - ADB_INSTALL_TIMEOUT=100
-     - MALLOC_ARENA_MAX=2
+     - ADB_INSTALL_TIMEOUT=8
 android:
   components:
     - build-tools-23.0.1
@@ -17,13 +20,15 @@ android:
     - extra-google-m2repository
     - extra-google-google_play_services
     - sys-img-armeabi-v7a-android-22
+  licenses:
+   - 'android-sdk-license-.+'
 before_script:
   # Create and start emulator
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window -netdelay none -netspeed full &
-  - adb wait-for-device
+  - ./android-wait-for-emulator
   - adb shell input keyevent 82 &
-script: ./gradlew connectedAndroidTest
+script: ./gradlew connectedAndroidTest -PpreDexEnable=false
 notifications:
   hipchat: 9a2ee1a055d11705229e675c791952@travis-ci
   email: false
