@@ -13,10 +13,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -33,6 +35,7 @@ import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -74,6 +77,8 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private EditText txtFenceTitle;
     private TextView txvFenceRadius;
     private SeekBar skbFenceRadius;
+    private ToggleButton togButton;
+
 
     private boolean addMode = false;
     private boolean addAdvanceMode = false;
@@ -119,6 +124,18 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     private static final int UPDATE_TIMER_NORMAL = 1000;
     private Subscription subscription;
+    //shirin
+    TextView textView;
+    TextView textView2;
+    TextView textView3;
+    NumberPicker numberPicker;
+    NumberPicker numberPicker2;
+
+    Calendar Calendar;
+
+    public MapActivity() {
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,9 +147,54 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         mMap = null;
         setContentView(R.layout.activity_map);
 
+        textView = (TextView) findViewById(R.id.textView);
+        textView2 = (TextView) findViewById(R.id.textView2);
+        textView3 = (TextView) findViewById(R.id.textView3);
+
+        numberPicker = (NumberPicker) findViewById(R.id.numberPicker);
+        numberPicker2 = (NumberPicker) findViewById(R.id.numberPicker2);
+
+        numberPicker.setFormatter(value -> String.format("%02d", value));
+        numberPicker.setMinValue(0);
+        numberPicker.setMaxValue(23);
+        numberPicker.setWrapSelectorWheel(true);
+
+        numberPicker2.setFormatter(value -> String.format("%02d", value));
+        numberPicker2.setMinValue(0);
+        numberPicker2.setMaxValue(59);
+        numberPicker2.setWrapSelectorWheel(true);
+
+
+        textView.setVisibility(View.INVISIBLE);
+        textView2.setVisibility(View.INVISIBLE);
+        togButton = (ToggleButton) findViewById(R.id.toggleButton);
+
+
         initFenceActivitySetup();
         initFencesList();
     }
+
+    //Shirin
+
+
+    public void changeStates(View view) {
+
+        boolean checked = ((ToggleButton) view).isChecked();
+        if (checked) {
+            textView.setVisibility(View.VISIBLE);
+            textView2.setVisibility(View.VISIBLE);
+            numberPicker.setVisibility(View.VISIBLE);
+            numberPicker2.setVisibility(View.VISIBLE);
+        } else {
+            textView.setVisibility(View.INVISIBLE);
+            textView2.setVisibility(View.INVISIBLE);
+            numberPicker.setVisibility(View.INVISIBLE);
+            numberPicker2.setVisibility(View.INVISIBLE);
+            numberPicker.setValue(0);
+            numberPicker2.setValue(0);
+        }
+    }
+
 
     // ==================== Functions Brian Tran =======================
 
@@ -302,7 +364,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         txvFenceRadius = (TextView) findViewById(R.id.fence_radius_text_view);
         skbFenceRadius = (SeekBar) findViewById(R.id.fence_seek_bar);
         skbFenceRadius.setMax(RADIUS_MAX);
-
+//shirin
         btnAdd.setOnClickListener(btnClickListener);
         btnAddAdvance.setOnClickListener(btnClickListener);
         btnSave.setOnClickListener(btnClickListener);
@@ -601,6 +663,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Saving fence. There are 4 modes: Add mode, Edit mode, Add Advance mode and Edit Advance mode.
      */
     private void clickSaveButton() {
+
         if (addMode) {
             try {
                 if ((checkTitleFence(txtFenceTitle.getText().toString()))
@@ -874,8 +937,34 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         LatLng center = mTempCircle.getCenter();
         double radius = mTempCircle.getRadius();
 
-        new PatientFence(patient, center, radius, title)
-                .save()
+        //
+        int ChosenHour = numberPicker.getValue();
+        int ChosenMin = numberPicker2.getValue();
+
+        Calendar calendarStartTime = Calendar.getInstance();
+        Calendar calendarEndTime = Calendar.getInstance();
+        // int CurrentMinute = calendarEndTime.get(Calendar.MINUTE);
+
+        //24 hour format
+        //int  CurrentHour = calendarEndTime.get(Calendar.HOUR_OF_DAY);
+        calendarEndTime.add(Calendar.MINUTE, ChosenMin);
+        calendarEndTime.add(Calendar.HOUR_OF_DAY, ChosenHour);
+
+
+        textView3.setVisibility(View.VISIBLE);
+        textView3.setText(Integer.toString(calendarEndTime.get(Calendar.HOUR_OF_DAY))
+                + ""
+                + Integer.toString(calendarEndTime.get(Calendar.MINUTE)));
+
+
+        PatientFence newFence = new PatientFence(patient, center, radius, title);
+
+        if (togButton.isChecked()) {
+            newFence.setStartTime(calendarStartTime);
+            newFence.setEndTime(calendarEndTime);
+        }
+
+        newFence.save()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
