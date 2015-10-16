@@ -9,8 +9,7 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import com.justzed.common.model.Person;
-//import com.parse.ParseObject;
-//import com.parse.ParseClassName;
+
 
 /**
  * This class is used to push an NDEF Message to the Caretaker's device.
@@ -24,9 +23,8 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
 
     //Private Variables
     private NfcAdapter mNfcAdapter;
-
     private String myUniqueToken;
-
+    private TokenSenderHelper tokenSenderHelper= new TokenSenderHelper();
     /**
      * Main method to send the myInformation's info to the caretaker
      *
@@ -52,18 +50,14 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      *
      * @return Nothing.
      */
-
     public void sendPatientDataWithNFC() {
         // Check for available NFC Adapter
         try {
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         } catch (Exception e) {
             //Try and catch used to avoid any errors with Toast and the tests
-            try {
-                Toast.makeText(TokenSenderActivity.this, "There was an error when attempting to use NFC.", Toast.LENGTH_LONG).show();
-            } catch (Exception Toast) {
-            }
 
+            toast("There was an error when attempting to use NFC.");
             finishWithSuccess(false);
             return;
         }
@@ -79,8 +73,6 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
         mNfcAdapter.setNdefPushMessageCallback(this, this);
     }
 
-    //Helper Methods
-
     /**
      * Checks wether the device has an NFC connection.
      *
@@ -90,19 +82,14 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     public boolean checkNfc(NfcAdapter deviceNfcAvailibility) {
         try {
             if (deviceNfcAvailibility == null) {
-                Toast.makeText(TokenSenderActivity.this, "NFC is not available or has not been enabled for this device.", Toast.LENGTH_LONG).show();
+                toast("NFC is not available or has not been enabled for this device.");
                 return false;
 
             } else {
                 return true;
             }
         } catch (Exception e) {
-            //Try and catch used to avoid any errors with Toast and the tests
-            try {
-                Toast.makeText(TokenSenderActivity.this, "Check that your device is NFC Compatible.", Toast.LENGTH_LONG).show();
-            } catch (Exception Toast) {
-            }
-
+            toast("Check that your device is NFC Compatible.");
             return false;
         }
     }
@@ -115,23 +102,7 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      */
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        return messageBuilder(myUniqueToken);
-    }
-
-    /**
-     * Stores a string array inside an NDEF message.
-     *
-     * @param patientInformation This is a string containing the patient's information
-     * @return NdefMessage This returns an NdefMessage containing patientInformation.
-     */
-    public NdefMessage messageBuilder(String patientInformation) {
-
-        return new NdefMessage(
-                new NdefRecord[]{NdefRecord.createMime("application/vnd.com.justzed.caretaker",
-                        patientInformation.getBytes())
-                });
-//                        NdefRecord.createApplicationRecord("com.justzed.caretaker")
-
+        return tokenSenderHelper.messageBuilder(myUniqueToken);
     }
 
     /**
@@ -154,5 +125,18 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     private void finishWithSuccess(boolean status) {
         this.setResult((status) ? RESULT_OK : RESULT_CANCELED);
         finish();
+    }
+
+    /**
+     * This method turns a string into a toast message.
+     *
+     * @param message a string to be toasted.
+     * @return Nothing.
+     */
+    private void toast(String message){
+        try {
+            Toast.makeText(TokenSenderActivity.this, message, Toast.LENGTH_LONG).show();
+        } catch (Exception Toast) {
+        }
     }
 }
