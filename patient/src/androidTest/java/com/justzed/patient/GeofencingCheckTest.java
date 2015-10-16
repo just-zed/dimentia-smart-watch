@@ -267,7 +267,6 @@ public class GeofencingCheckTest extends TestCase {
         currentLocation = POSITION_ONE;
 
         result = geofenceCheck.checkIfInsideGeofences(geofences, createALocation(currentLocation));
-
         geofences = new ArrayList<>();
 
         result = geofenceCheck.checkIfInsideGeofences(geofences, createALocation(currentLocation));
@@ -369,20 +368,9 @@ public class GeofencingCheckTest extends TestCase {
         int result;
         Calendar startTime = Calendar.getInstance();
         Calendar endTime = Calendar.getInstance();
-        Calendar currentTime = Calendar.getInstance();
 
-        startTime.set(currentTime.get(Calendar.YEAR),
-                currentTime.get(Calendar.MONTH),
-                currentTime.get(Calendar.DAY_OF_MONTH),
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-                        + TIME_MODIFIER_NEGATIVE );
-
-        endTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
-                currentTime.get(Calendar.DAY_OF_MONTH),
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-                        + TIME_MODIFIER_POSITIVE) ;
+        startTime.add(Calendar.MINUTE, TIME_MODIFIER_NEGATIVE);
+        endTime.add(Calendar.MINUTE, TIME_MODIFIER_POSITIVE);
 
         geofences.add(createAGeofence(GEOFENCE_ONE, startTime, endTime));
         geofences.add(createAGeofence(GEOFENCE_FAR));
@@ -404,20 +392,9 @@ public class GeofencingCheckTest extends TestCase {
         int result;
         Calendar startTime = Calendar.getInstance();
         Calendar endTime = Calendar.getInstance();
-        Calendar currentTime = Calendar.getInstance();
 
-        startTime.set(currentTime.get(Calendar.YEAR),
-                currentTime.get(Calendar.MONTH),
-                currentTime.get(Calendar.DAY_OF_MONTH),
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-                        + TIME_MODIFIER_NEGATIVE_HIGH);
-
-        endTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
-                currentTime.get(Calendar.DAY_OF_MONTH),
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-                        + TIME_MODIFIER_NEGATIVE_LOW) ;
+        startTime.add(Calendar.MINUTE, TIME_MODIFIER_NEGATIVE_HIGH);
+        endTime.add(Calendar.MINUTE, TIME_MODIFIER_NEGATIVE_LOW);
 
         geofences.add(createAGeofence(GEOFENCE_ONE, startTime, endTime));
         geofences.add(createAGeofence(GEOFENCE_FAR));
@@ -439,20 +416,9 @@ public class GeofencingCheckTest extends TestCase {
         int result;
         Calendar startTime = Calendar.getInstance();
         Calendar endTime = Calendar.getInstance();
-        Calendar currentTime = Calendar.getInstance();
 
-        startTime.set(currentTime.get(Calendar.YEAR),
-                currentTime.get(Calendar.MONTH),
-                currentTime.get(Calendar.DAY_OF_MONTH),
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-                        + TIME_MODIFIER_NEGATIVE_LOW);
-
-        endTime.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH),
-                currentTime.get(Calendar.DAY_OF_MONTH),
-                currentTime.get(Calendar.HOUR_OF_DAY),
-                currentTime.get(Calendar.MINUTE)
-                        + TIME_MODIFIER_NEGATIVE_HIGH) ;
+        startTime.add(Calendar.MINUTE, TIME_MODIFIER_NEGATIVE_LOW);
+        endTime.add(Calendar.MINUTE, TIME_MODIFIER_NEGATIVE);
 
         geofences.add(createAGeofence(GEOFENCE_ONE, startTime, endTime));
         geofences.add(createAGeofence(GEOFENCE_FAR));
@@ -475,7 +441,6 @@ public class GeofencingCheckTest extends TestCase {
         final int LATITUDE = 0;
         final int LONGITUDE = 1;
         final int CENTER = 2;
-        final String noGroupId = null;
         PatientFence fence;
 
         fence = new PatientFence(patient, new LatLng(geofenceData[LATITUDE],geofenceData[LONGITUDE]), geofenceData[CENTER]);
