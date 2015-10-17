@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_primary">#5de1b3</color>
-    <color name="color_primary_dark">#15352a</color>
+    <color name="color_primary">@color/caretaker</color>
 </resources>

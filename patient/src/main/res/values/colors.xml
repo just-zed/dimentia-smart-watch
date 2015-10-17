@@ -1,5 +1,4 @@
 <resources>
-
     <color name="black_overlay">#66000000</color>
-
+    <color name="color_primary">@color/patient</color>
 </resources>
