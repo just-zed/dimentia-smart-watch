@@ -58,6 +58,8 @@
     <string name="radius_of_geofence">Radius of GeoFence:</string>
     <string name="radius_of_geofence_formatter">Radius of GeoFence: %1$d M</string>
     <string name="timer">Start Timer</string>
+    <string name="edit_patient_name">Edit Patient Name</string>
+    <string name="hint_enter_name">Please enter a name</string>
 
 
 </resources>
