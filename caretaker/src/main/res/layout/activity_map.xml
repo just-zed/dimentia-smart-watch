@@ -112,6 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|top"
+            android:animateLayoutChanges="true"
             android:background="#f0ffffff"
             android:baselineAligned="false"
             android:clickable="true"
@@ -121,7 +122,6 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:visibility="gone"
-            android:weightSum="1"
             tools:visibility="visible">
 
 
@@ -129,6 +129,7 @@
                 android:id="@+id/fence_title_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/content_spacing"
                 android:hint="@string/hint_description"
                 android:text=""
                 android:textAlignment="center" />
@@ -138,12 +139,14 @@
                 android:id="@+id/fence_radius_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/content_spacing"
                 android:text="@string/radius_of_geofence" />
 
             <SeekBar
                 android:id="@+id/fence_seek_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:splitTrack="false" />
 
             <Switch
@@ -155,13 +158,15 @@
             <LinearLayout
                 android:id="@+id/timer_controls"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true">
 
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginRight="@dimen/content_spacing"
                     android:text="Hours :"
                     tools:visibility="visible" />
 
@@ -175,6 +180,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/content_spacing"
+                    android:layout_marginRight="@dimen/content_spacing"
                     android:text="Min :" />
 
                 <NumberPicker

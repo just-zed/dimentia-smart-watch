@@ -103,8 +103,7 @@
             android:name=".MapActivity"
             android:label="@string/title_activity_map"
             android:parentActivityName=".PatientActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!--
          Dialog Activity has to be a launcher activity because we want to launch it

@@ -57,7 +57,7 @@
     <string name="hint_description">Description</string>
     <string name="radius_of_geofence">Radius of GeoFence:</string>
     <string name="radius_of_geofence_formatter">Radius of GeoFence: %1$d M</string>
-    <string name="timer">Timer</string>
+    <string name="timer">Start Timer</string>
 
 
 </resources>

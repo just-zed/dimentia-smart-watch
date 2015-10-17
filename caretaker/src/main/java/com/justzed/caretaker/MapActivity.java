@@ -181,6 +181,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
 
+
+        View currentFocusView = getCurrentFocus();
+        if (currentFocusView != null) {
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+                    .hideSoftInputFromWindow(currentFocusView.getWindowToken(), 0);
+
+        }
+
         //buttons
         btnAdd.setVisibility(View.GONE);
         btnAddAdvance.setVisibility(View.GONE);
@@ -196,8 +204,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         //other layouts
         fenceLayout.setVisibility(View.GONE);
-
-        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getWindow().getAttributes().token, 0);
 
         // timer controls
         timerControls.setVisibility(View.GONE);
@@ -241,6 +247,8 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 }
                 break;
         }
+
+
     }
 
 
