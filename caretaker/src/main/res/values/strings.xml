@@ -40,9 +40,9 @@
     <string name="default_caretaker_name">Anonymous Caretaker</string>
 
 
-    <string name="find_my_patient_button_text" formatted="false">Find %s</string>
-    <string name="message_my_patient_button_text" formatted="false">Message %s</string>
-    <string name="patient_nearby_text" formatted="false">%s is with me</string>
+    <string name="find_my_patient_button_text">Find %1$s</string>
+    <string name="message_my_patient_button_text">Message %1$s</string>
+    <string name="patient_nearby_text">%1$s is with me</string>
 
     <string name="find_my_patient_button_text_default">Find Patient</string>
     <string name="message_my_patient_button_text_default">Message Patient</string>
@@ -54,8 +54,10 @@
     <string name="title_activity_dialog" />
     <string name="title_activity_messenger">Send a Message</string>
     <string name="choose_patient_text">Who do you want to take care of?</string>
-    <string name="hint_description">description</string>
+    <string name="hint_description">Description</string>
     <string name="radius_of_geofence">Radius of GeoFence:</string>
+    <string name="radius_of_geofence_formatter">Radius of GeoFence: %1$d M</string>
+    <string name="timer">Timer</string>
 
 
 </resources>

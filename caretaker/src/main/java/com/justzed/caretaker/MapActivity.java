@@ -1,7 +1,6 @@
 package com.justzed.caretaker;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -12,15 +11,16 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 import android.widget.Toolbar;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -73,7 +73,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     private EditText txtFenceTitle;
     private TextView txvFenceRadius;
     private SeekBar skbFenceRadius;
-    private ToggleButton togButton;
 
 
     private boolean addMode = false;
@@ -120,14 +119,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     private static final int UPDATE_TIMER_NORMAL = 1000;
     private Subscription subscription;
-    //shirin
-    TextView textView;
-    TextView textView2;
-    TextView textView3;
-    NumberPicker numberPicker;
-    NumberPicker numberPicker2;
-
-    Calendar Calendar;
 
 
     // control bindings
@@ -156,6 +147,16 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     @Bind(R.id.fence_layout)
     View fenceLayout;
 
+    @Bind(R.id.toggleButton)
+    Switch switchTimer;
+    @Bind(R.id.picker_hour)
+    NumberPicker pickerHour;
+    @Bind(R.id.picker_minute)
+    NumberPicker pickerMinute;
+
+
+    @Bind(R.id.timer_controls)
+    ViewGroup timerControls;
 
     private static final int MODE_VIEW = 0;
     private static final int MODE_ADD = 1;
@@ -196,8 +197,12 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         //other layouts
         fenceLayout.setVisibility(View.GONE);
 
-        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getWindow().getAttributes().token, 0);
+
+        // timer controls
+        timerControls.setVisibility(View.GONE);
+        switchTimer.setChecked(false);
+        resetPickers();
 
         switch (mode) {
             case MODE_ADD:
@@ -256,54 +261,9 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        textView = (TextView) findViewById(R.id.textView);
-        textView2 = (TextView) findViewById(R.id.textView2);
-        textView3 = (TextView) findViewById(R.id.textView3);
-
-        numberPicker = (NumberPicker) findViewById(R.id.numberPicker);
-        numberPicker2 = (NumberPicker) findViewById(R.id.numberPicker2);
-
-        numberPicker.setFormatter(value -> String.format("%02d", value));
-        numberPicker.setMinValue(0);
-        numberPicker.setMaxValue(23);
-        numberPicker.setWrapSelectorWheel(true);
-
-        numberPicker2.setFormatter(value -> String.format("%02d", value));
-        numberPicker2.setMinValue(0);
-        numberPicker2.setMaxValue(59);
-        numberPicker2.setWrapSelectorWheel(true);
-
-
-        textView.setVisibility(View.INVISIBLE);
-        textView2.setVisibility(View.INVISIBLE);
-        togButton = (ToggleButton) findViewById(R.id.toggleButton);
-
-
         initFenceActivitySetup();
         initFencesList();
     }
-
-    //Shirin
-
-
-    public void changeStates(View view) {
-
-        boolean checked = ((ToggleButton) view).isChecked();
-        if (checked) {
-            textView.setVisibility(View.VISIBLE);
-            textView2.setVisibility(View.VISIBLE);
-            numberPicker.setVisibility(View.VISIBLE);
-            numberPicker2.setVisibility(View.VISIBLE);
-        } else {
-            textView.setVisibility(View.INVISIBLE);
-            textView2.setVisibility(View.INVISIBLE);
-            numberPicker.setVisibility(View.INVISIBLE);
-            numberPicker2.setVisibility(View.INVISIBLE);
-            numberPicker.setValue(0);
-            numberPicker2.setValue(0);
-        }
-    }
-
 
     // ==================== Functions Brian Tran =======================
 
@@ -457,7 +417,29 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnCancel.setOnClickListener(btnClickListener);
         skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
 
+
+        pickerHour.setFormatter(value -> String.format("%02d", value));
+        pickerHour.setMinValue(0);
+        pickerHour.setMaxValue(23);
+        pickerHour.setWrapSelectorWheel(true);
+
+        pickerMinute.setFormatter(value -> String.format("%02d", value));
+        pickerMinute.setMinValue(0);
+        pickerMinute.setMaxValue(59);
+        pickerMinute.setWrapSelectorWheel(true);
+
+        switchTimer.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            resetPickers();
+            int visibility = isChecked ? View.VISIBLE : View.GONE;
+            timerControls.setVisibility(visibility);
+        });
+
         toggleUI(MODE_VIEW);
+    }
+
+    private void resetPickers() {
+        pickerHour.setValue(0);
+        pickerMinute.setValue(0);
     }
 
     /**
@@ -718,8 +700,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         txtFenceTitle.setText(curTitleFence);
         int i = (int) curRadFence;
         skbFenceRadius.setProgress(i);
-        String t = Integer.toString(i);
-        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+        txvFenceRadius.setText(getResources().getString(R.string.radius_of_geofence_formatter, i));
+
+
+        // read timer
+
     }
 
     /**
@@ -865,7 +850,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 );
 
         // call back after add
-        //int sizeTemp = tempAdvCircleList.size();
         for (int i = 0; i < size; i++) {
             tempAdvCircleList.get(i).remove();
         }
@@ -942,26 +926,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                         }
                 );
 
-/*
-        //Add advance fences in database.
-        int sizeAdd = addDatabase.size();
-        for (int i = 0; i < sizeAdd; i++) {
-            new PatientFence(patient, addDatabase.get(i).getCenter(),
-                    addDatabase.get(i).getRadius(), addDatabase.get(i).getDescription(),
-                    largestGroupID)
-                    .save()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            patientFence -> {
-                                // TODO
-                            },
-                            throwable -> {
-                                Log.e(TAG, throwable.getMessage());
-                            }
-                    );
-        }
-*/
         for (int i = 0; i < size; i++) {
             tempAdvCircleList.get(i).remove();
         }
@@ -992,29 +956,17 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         LatLng center = mTempCircle.getCenter();
         double radius = mTempCircle.getRadius();
 
-        //
-        int ChosenHour = numberPicker.getValue();
-        int ChosenMin = numberPicker2.getValue();
 
         Calendar calendarStartTime = Calendar.getInstance();
         Calendar calendarEndTime = Calendar.getInstance();
-        // int CurrentMinute = calendarEndTime.get(Calendar.MINUTE);
 
         //24 hour format
-        //int  CurrentHour = calendarEndTime.get(Calendar.HOUR_OF_DAY);
-        calendarEndTime.add(Calendar.MINUTE, ChosenMin);
-        calendarEndTime.add(Calendar.HOUR_OF_DAY, ChosenHour);
-
-
-        textView3.setVisibility(View.VISIBLE);
-        textView3.setText(Integer.toString(calendarEndTime.get(Calendar.HOUR_OF_DAY))
-                + ""
-                + Integer.toString(calendarEndTime.get(Calendar.MINUTE)));
-
+        calendarEndTime.add(Calendar.MINUTE, pickerMinute.getValue());
+        calendarEndTime.add(Calendar.HOUR_OF_DAY, pickerHour.getValue());
 
         PatientFence newFence = new PatientFence(patient, center, radius, title);
 
-        if (togButton.isChecked()) {
+        if (switchTimer.isChecked()) {
             newFence.setStartTime(calendarStartTime);
             newFence.setEndTime(calendarEndTime);
         }
@@ -1300,8 +1252,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     mTempCircle2.setRadius(d);
                 }
             }
-            txvFenceRadius.setText("Radius of fence : " + Integer.toString(progress)
-                    + " meters.");
+            txvFenceRadius.setText(getResources().getString(R.string.radius_of_geofence_formatter, progress));
         } else {
             if ((addMode) || (editMode)) {
                 if (mTempCircle != null) {
@@ -1318,7 +1269,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     mTempCircle2.setRadius(0.0);
                 }
             }
-            txvFenceRadius.setText("Radius of fence : 0 meters.");
+            txvFenceRadius.setText(getResources().getString(R.string.radius_of_geofence_formatter, 0));
         }
     }
 
@@ -1339,8 +1290,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
             int i = (int) mTempCircle.getRadius();
             skbFenceRadius.setProgress(i);
-            String t = Integer.toString(i);
-            txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+            txvFenceRadius.setText(getResources().getString(R.string.radius_of_geofence_formatter, i));
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -1356,7 +1306,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         try {
             String st = "Edit Advance Fence";
 
-            if (tempAdvanceCircle1 == false) {
+            if (!tempAdvanceCircle1) {
                 if (mTempMarker1 != null) {
                     mTempMarker1.remove();
                 }
@@ -1387,8 +1337,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
                         int i = (int) mTempCircle1.getRadius();
                         skbFenceRadius.setProgress(i);
-                        String t = Integer.toString(i);
-                        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+                        txvFenceRadius.setText(getResources().getString(R.string.radius_of_geofence_formatter, i));
                     }
                 });
 
@@ -1401,7 +1350,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
                 b.create().show();
             } else {
-                if (tempAdvanceCircle2 == false) {
+                if (!tempAdvanceCircle2) {
                     AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
                     b.setTitle(st);
@@ -1445,7 +1394,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         try {
             String st = "Add Advance Fence";
 
-            if (tempAdvanceCircle1 == false) {
+            if (!tempAdvanceCircle1) {
                 if (mTempMarker1 != null) {
                     mTempMarker1.remove();
                 }
@@ -1475,8 +1424,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
                         int i = (int) mTempCircle1.getRadius();
                         skbFenceRadius.setProgress(i);
-                        String t = Integer.toString(i);
-                        txvFenceRadius.setText("Radius of fence : " + t + " meters.");
+                        txvFenceRadius.setText(getResources().getString(R.string.radius_of_geofence_formatter, i));
                     }
                 });
 
@@ -1489,7 +1437,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
                 b.create().show();
             } else {
-                if (tempAdvanceCircle2 == false) {
+                if (!tempAdvanceCircle2) {
                     AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
                     b.setTitle(st);
