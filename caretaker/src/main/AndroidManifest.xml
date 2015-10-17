@@ -103,6 +103,7 @@
             android:name=".MapActivity"
             android:label="@string/title_activity_map"
             android:parentActivityName=".PatientActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!--

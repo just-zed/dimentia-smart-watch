@@ -1,24 +1,27 @@
 package com.justzed.caretaker;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.widget.Toolbar;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -34,11 +37,15 @@ import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -63,17 +70,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     boolean test = false;
 
     //==================== Brian Tran==============
-    private LinearLayout fenceLayout;
-    private LinearLayout fenceModeLayout;
-    private ImageButton ibtnMapCenter;
-    private Button btnAdd;
-    private Button btnAddAdvance;
-    private Button btnSave;
-    private Button btnReset;
-    private Button btnDelete;
-    private Button btnClear;
-    private Button btnCancel;
-    private TextView txvFenceMode;
     private EditText txtFenceTitle;
     private TextView txvFenceRadius;
     private SeekBar skbFenceRadius;
@@ -133,7 +129,113 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     Calendar Calendar;
 
+
+    // control bindings
+    @Bind(R.id.tool_bar)
+    Toolbar toolbar;
+
+    @Bind(R.id.add_button)
+    ImageButton btnAdd;
+    @Bind(R.id.add_advance_button)
+    ImageButton btnAddAdvance;
+    @Bind(R.id.cancel_button)
+    ImageButton btnCancel;
+
+    @Bind(R.id.save_button)
+    ImageButton btnSave;
+    @Bind(R.id.delete_button)
+    ImageButton btnDelete;
+
+    @Bind(R.id.mapCenterButton)
+    ImageButton ibtnMapCenter;
+
+    @Bind(R.id.fence_mode_text_view)
+    TextView txvFenceMode;
+
+
+    @Bind(R.id.fence_layout)
+    View fenceLayout;
+
+
+    private static final int MODE_VIEW = 0;
+    private static final int MODE_ADD = 1;
+    private static final int MODE_ADD_ADVANCE = 2;
+    private static final int MODE_EDIT = 3;
+    private static final int MODE_EDIT_ADVANCE = 4;
+
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({MODE_VIEW, MODE_ADD, MODE_ADD_ADVANCE, MODE_EDIT, MODE_EDIT_ADVANCE})
+    public @interface Mode {
+    }
+
+
     public MapActivity() {
+    }
+
+
+    private void toggleUI(@Mode int mode) {
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
+
+        //buttons
+        btnAdd.setVisibility(View.GONE);
+        btnAddAdvance.setVisibility(View.GONE);
+        btnSave.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.GONE);
+        btnDelete.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.GONE);
+
+        //textViews
+
+        //editText
+        txtFenceTitle.setText("");
+
+        //other layouts
+        fenceLayout.setVisibility(View.GONE);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+
+        switch (mode) {
+            case MODE_ADD:
+                btnSave.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.VISIBLE);
+                txvFenceMode.setText(R.string.add_fence_title);
+                fenceLayout.setVisibility(View.VISIBLE);
+                break;
+            case MODE_ADD_ADVANCE:
+                btnSave.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.VISIBLE);
+                txvFenceMode.setText(R.string.add_advance_fence_title);
+                fenceLayout.setVisibility(View.VISIBLE);
+                break;
+            case MODE_EDIT:
+                btnSave.setVisibility(View.VISIBLE);
+                btnDelete.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.VISIBLE);
+                txvFenceMode.setText(R.string.edit_fence_title);
+                fenceLayout.setVisibility(View.VISIBLE);
+                break;
+            case MODE_EDIT_ADVANCE:
+                btnSave.setVisibility(View.VISIBLE);
+                btnDelete.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.VISIBLE);
+                txvFenceMode.setText(R.string.edit_advance_fence_title);
+                fenceLayout.setVisibility(View.VISIBLE);
+                break;
+            case MODE_VIEW:
+                ibtnMapCenter.setVisibility(View.VISIBLE);
+                btnAdd.setVisibility(View.VISIBLE);
+                btnAddAdvance.setVisibility(View.VISIBLE);
+                txvFenceMode.setText("");
+                if (actionBar != null) {
+                    actionBar.setDisplayHomeAsUpEnabled(true);
+                }
+                break;
+        }
     }
 
 
@@ -145,7 +247,14 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         patient = data.getParcelable(Person.PARCELABLE_KEY);
 
         mMap = null;
+
         setContentView(R.layout.activity_map);
+        ButterKnife.bind(this);
+
+        setActionBar(toolbar);
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         textView = (TextView) findViewById(R.id.textView);
         textView2 = (TextView) findViewById(R.id.textView2);
@@ -218,17 +327,9 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     //do stuff
                     clickSaveButton();
                     break;
-                case R.id.reset_button:
-                    //do stuff
-                    clickResetButton();
-                    break;
                 case R.id.delete_button:
                     //do stuff
                     clickDeleteButton();
-                    break;
-                case R.id.clear_button:
-                    //do stuff
-                    clickClearButton();
                     break;
                 case R.id.cancel_button:
                     //do stuff
@@ -344,22 +445,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * This method is used to setup Geofences activity on caretaker app.
      */
     private void initFenceActivitySetup() {
-        ibtnMapCenter = (ImageButton) findViewById(R.id.mapCenterButton);
-
-        fenceLayout = (LinearLayout) findViewById(R.id.fence_layout);
-        fenceLayout.setVisibility(View.GONE);
-
-        fenceModeLayout = (LinearLayout) findViewById(R.id.fence_mode_layout);
-        fenceModeLayout.setVisibility(View.VISIBLE);
-
-        btnAdd = (Button) findViewById(R.id.add_button);
-        btnAddAdvance = (Button) findViewById(R.id.add_advance_button);
-        btnSave = (Button) findViewById(R.id.save_button);
-        btnReset = (Button) findViewById(R.id.reset_button);
-        btnDelete = (Button) findViewById(R.id.delete_button);
-        btnClear = (Button) findViewById(R.id.clear_button);
-        btnCancel = (Button) findViewById(R.id.cancel_button);
-        txvFenceMode = (TextView) findViewById(R.id.fence_mode_text_view);
         txtFenceTitle = (EditText) findViewById(R.id.fence_title_edit_text);
         txvFenceRadius = (TextView) findViewById(R.id.fence_radius_text_view);
         skbFenceRadius = (SeekBar) findViewById(R.id.fence_seek_bar);
@@ -368,11 +453,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         btnAdd.setOnClickListener(btnClickListener);
         btnAddAdvance.setOnClickListener(btnClickListener);
         btnSave.setOnClickListener(btnClickListener);
-        btnReset.setOnClickListener(btnClickListener);
         btnDelete.setOnClickListener(btnClickListener);
-        btnClear.setOnClickListener(btnClickListener);
         btnCancel.setOnClickListener(btnClickListener);
         skbFenceRadius.setOnSeekBarChangeListener(skbChangeListener);
+
+        toggleUI(MODE_VIEW);
     }
 
     /**
@@ -514,14 +599,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Going to Add mode.
      */
     private void clickAddButton() {
-        fenceLayout.setVisibility(View.VISIBLE);
-        ibtnMapCenter.setVisibility(View.GONE);
-        btnDelete.setVisibility(View.GONE);
-        btnAdd.setVisibility(View.GONE);
-        btnAddAdvance.setVisibility(View.GONE);
-        btnCancel.setVisibility(View.VISIBLE);
-        txvFenceMode.setText(R.string.add_fence_title);
-        txtFenceTitle.setText("");
+        toggleUI(MODE_ADD);
         skbFenceRadius.setProgress(RADIUS_MIN);
         skbFenceRadius.setEnabled(false);
         addMode = true;
@@ -534,15 +612,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * Going to Add Advance mode.
      */
     private void clickAddAdvanceButton() {
-        fenceLayout.setVisibility(View.VISIBLE);
-        ibtnMapCenter.setVisibility(View.GONE);
-        btnReset.setVisibility(View.VISIBLE);
-        btnDelete.setVisibility(View.GONE);
-        btnAdd.setVisibility(View.GONE);
-        btnAddAdvance.setVisibility(View.GONE);
-        btnCancel.setVisibility(View.VISIBLE);
-        txvFenceMode.setText(R.string.add_advance_fence_title);
-        txtFenceTitle.setText("");
+        toggleUI(MODE_ADD_ADVANCE);
         skbFenceRadius.setProgress(RADIUS_MIN);
         skbFenceRadius.setEnabled(false);
         addAdvanceMode = true;
@@ -588,18 +658,13 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
      * @param pos The position of the fence in Lists.
      */
     private void clickEditButton(int pos) {
-        fenceLayout.setVisibility(View.VISIBLE);
-        ibtnMapCenter.setVisibility(View.GONE);
-        btnDelete.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.GONE);
-        btnAddAdvance.setVisibility(View.GONE);
-        btnCancel.setVisibility(View.VISIBLE);
 
         showMarkers(false);
 
         curPosFence = pos;
 
         if (!advEditFlag) {
+            toggleUI(MODE_EDIT);
             skbFenceRadius.setEnabled(true);
             editMode = true;
             txvFenceMode.setText(R.string.edit_fence_title);
@@ -613,9 +678,9 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
             drawTempMarker(mMap, curCenFence, curTitleFence);
             drawTempFence(mMap, curCenFence, curRadFence);
         } else {
+            toggleUI(MODE_EDIT_ADVANCE);
             skbFenceRadius.setEnabled(false);
             editAdvanceMode = true;
-            btnReset.setVisibility(View.VISIBLE);
             txvFenceMode.setText(R.string.edit_advance_fence_title);
 
             curTitleFence = strAdvFencesList.get(pos);
@@ -814,12 +879,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         tempAdvanceCircle1 = false;
         tempAdvanceCircle2 = false;
 
-        fenceLayout.setVisibility(View.GONE);
-        ibtnMapCenter.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.VISIBLE);
-        btnAddAdvance.setVisibility(View.VISIBLE);
-        btnCancel.setVisibility(View.GONE);
-        btnReset.setVisibility(View.GONE);
+        toggleUI(MODE_VIEW);
         editAdvanceMode = false;
 
         toast("Edited advance fence successfully.");
@@ -911,12 +971,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         mTempCircle1.remove();
         mTempCircle2.remove();
 
-        fenceLayout.setVisibility(View.GONE);
-        ibtnMapCenter.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.VISIBLE);
-        btnAddAdvance.setVisibility(View.VISIBLE);
-        btnCancel.setVisibility(View.GONE);
-        btnReset.setVisibility(View.GONE);
+        toggleUI(MODE_VIEW);
 
         btnSave.setEnabled(true);
         tempAdvanceCircle1 = false;
@@ -981,11 +1036,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             mTempMarker.remove();
                             mTempCircle.remove();
 
-                            fenceLayout.setVisibility(View.GONE);
-                            ibtnMapCenter.setVisibility(View.VISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                            btnAddAdvance.setVisibility(View.VISIBLE);
-                            btnCancel.setVisibility(View.GONE);
+                            toggleUI(MODE_VIEW);
                             addMode = false;
 
                             toast("Saved fence successfully.");
@@ -1029,11 +1080,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                             mTempMarker.remove();
                             mTempCircle.remove();
 
-                            fenceLayout.setVisibility(View.GONE);
-                            ibtnMapCenter.setVisibility(View.VISIBLE);
-                            btnAdd.setVisibility(View.VISIBLE);
-                            btnAddAdvance.setVisibility(View.VISIBLE);
-                            btnCancel.setVisibility(View.GONE);
+                            toggleUI(MODE_VIEW);
                             editMode = false;
 
                             toast("Edited fence successfully.");
@@ -1044,33 +1091,6 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 );
     }
 
-    /**
-     * Created by Nguyen Nam Cuong Tran.
-     * This method is used to implement actions of Reset Button.
-     * Reset all actions in Add Advance mode or Edit Advance mode.
-     */
-    private void clickResetButton() {
-        if ((addAdvanceMode) || (editAdvanceMode)) {
-            tempAdvanceCircle1 = false;
-            tempAdvanceCircle2 = false;
-
-            btnSave.setEnabled(false);
-
-            if (mTempMarker1 != null) {
-                mTempMarker1.remove();
-            }
-
-            if (mTempCircle1 != null) {
-                mTempCircle1.remove();
-            }
-
-            if (mTempCircle2 != null) {
-                mTempCircle2.remove();
-            }
-
-            clearTempAdvCircleList();
-        }
-    }
 
     /**
      * Created by Nguyen Nam Cuong Tran.
@@ -1118,11 +1138,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
         strAdvFencesList.remove(curPosFence);
 
-        fenceLayout.setVisibility(View.GONE);
-        ibtnMapCenter.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.VISIBLE);
-        btnAddAdvance.setVisibility(View.VISIBLE);
-        btnCancel.setVisibility(View.GONE);
+        toggleUI(MODE_VIEW);
         editAdvanceMode = false;
 
         toast("Deleted advance fence successfully.");
@@ -1156,11 +1172,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
                                 patientFenceList.remove(curPosFence);
 
-                                fenceLayout.setVisibility(View.GONE);
-                                ibtnMapCenter.setVisibility(View.VISIBLE);
-                                btnAdd.setVisibility(View.VISIBLE);
-                                btnAddAdvance.setVisibility(View.VISIBLE);
-                                btnCancel.setVisibility(View.GONE);
+                                toggleUI(MODE_VIEW);
                                 editMode = false;
 
                                 toast("Deleted successfully.");
@@ -1212,25 +1224,11 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
 
     /**
      * Created by Nguyen Nam Cuong Tran.
-     * This method is used to implement actions of Clear Button.
-     * Clearing textbox's content of the fence title.
-     */
-    private void clickClearButton() {
-        txtFenceTitle.setText("");
-    }
-
-    /**
-     * Created by Nguyen Nam Cuong Tran.
      * This method is used to implement actions of Cancel Button.
      * Canceling Add mode and Edit mode to go back the Map View.
      */
     private void clickCancelButton() {
-        fenceLayout.setVisibility(View.GONE);
-        ibtnMapCenter.setVisibility(View.VISIBLE);
-        btnAdd.setVisibility(View.VISIBLE);
-        btnAddAdvance.setVisibility(View.VISIBLE);
-        btnCancel.setVisibility(View.GONE);
-        btnReset.setVisibility(View.GONE);
+        toggleUI(MODE_VIEW);
 
         btnSave.setEnabled(true);
 
