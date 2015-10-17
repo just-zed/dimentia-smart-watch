@@ -2,7 +2,6 @@ package com.justzed.patient;
 
 import android.app.Activity;
 import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
@@ -24,7 +23,8 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
     //Private Variables
     private NfcAdapter mNfcAdapter;
     private String myUniqueToken;
-    private TokenSenderHelper tokenSenderHelper= new TokenSenderHelper();
+    private TokenSenderHelper tokenSenderHelper = new TokenSenderHelper();
+
     /**
      * Main method to send the myInformation's info to the caretaker
      *
@@ -133,9 +133,9 @@ public class TokenSenderActivity extends Activity implements NfcAdapter.CreateNd
      * @param message a string to be toasted.
      * @return Nothing.
      */
-    private void toast(String message){
+    private void toast(String message) {
         try {
-            Toast.makeText(TokenSenderActivity.this, message, Toast.LENGTH_LONG).show();
+            Toast.makeText(TokenSenderActivity.this, message, Toast.LENGTH_SHORT).show();
         } catch (Exception Toast) {
         }
     }
