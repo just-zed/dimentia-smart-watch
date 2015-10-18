@@ -1,3 +1,4 @@
 <resources>
-    <string name="DEVICE_TOKEN">ffffffff-fcfb-6ccb-0033-c58700000000</string>
+    <!--<string name="DEVICE_TOKEN">ffffffff-fcfb-6ccb-0033-c58700000000</string>-->
+    <string name="DEVICE_TOKEN" />
 </resources>
