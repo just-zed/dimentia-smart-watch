@@ -8,25 +8,47 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:layout_weight="0.7"
+        android:layout_weight="0.8"
         android:adjustViewBounds="false"
         android:background="#00000000"
         android:contentDescription="@string/help_button_description"
         android:padding="30dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_alert_error" />
+        android:src="@drawable/ic_error_black_24dp"
+        android:tint="@color/alert" />
 
-    <ImageButton
-        android:id="@+id/message_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:layout_weight="0.3"
-        android:adjustViewBounds="false"
-        android:background="#00000000"
-        android:contentDescription="@string/message_button_description"
-        android:padding="30dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_communication_message" />
+        android:layout_weight="0.2">
+
+        <ImageButton
+            android:id="@+id/message_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:adjustViewBounds="false"
+            android:background="#00000000"
+            android:contentDescription="@string/message_button_description"
+            android:padding="30dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_message_black_24dp"
+            android:tint="@color/patient" />
+
+        <ImageButton
+            android:id="@+id/add_caretaker_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:adjustViewBounds="false"
+            android:background="#00000000"
+            android:contentDescription="@string/message_button_description"
+            android:padding="30dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_person_add_black_24dp"
+            android:tint="@color/caretaker" />
+    </LinearLayout>
 
 </LinearLayout>

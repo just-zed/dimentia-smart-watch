@@ -62,6 +62,15 @@ public class MainActivity extends Activity {
         }
     }
 
+    @OnClick(R.id.add_caretaker_button)
+    void onAddCareTakerButtonClick() {
+        if (patient != null) {
+            Intent intent = new Intent(this, TokenSenderActivity.class);
+            intent.putExtra(Person.PARCELABLE_KEY, patient);
+            startActivity(intent);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +109,7 @@ public class MainActivity extends Activity {
                         editor.putString(PREF_PERSON_KEY, person.getUniqueToken());
                         editor.apply();
                         //start token activity
-                        startTokenSenderActivity();
+                        autoStartTokenSenderActivity();
                     });
 
 
@@ -119,7 +128,7 @@ public class MainActivity extends Activity {
 
                                 startPatientService();
                                 //start token activity
-                                startTokenSenderActivity();
+                                autoStartTokenSenderActivity();
                             },
                             throwable -> {
                             }
@@ -140,7 +149,7 @@ public class MainActivity extends Activity {
 
     }
 
-    private void startTokenSenderActivity() {
+    private void autoStartTokenSenderActivity() {
         if (patient != null) {
             //TODO: move these to repository class
             //only do this if the patient link does not exist
@@ -160,7 +169,6 @@ public class MainActivity extends Activity {
 
 
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
