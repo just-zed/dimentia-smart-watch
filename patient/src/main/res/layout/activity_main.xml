@@ -14,7 +14,7 @@
         android:contentDescription="@string/help_button_description"
         android:padding="30dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_error_black_24dp"
+        android:src="@drawable/ic_alert_error_200dp"
         android:tint="@color/alert" />
 
     <LinearLayout
@@ -33,7 +33,7 @@
             android:contentDescription="@string/message_button_description"
             android:padding="30dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_message_black_24dp"
+            android:src="@drawable/ic_message_black_36dp"
             android:tint="@color/patient" />
 
         <ImageButton
@@ -47,7 +47,7 @@
             android:contentDescription="@string/message_button_description"
             android:padding="30dp"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_person_add_black_24dp"
+            android:src="@drawable/ic_person_add_black_36dp"
             android:tint="@color/caretaker" />
     </LinearLayout>
 
