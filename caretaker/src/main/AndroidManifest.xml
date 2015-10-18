@@ -85,7 +85,8 @@
         <activity
             android:name=".NfcActivity"
             android:label="@string/title_activity_caretaker_nfc"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -98,11 +99,13 @@
             android:name=".PatientActivity"
             android:label="@string/title_activity_patient"
             android:launchMode="singleTop"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MapActivity"
             android:label="@string/title_activity_map"
             android:parentActivityName=".PatientActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!--
@@ -119,10 +122,12 @@
         <activity
             android:name=".MessengerActivity"
             android:label="@string/title_activity_messenger"
-            android:parentActivityName=".PatientActivity" />
+            android:parentActivityName=".PatientActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
