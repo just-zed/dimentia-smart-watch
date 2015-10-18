@@ -62,6 +62,8 @@
     <string name="hint_enter_name">Please enter a name</string>
     <string name="alert_message_change_fence_2">Are you sure this is the ending fence?</string>
     <string name="alert_message_change_fence_1">Are you sure this is the starting fence?</string>
+    <string name="hours">Hours :</string>
+    <string name="minutes">Min :</string>
 
 
 </resources>

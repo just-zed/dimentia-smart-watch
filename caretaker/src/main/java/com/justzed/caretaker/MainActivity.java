@@ -105,14 +105,11 @@ public class MainActivity extends Activity {
                         editText.setError(getText(R.string.hint_enter_name));
                     } else {
                         // save text
-                        positiveButton.setEnabled(false);
-                        dialog.dismiss();
                         patient.setName(editText.getText().toString());
                         patient.save().subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
-                                        person -> {
-                                        },
+                                        person -> dialog.dismiss(),
                                         throwable -> Log.e(TAG, throwable.getMessage())
                                 );
                     }

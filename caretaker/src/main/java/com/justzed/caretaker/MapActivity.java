@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
@@ -158,6 +159,9 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
     @Bind(R.id.timer_controls)
     ViewGroup timerControls;
 
+    @Bind(R.id.add_actions)
+    ViewGroup addActionsGroup;
+
     private static final int MODE_VIEW = 0;
     private static final int MODE_ADD = 1;
     private static final int MODE_ADD_ADVANCE = 2;
@@ -190,12 +194,13 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
         }
 
         //buttons
-        btnAdd.setVisibility(View.GONE);
-        btnAddAdvance.setVisibility(View.GONE);
+        addActionsGroup.setVisibility(View.INVISIBLE);
         btnSave.setVisibility(View.GONE);
         btnCancel.setVisibility(View.GONE);
         btnDelete.setVisibility(View.GONE);
-        ibtnMapCenter.setVisibility(View.GONE);
+        ibtnMapCenter.setVisibility(View.INVISIBLE);
+        ((FloatingActionsMenu) addActionsGroup).collapse();
+
 
         //textViews
 
@@ -239,8 +244,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 break;
             case MODE_VIEW:
                 ibtnMapCenter.setVisibility(View.VISIBLE);
-                btnAdd.setVisibility(View.VISIBLE);
-                btnAddAdvance.setVisibility(View.VISIBLE);
+                addActionsGroup.setVisibility(View.VISIBLE);
                 txvFenceMode.setText("");
                 if (actionBar != null) {
                     actionBar.setDisplayHomeAsUpEnabled(true);
