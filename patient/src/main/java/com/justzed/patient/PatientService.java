@@ -16,6 +16,8 @@ import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
+import java.util.ArrayList;
+
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -91,14 +93,17 @@ public class PatientService extends IntentService {
         Bundle data = intent.getExtras();
         patient = data.getParcelable(Person.PARCELABLE_KEY);
 
-        Observable.combineLatest(
+        Observable<PatientLocation> observable = Observable.combineLatest(
                 // get location updates observable
                 getLocationUpdates()
                         .filter(location1 -> location1 != null)
                         .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
                         .flatMap(latLng -> new PatientLocation(patient, latLng).save()),
                 // save geofence into geofenceCheck object
-                PatientFence.findPatientFences(patient).repeat(),
+                PatientFence.findPatientFences(patient)
+                        .onErrorResumeNext(throwable -> {
+                            return Observable.just(new ArrayList<>());
+                        }).repeat(),
                 // refresh patient object in case it is changed
                 Person.findByUniqueToken(patient.getUniqueToken()).repeat()
                 , (patientLocation, patientFences, person1) -> {
@@ -106,8 +111,9 @@ public class PatientService extends IntentService {
                     patient = person1;
                     // pass on patientLocation
                     return patientLocation;
-                })
-                .subscribeOn(AndroidSchedulers.mainThread())
+                });
+
+        observable.subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(patientLocation -> checkGeofenceStatus(
                                 patientLocation, patient),
