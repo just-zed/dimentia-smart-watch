@@ -7,4 +7,7 @@
     <color name="patient_dark">#1976D2</color>
 
     <color name="alert">#D32F2F</color>
+
+    <color name="black_overlay">#66000000</color>
+
 </resources>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -47,23 +48,6 @@
                     android:layout_weight="1" />
 
                 <ImageButton
-                    android:id="@+id/add_button"
-                    style="@android:style/Widget.ActionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/add"
-                    android:src="@drawable/ic_add_black_24dp" />
-
-                <ImageButton
-                    android:id="@+id/add_advance_button"
-                    style="@android:style/Widget.ActionButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/add_advance"
-                    android:src="@drawable/ic_add_circle_outline_black_24dp" />
-
-
-                <ImageButton
                     android:id="@+id/delete_button"
                     style="@android:style/Widget.ActionButton"
                     android:layout_width="wrap_content"
@@ -91,7 +75,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
 
         <fragment
             android:id="@+id/map"
@@ -172,7 +157,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="@dimen/content_spacing"
-                    android:text="Hours :"
+                    android:text="@string/hours"
                     tools:visibility="visible" />
 
                 <NumberPicker
@@ -187,7 +172,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="@dimen/content_spacing"
                     android:layout_marginRight="@dimen/content_spacing"
-                    android:text="Min :" />
+                    android:text="@string/minutes" />
 
                 <NumberPicker
                     android:id="@+id/picker_minute"
@@ -199,6 +184,40 @@
 
 
         </LinearLayout>
+
+
+        <com.getbase.floatingactionbutton.FloatingActionsMenu
+            android:id="@+id/add_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            fab:fab_addButtonColorNormal="@color/color_action"
+            fab:fab_addButtonColorPressed="@color/color_action_pressed"
+            fab:fab_labelStyle="@style/MenuLabelsStyle">
+
+            <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/basic_fence"
+                fab:fab_colorPressed="@color/basic_fence_pressed"
+                fab:fab_icon="@drawable/ic_place_black_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="@string/add_fence_title" />
+
+            <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_advance_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/advance_fence"
+                fab:fab_colorPressed="@color/advance_fence_pressed"
+                fab:fab_icon="@drawable/ic_pin_drop_black_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="@string/add_advance_fence_title" />
+
+        </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 
     </FrameLayout>
