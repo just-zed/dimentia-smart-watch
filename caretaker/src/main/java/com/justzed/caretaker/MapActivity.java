@@ -1332,7 +1332,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
                 b.setTitle(st);
-                b.setMessage("Do you finish determining the fence 1 ?");
+                b.setMessage(R.string.alert_message_change_fence_1);
                 b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1362,7 +1362,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
                     b.setTitle(st);
-                    b.setMessage("Do you finish determining the fence 2 ?");
+                    b.setMessage(R.string.alert_message_change_fence_2);
                     b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -1420,7 +1420,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                 AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
                 b.setTitle(st);
-                b.setMessage("Do you finish determining the fence 1 ?");
+                b.setMessage(R.string.alert_message_change_fence_1);
                 b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1449,7 +1449,7 @@ public class MapActivity extends FragmentActivity implements OnMapClickListener,
                     AlertDialog.Builder b = new AlertDialog.Builder(MapActivity.this);
 
                     b.setTitle(st);
-                    b.setMessage("Do you finish determining the fence 2 ?");
+                    b.setMessage(R.string.alert_message_change_fence_2);
                     b.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
