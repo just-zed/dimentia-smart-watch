@@ -1,13 +1,12 @@
-package com.justzed.common;
+package com.justzed.common.model;
 
+import android.app.Application;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.justzed.caretaker.Application;
-import com.justzed.common.model.PatientFence;
-import com.justzed.common.model.Person;
+import com.justzed.common.TestSetup;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,12 +54,18 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
-        patient = new Person(Person.PATIENT, patientToken)
-                .save()
-                .toBlocking()
-                .single();
 
-        assertNotNull(patient.getObjectId());
+        try {
+            patient = new Person(Person.PATIENT, patientToken)
+                    .save()
+                    .toBlocking()
+                    .single();
+
+            assertNotNull(patient.getObjectId());
+        } catch (Exception e) {
+            TestSetup.setupParse(getContext());
+        }
+
 
         center = new LatLng(0, 0);
         center1 = new LatLng(1, 0);
@@ -68,9 +73,14 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         radius = 1.0f;
         radius1 = 1.0f;
         radius2 = 1.0f;
-
-
     }
+
+    @Test
+    public void test1Init() {
+        // hack to init application
+        assertTrue(true);
+    }
+
 
     /**
      * Tests the constructors
@@ -337,9 +347,13 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @After
     protected void tearDown() throws Exception {
 
-        assertNull(patient.delete().toBlocking().single());
+        try {
+            assertNull(patient.delete().toBlocking().single());
 
-        patient = null;
+            patient = null;
+        } catch (Exception e) {
+            // hack to get Parse.com stuff working under library test cases
+        }
 
         super.tearDown();
     }

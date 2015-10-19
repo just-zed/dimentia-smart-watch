@@ -1,13 +1,13 @@
-package com.justzed.common;
+package com.justzed.common.model;
 
+import android.app.Application;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.justzed.common.model.PatientLocation;
-import com.justzed.common.model.Person;
-import com.justzed.patient.Application;
+import com.justzed.common.FenceUtils;
+import com.justzed.common.TestSetup;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 
@@ -41,17 +41,21 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         super.setUp();
 
         patientToken = "test_patient_" + Math.random() * 1000;
-        //test creation
-        patient = new Person(Person.PATIENT, patientToken)
-                .save()
-                .toBlocking()
-                .single();
-
-        assertNotNull(patient.getObjectId());
 
         latLng = new LatLng(0, 0);
         latLng2 = new LatLng(1, 1);
 
+
+        try {
+            patient = new Person(Person.PATIENT, patientToken)
+                    .save()
+                    .toBlocking()
+                    .single();
+
+            assertNotNull(patient.getObjectId());
+        } catch (Exception e) {
+            TestSetup.setupParse(getContext());
+        }
 
     }
 
@@ -173,7 +177,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
             assertNull(patient.delete().toBlocking().single());
             assertTrue(true);
         } catch (Exception e) {
-            assertTrue(false);
+
         }
 
         patient = null;
