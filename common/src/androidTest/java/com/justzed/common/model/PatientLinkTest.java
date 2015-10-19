@@ -54,58 +54,60 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         String patientToken2 = "test_patient_" + Math.random() * 1000;
         String caretakerToken2 = "test_caretaker_" + Math.random() * 1000;
 
+
         try {
-
-            //test creation
-            patient = new Person(Person.PATIENT, patientToken)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(patient.getObjectId());
-
-            //test creation
-            caretaker = new Person(Person.CARETAKER, caretakerToken)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(caretaker.getObjectId());
-
-            //test creation
-            patient1 = new Person(Person.PATIENT, patientToken1)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(patient1.getObjectId());
-
-            //test creation
-            caretaker1 = new Person(Person.CARETAKER, caretakerToken1)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(caretaker1.getObjectId());
-
-            //test creation
-            patient2 = new Person(Person.PATIENT, patientToken2)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(patient2.getObjectId());
-
-            //test creation
-            caretaker2 = new Person(Person.CARETAKER, caretakerToken2)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(caretaker2.getObjectId());
-        } catch (Exception e) {
             TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
         }
+
+        //test creation
+        patient = new Person(Person.PATIENT, patientToken)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(patient.getObjectId());
+
+        //test creation
+        caretaker = new Person(Person.CARETAKER, caretakerToken)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(caretaker.getObjectId());
+
+        //test creation
+        patient1 = new Person(Person.PATIENT, patientToken1)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(patient1.getObjectId());
+
+        //test creation
+        caretaker1 = new Person(Person.CARETAKER, caretakerToken1)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(caretaker1.getObjectId());
+
+        //test creation
+        patient2 = new Person(Person.PATIENT, patientToken2)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(patient2.getObjectId());
+
+        //test creation
+        caretaker2 = new Person(Person.CARETAKER, caretakerToken2)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(caretaker2.getObjectId());
 
     }
 
@@ -125,6 +127,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         assertEquals(link.getCaretaker().getType(), Person.CARETAKER);
         assertEquals(link.getCaretaker().getUniqueToken(), caretakerToken);
 
+        assertNull(link.getParseObject());
     }
 
     //create
@@ -206,6 +209,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
     public void testSearch() {
 
         assertNull(PatientLink.findLatestByPatient(patient).toBlocking().single());
+        assertNull(PatientLink.findLatestByCaretaker(caretaker).toBlocking().single());
 
         //setUp
 
@@ -279,16 +283,12 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
 
     @After
     protected void tearDown() throws Exception {
-        try {
-            assertNull(patient.delete().toBlocking().single());
-            assertNull(caretaker.delete().toBlocking().single());
-            assertNull(patient1.delete().toBlocking().single());
-            assertNull(caretaker1.delete().toBlocking().single());
-            assertNull(patient2.delete().toBlocking().single());
-            assertNull(caretaker2.delete().toBlocking().single());
-        } catch (Exception e) {
-            // hack to get Parse.com stuff working under library test cases
-        }
+        assertNull(patient.delete().toBlocking().single());
+        assertNull(caretaker.delete().toBlocking().single());
+        assertNull(patient1.delete().toBlocking().single());
+        assertNull(caretaker1.delete().toBlocking().single());
+        assertNull(patient2.delete().toBlocking().single());
+        assertNull(caretaker2.delete().toBlocking().single());
 
 
         patient = null;

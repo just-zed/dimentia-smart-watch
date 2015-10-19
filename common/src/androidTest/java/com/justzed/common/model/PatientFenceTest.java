@@ -38,6 +38,8 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     private double radius1;
     private LatLng center2;
     private double radius2;
+    private long groupId;
+    private String description;
 
     public PatientFenceTest() {
         super(Application.class);
@@ -55,16 +57,19 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
 
-        try {
-            patient = new Person(Person.PATIENT, patientToken)
-                    .save()
-                    .toBlocking()
-                    .single();
 
-            assertNotNull(patient.getObjectId());
-        } catch (Exception e) {
+        try {
             TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
         }
+
+        patient = new Person(Person.PATIENT, patientToken)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(patient.getObjectId());
 
 
         center = new LatLng(0, 0);
@@ -73,12 +78,8 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
         radius = 1.0f;
         radius1 = 1.0f;
         radius2 = 1.0f;
-    }
-
-    @Test
-    public void test1Init() {
-        // hack to init application
-        assertTrue(true);
+        description = "description";
+        groupId = 1l;
     }
 
 
@@ -90,10 +91,16 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @Test
     public void testConstructer() {
         PatientFence fence = new PatientFence(patient, center, radius);
+        PatientFence fence1 = new PatientFence(patient, center, radius, description);
+        PatientFence fence2 = new PatientFence(patient, center, radius, description, groupId);
         assertEquals(fence.getPatient().getType(), Person.PATIENT);
         assertEquals(fence.getPatient().getUniqueToken(), patientToken);
         assertEquals(fence.getCenter(), center);
         assertEquals(fence.getRadius(), radius);
+        assertEquals(fence1.getDescription(), description);
+        assertEquals(fence2.getGroupId(), groupId);
+
+        assertNull(fence.getParseObject());
     }
 
     /**
@@ -347,13 +354,9 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @After
     protected void tearDown() throws Exception {
 
-        try {
-            assertNull(patient.delete().toBlocking().single());
+        assertNull(patient.delete().toBlocking().single());
 
-            patient = null;
-        } catch (Exception e) {
-            // hack to get Parse.com stuff working under library test cases
-        }
+        patient = null;
 
         super.tearDown();
     }

@@ -6,10 +6,7 @@ import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.justzed.common.FenceUtils;
 import com.justzed.common.TestSetup;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,15 +44,16 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
 
 
         try {
-            patient = new Person(Person.PATIENT, patientToken)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(patient.getObjectId());
-        } catch (Exception e) {
             TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
         }
+        patient = new Person(Person.PATIENT, patientToken)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(patient.getObjectId());
 
     }
 
@@ -66,25 +64,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         assertEquals(link.getPatient().getUniqueToken(), patientToken);
         assertEquals(link.getLatLng(), latLng);
 
-    }
-
-    @Test
-    public void testClassConverters() throws ParseException {
-        double lat = -27d;
-        double lng = 153d;
-
-        ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lat, lng);
-        LatLng latLng = new LatLng(lat, lng);
-
-        try {
-            assertEquals(FenceUtils.toLatLng(parseGeoPoint).latitude, lat);
-            assertEquals(FenceUtils.toLatLng(parseGeoPoint).longitude, lng);
-
-        } catch (ParseException e) {
-            assertNull(e.getMessage());
-        }
-        assertEquals(FenceUtils.toParseGeoPoint(latLng).getLatitude(), lat);
-        assertEquals(FenceUtils.toParseGeoPoint(latLng).getLongitude(), lng);
+        assertNull(link.getParseObject());
     }
 
     //create
@@ -124,6 +104,8 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     //read
     @Test
     public void testRead() {
+
+        assertNull(PatientLocation.findLatestPatientLocation(patient).toBlocking().single());
 
         //setUp
         PatientLocation location = new PatientLocation(patient, latLng)
@@ -173,12 +155,8 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
 
     @After
     public void tearDown() throws Exception {
-        try {
-            assertNull(patient.delete().toBlocking().single());
-            assertTrue(true);
-        } catch (Exception e) {
-
-        }
+        assertNull(patient.delete().toBlocking().single());
+        assertTrue(true);
 
         patient = null;
 

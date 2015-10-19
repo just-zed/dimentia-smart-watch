@@ -3,6 +3,7 @@ package com.justzed.common.model;
 import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -43,15 +44,17 @@ public class PersonTest extends ApplicationTestCase<Application> {
 
 
         try {
-            person = new Person(Person.PATIENT, testToken)
-                    .save()
-                    .toBlocking()
-                    .single();
-
-            assertNotNull(person.getObjectId());
-        } catch (Exception e) {
             TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
         }
+
+        person = new Person(Person.PATIENT, testToken)
+                .save()
+                .toBlocking()
+                .single();
+
+        assertNotNull(person.getObjectId());
 
 
     }
@@ -64,6 +67,8 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotSame(person.getType(), Person.PATIENT);
         assertEquals(person.getType(), Person.CARETAKER);
         assertEquals(person.getDisableGeofenceChecks(), testDGchecks);
+
+        assertNull(person.getParseObject());
     }
 
     @Test
@@ -80,6 +85,21 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person1);
         assertEquals(person.getObjectId(), person1.getObjectId());
 
+    }
+
+    @Test
+    public void testUnitParcelable() {
+
+        // Obtain a Parcel object and write the parcelable object to it:
+        Parcel parcel = Parcel.obtain();
+        person.writeToParcel(parcel, 0);
+
+        // After you're done with writing, you need to reset the parcel for reading:
+        parcel.setDataPosition(0);
+
+        // Reconstruct object from parcel and asserts:
+        Person createdFromParcel = Person.CREATOR.createFromParcel(parcel);
+        assertEquals(person.getName(), createdFromParcel.getName());
     }
 
     //create
@@ -111,6 +131,9 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person3.getType(), Person.PATIENT);
         assertNotNull(person3.getObjectId());
         assertEquals(person3.getType(), Person.PATIENT);
+
+        assertNotNull(person.getParseObject());
+
 
     }
 
@@ -196,12 +219,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
 
     @After
     protected void tearDown() throws Exception {
-        try {
-            assertNull(person.delete().toBlocking().single());
-        } catch (Exception e) {
-            // hack to get Parse.com stuff working under library test cases
-        }
-
+        assertNull(person.delete().toBlocking().single());
 
         person = null;
 
