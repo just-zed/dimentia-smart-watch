@@ -8,11 +8,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.justzed.common.NotificationMessage;
 import com.justzed.common.model.PatientFence;
 import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
+
+import java.util.ArrayList;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -26,6 +30,8 @@ public class PatientService extends IntentService {
     GeofencingCheck geofenceCheck = new GeofencingCheck();
 
     private static final int INTERVAL = 5000;
+
+    private Person patient;
 
     public PatientService() {
         super(PatientService.class.getName());
@@ -85,59 +91,73 @@ public class PatientService extends IntentService {
         // get device id
 
         Bundle data = intent.getExtras();
-        final Person person = data.getParcelable(Person.PARCELABLE_KEY);
-        Observable.combineLatest(
+        patient = data.getParcelable(Person.PARCELABLE_KEY);
+
+        Observable<PatientLocation> observable = Observable.combineLatest(
                 // get location updates observable
                 getLocationUpdates()
                         .filter(location1 -> location1 != null)
                         .map(location -> new LatLng(location.getLatitude(), location.getLongitude()))
-                        .flatMap(latLng -> new PatientLocation(person, latLng).save()),
+                        .flatMap(latLng -> new PatientLocation(patient, latLng).save()),
                 // save geofence into geofenceCheck object
-                PatientFence.getPatientFences(person), (patientLocation, patientFences) -> {
+                PatientFence.findPatientFences(patient)
+                        .onErrorResumeNext(throwable -> {
+                            return Observable.just(new ArrayList<>());
+                        }).repeat(),
+                // refresh patient object in case it is changed
+                Person.findByUniqueToken(patient.getUniqueToken()).repeat()
+                , (patientLocation, patientFences, person1) -> {
                     geofenceCheck.getGeofencesFromDatabase(patientFences);
+                    patient = person1;
                     // pass on patientLocation
                     return patientLocation;
-                })
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(patientLocation -> {
-                    checkGeofenceStatus(
-                            new double[]{patientLocation.getLatLng().latitude,
-                                    patientLocation.getLatLng().longitude}, patientLocation.getPatient());
                 });
+
+        observable.subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(patientLocation -> checkGeofenceStatus(
+                                patientLocation, patient),
+                        throwable -> Log.e(TAG, throwable.getMessage()));
 
 
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This method runs all the methods needed to check whether the device's status has changed.
-     * If leaves all geofences, a notification is sent to the other device once.
+     * If the patient leaves all geofences, a notification is sent to the other device once.
      * If the device re-enters the geofences, a notification is sent to the other device once.
+     * If the caretaker has turned off geofence checks, no checks will be made.
+     *
+     * @param myLocation This is the location of a patient.
+     * @param patient    This is the Person database details of the patient.
+     * @return Nothing.
      */
-    private void checkGeofenceStatus(double[] myLocation, Person patient) {
+    public void checkGeofenceStatus(PatientLocation myLocation, Person patient) {
+        if (!patient.getDisableGeofenceChecks()) {
 
-        @GeofencingCheck.StatusChange
-        final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
+            @GeofencingCheck.StatusChange
+            final int geofenceStatus = geofenceCheck.checkGeofence(myLocation, patient);
 
-        String channelName = "patient-" + patient.getUniqueToken();
+            String channelName = "patient-" + patient.getUniqueToken();
 
-        switch (geofenceStatus) {
-            case GeofencingCheck.NOTHING_HAS_CHANGED:
-                //Nothing
-                break;
-            case GeofencingCheck.NO_GEOFENCES_FOUND:
-                //Nothing
-                break;
-            case GeofencingCheck.EXITED_A_FENCE:
-                //Exited a fence notification
-                NotificationMessage.sendMessage(channelName, getString(R.string.exited_fence_notificiation));
-                break;
-            case GeofencingCheck.REENTERED_A_FENCE:
-                //The patient has re-entered a fence notification
-                NotificationMessage.sendMessage(channelName, getString(R.string.reentered_fence_notificiation));
-                break;
+            switch (geofenceStatus) {
+                case GeofencingCheck.NOTHING_HAS_CHANGED:
+                    //Nothing
+                    break;
+                case GeofencingCheck.NO_GEOFENCES_FOUND:
+                    //Nothing
+                    break;
+                case GeofencingCheck.EXITED_A_FENCE:
+                    //Exited a fence notification
+                    NotificationMessage.sendMessage(channelName, String.format(getString(R.string.exited_fence_notificiation), patient.getName()));
+                    break;
+                case GeofencingCheck.REENTERED_A_FENCE:
+                    //The patient has re-entered a fence notification
+                    NotificationMessage.sendMessage(channelName, String.format(getString(R.string.reentered_fence_notificiation), patient.getName()));
+                    break;
+            }
+        } else {
+            geofenceCheck.setPreviouslyInAFence(GeofencingCheck.INSIDE_FENCE);
         }
     }
 }

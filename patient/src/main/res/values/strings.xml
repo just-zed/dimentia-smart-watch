@@ -3,10 +3,29 @@
 
     <string name="title_activity_fullscreen">Patient</string>
     <string name="panic_button">Panic!</string>
-    <string name="title_activity_token_sender">Pairing Devices</string>
+    <string name="title_activity_token_sender">Link a CareTaker</string>
 
     <string name="title_patient_service">Background Service</string>
-    <string name="exited_fence_notificiation">Bob has left a safe zone. Consider sending him a message.</string>
-    <string name="reentered_fence_notificiation">Bob has re-entered a safe zone.</string>
-    <string name="panic_message">Bob is in trouble!</string>
+    <string name="exited_fence_notificiation" formatted="false">%s has left a safe zone. Consider sending him a message.</string>
+    <string name="reentered_fence_notificiation" formatted="false">%s has re-entered a safe zone.</string>
+    <string name="panic_message" formatted="false">%s is in trouble!</string>
+    <string name="default_patient_name">Anonymous Patient</string>
+
+    <string name="title_activity_premade_messages">Send a Message</string>
+    <string name="help_button_description">HELP</string>
+    <string name="message_button_description">SEND MESSAGE</string>
+    <string name="caretakers_alerted">Caretakers Alerted</string>
+    <string name="message_sent" formatted="false">A message has been sent: %s</string>
+    <string name="ready_to_pair">Ready to Beam!</string>
+
+    <string-array name="premade_messages">
+        <item>I am home</item>
+        <item>I am lost</item>
+        <item>Please call me</item>
+        <item>Yes</item>
+        <item>No</item>
+        <item>OK</item>
+        <item>Thank you</item>
+    </string-array>
+
 </resources>

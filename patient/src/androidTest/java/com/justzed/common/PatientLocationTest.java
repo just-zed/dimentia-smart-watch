@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 public class PatientLocationTest extends ApplicationTestCase<Application> {
     private static final String TAG = PatientLocationTest.class.getName();
 
-    private final String patientToken = "someyadayadahardcodedpatienttoken";
+    private String patientToken;
 
 
     private Person patient;
@@ -37,9 +37,10 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     }
 
     @Before
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
+        patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
@@ -72,14 +73,14 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         LatLng latLng = new LatLng(lat, lng);
 
         try {
-            assertEquals(LocationHelper.toLatLng(parseGeoPoint).latitude, lat);
-            assertEquals(LocationHelper.toLatLng(parseGeoPoint).longitude, lng);
+            assertEquals(FenceUtils.toLatLng(parseGeoPoint).latitude, lat);
+            assertEquals(FenceUtils.toLatLng(parseGeoPoint).longitude, lng);
 
         } catch (ParseException e) {
             assertNull(e.getMessage());
         }
-        assertEquals(LocationHelper.toParseGeoPoint(latLng).getLatitude(), lat);
-        assertEquals(LocationHelper.toParseGeoPoint(latLng).getLongitude(), lng);
+        assertEquals(FenceUtils.toParseGeoPoint(latLng).getLatitude(), lat);
+        assertEquals(FenceUtils.toParseGeoPoint(latLng).getLongitude(), lng);
     }
 
     //create
@@ -130,7 +131,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
 
 
         //read test
-        PatientLocation patientLocation = PatientLocation.getLatestPatientLocation(patient).toBlocking().single();
+        PatientLocation patientLocation = PatientLocation.findLatestPatientLocation(patient).toBlocking().single();
 
         assertNotNull(patientLocation);
         assertEquals(patientLocation.getPatient().getObjectId(), patient.getObjectId());
@@ -146,7 +147,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         assertNotNull(location2.getObjectId());
 
         //read test
-        PatientLocation patientLocation2 = PatientLocation.getLatestPatientLocation(patient).toBlocking().single();
+        PatientLocation patientLocation2 = PatientLocation.findLatestPatientLocation(patient).toBlocking().single();
 
         assertNotNull(patientLocation2);
         //same patient
@@ -167,7 +168,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     }
 
     @After
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         try {
             assertNull(patient.delete().toBlocking().single());
             assertTrue(true);

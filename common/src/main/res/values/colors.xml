@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="caretaker">#8BC34A</color>
+    <color name="caretaker_dark">#689F38</color>
+
+    <color name="patient">#2196F3</color>
+    <color name="patient_dark">#1976D2</color>
+
+    <color name="alert">#D32F2F</color>
+
+    <color name="black_overlay">#66000000</color>
+
+</resources>

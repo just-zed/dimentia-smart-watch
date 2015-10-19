@@ -1,27 +1,225 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MapActivity">
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Toolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentInsetLeft="0dp"
+            android:contentInsetStart="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/cancel_button"
+                    style="@android:style/Widget.ActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/cancel"
+                    android:src="@drawable/ic_clear_black_24dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/fence_mode_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textAlignment="center"
+                    android:textSize="20sp"
+                    tools:text="Some Mode" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <ImageButton
+                    android:id="@+id/delete_button"
+                    style="@android:style/Widget.ActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_delete_black_24dp"
+                    android:text="@string/delete"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/save_button"
+                    style="@android:style/Widget.ActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_done_black_24dp"
+                    android:text="@string/save"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+
+            </LinearLayout>
+        </Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.justzed.caretaker.MapActivity" />
+        android:animateLayoutChanges="true">
 
-    <ImageButton
-        android:id="@+id/mapCenterButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:background="@null"
-        android:contentDescription="@string/center_map_description"
-        android:onClick="centerPatientMarker"
-        android:src="@drawable/map_center" />
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.justzed.caretaker.MapActivity" />
 
-</FrameLayout>
+        <ImageButton
+            android:id="@+id/mapCenterButton"
+            style="@android:style/Widget.ActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:background="@null"
+            android:contentDescription="@string/center_map_description"
+            android:onClick="centerPatientMarker"
+            android:src="@drawable/map_center" />
+
+        <LinearLayout
+            android:id="@+id/fence_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:animateLayoutChanges="true"
+            android:background="#f0ffffff"
+            android:baselineAligned="false"
+            android:clickable="true"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+
+            <EditText
+                android:id="@+id/fence_title_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/content_spacing"
+                android:hint="@string/hint_description"
+                android:text=""
+                android:textAlignment="center" />
+
+
+            <TextView
+                android:id="@+id/fence_radius_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/content_spacing"
+                android:text="@string/radius_of_geofence" />
+
+            <SeekBar
+                android:id="@+id/fence_seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:splitTrack="false" />
+
+            <Switch
+                android:id="@+id/toggleButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/timer" />
+
+            <LinearLayout
+                android:id="@+id/timer_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="@dimen/content_spacing"
+                    android:text="@string/hours"
+                    tools:visibility="visible" />
+
+                <NumberPicker
+                    android:id="@+id/picker_hour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/content_spacing"
+                    android:layout_marginRight="@dimen/content_spacing"
+                    android:text="@string/minutes" />
+
+                <NumberPicker
+                    android:id="@+id/picker_minute"
+                    android:layout_width="wrap_content"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_vertical" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+        <com.getbase.floatingactionbutton.FloatingActionsMenu
+            android:id="@+id/add_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            fab:fab_addButtonColorNormal="@color/color_action"
+            fab:fab_addButtonColorPressed="@color/color_action_pressed"
+            fab:fab_labelStyle="@style/MenuLabelsStyle">
+
+            <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/basic_fence"
+                fab:fab_colorPressed="@color/basic_fence_pressed"
+                fab:fab_icon="@drawable/ic_place_black_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="@string/add_fence_title" />
+
+            <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_advance_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/advance_fence"
+                fab:fab_colorPressed="@color/advance_fence_pressed"
+                fab:fab_icon="@drawable/ic_pin_drop_black_24dp"
+                fab:fab_size="mini"
+                fab:fab_title="@string/add_advance_fence_title" />
+
+        </com.getbase.floatingactionbutton.FloatingActionsMenu>
+
+
+    </FrameLayout>
+
+</LinearLayout>

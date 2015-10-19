@@ -23,11 +23,20 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+/**
+ * <h1>Caretaker NFC Activity</h1>
+ * The Caretaker NFC Activity implements an application that
+ * receiving Ndef message from the Patient NFC Activity.
+ *
+ * @author Nguyen Nam Cuong Tran
+ * @version 1.0
+ * @since 2015-08-22
+ */
 public class NfcActivity extends Activity {
 
     public static final String INTENT_TOKEN_KEY = "personUniqueToken";
     private static final int REQ_CODE_MAIN = 1;
-    private static final String TAG = NfcActivity.class.getName();
+    public static final String TAG = NfcActivity.class.getName();
 
     private NfcAdapter mNfcAdapter;
     private PendingIntent mNfcPendingIntent;
@@ -37,6 +46,12 @@ public class NfcActivity extends Activity {
     private String patientToken;
     private String caretakerToken;
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement some actions when the activity is on Create.
+     * Sharing preferences.
+     * Beginning listening the Ndef message.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +62,7 @@ public class NfcActivity extends Activity {
 
         try {
             mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             toast("Something is wrong !!!");
         }
 
@@ -59,13 +73,19 @@ public class NfcActivity extends Activity {
         if (!mPrefs.contains(MainActivity.PREF_PERSON_KEY)) {
             // start main activity if pref key not present
             Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.putExtra("TAG", TAG);
             startActivityForResult(intent, REQ_CODE_MAIN);
         } else {
             caretakerToken = mPrefs.getString(MainActivity.PREF_PERSON_KEY, "");
         }
     }
 
-    public void receiveNdefMessage(){
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to receive Ndef Message.
+     */
+    public void receiveNdefMessage() {
         try {
             // Handle all of our received NFC intents in this activity.
             mNfcPendingIntent = PendingIntent.getActivity(this, 0,
@@ -79,26 +99,45 @@ public class NfcActivity extends Activity {
                 toast("Something is wrong !!!");
             }
             mNdefExchangeFilters = new IntentFilter[]{ndefDetected};
+        } catch (Exception e) {
         }
-        catch (Exception e){}
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to enable Ndef Exchange Mode.
+     */
     private void enableNdefExchangeMode() {
         mNfcAdapter.enableForegroundDispatch(this, mNfcPendingIntent, mNdefExchangeFilters, null);
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to disable Ndef Exchange Mode.
+     */
     private void disableNdefExchangeMode() {
-        if (NfcAdapter.getDefaultAdapter(this) != null){
+        if (NfcAdapter.getDefaultAdapter(this) != null) {
             mNfcAdapter.disableForegroundDispatch(this);
         }
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement some actions when the activity is on Pause.
+     * Disabling Ndef Exchange Mode.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         disableNdefExchangeMode();
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to implement some actions when the activity is on Resume.
+     * Getting intent and Ndef message.
+     * Enabling Ndef Exchange Mode.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -111,6 +150,13 @@ public class NfcActivity extends Activity {
         enableNdefExchangeMode();
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to set the content of the Ndef message
+     * into the textbox.
+     *
+     * @param body The string message.
+     */
     private void setNoteBody(String body) {
         text.setText(body);
         // do stuff
@@ -125,8 +171,8 @@ public class NfcActivity extends Activity {
 
             //TODO: improve this to single subscribe. move these to a repository class
             Observable.combineLatest(
-                    Person.getByUniqueToken(patientToken),
-                    Person.getByUniqueToken(caretakerToken),
+                    Person.findByUniqueToken(patientToken),
+                    Person.findByUniqueToken(caretakerToken),
                     (PatientLink::new))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -144,6 +190,12 @@ public class NfcActivity extends Activity {
 
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to get Ndef message when there is new intent.
+     *
+     * @param intent The new intent.
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
@@ -153,6 +205,13 @@ public class NfcActivity extends Activity {
         }
     }
 
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to parse the intent to get the Ndef message.
+     *
+     * @param intent The intent.
+     * @return NdefMessage[] The array of the Ndef messages.
+     */
     private NdefMessage[] getNdefMessages(Intent intent) {
         // Parse the intent
         NdefMessage[] msgs = null;
@@ -169,7 +228,12 @@ public class NfcActivity extends Activity {
         return msgs;
     }
 
-    // Check whether NFC hardware is available on device
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to check whether NFC hardware is available on device.
+     *
+     * @return boolean True (have) or False (not have).
+     */
     public boolean checkNFCHardware() {
         try {
             PackageManager pm = this.getPackageManager();
@@ -177,25 +241,28 @@ public class NfcActivity extends Activity {
                 // NFC is not available on the device.
                 toast("The device does not have NFC hardware.");
                 return false;
-            }
-            else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
                 // Android Beam feature is not supported.
                 toast("The device does not have Android Beam.");
                 return false;
-            }
-            else {
+            } else {
                 // NFC and Android Beam file transfer is supported.
                 toast("NFC and Android Beam are supported on your device.");
                 return true;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             toast("Something is wrong !!!");
             return false;
         }
     }
 
-    // Check whether NFC is enabled on device
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to check whether NFC is enabled on device.
+     *
+     * @param mNfcAdapter The NFC Adapter.
+     * @return boolean True (enable) or False (disable).
+     */
     public boolean checkNFCEnabled(NfcAdapter mNfcAdapter) {
         try {
             if (!mNfcAdapter.isEnabled()) {
@@ -217,19 +284,23 @@ public class NfcActivity extends Activity {
                 toast("NFC and Android Beam are supported on your device.");
                 return true;
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             toast("Something is wrong !!!");
             return false;
         }
     }
 
-    // Toast method
+    /**
+     * Created by Nguyen Nam Cuong Tran.
+     * This method is used to show the message on the device by using Toast method.
+     *
+     * @param text The string message.
+     */
     private void toast(String text) {
-        try{
+        try {
             Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        } catch (Exception toast) {
         }
-        catch (Exception toast){ }
     }
 
 

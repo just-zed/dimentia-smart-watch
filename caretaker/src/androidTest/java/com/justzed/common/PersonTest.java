@@ -15,15 +15,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Created by freeman on 8/16/15.
- * tests covers CRD (no update) operations for Person
+ * tests covers CRUD operations for Person
+ *
+ * @author Freeman Man
+ * @version 1.0
+ * @since 2015-08-16
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class PersonTest extends ApplicationTestCase<Application> {
     private static final String TAG = PersonTest.class.getName();
 
-    private final String testToken = "someyadayadahardcodedtoken";
+    private String testToken;
+    private final boolean testDGchecks = false;
 
     private Person person;
 
@@ -35,7 +39,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
 
-
+        testToken = "test_person_" + Math.random() * 1000;
         //test creation
         person = new Person(Person.PATIENT, testToken)
                 .save()
@@ -52,6 +56,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person.getUniqueToken(), testToken);
         assertNotSame(person.getType(), Person.PATIENT);
         assertEquals(person.getType(), Person.CARETAKER);
+        assertEquals(person.getDisableGeofenceChecks(), testDGchecks);
     }
 
     @Test
@@ -81,6 +86,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person1.getObjectId());
         assertEquals(person.getObjectId(), person1.getObjectId());
         assertEquals(person1.getType(), Person.PATIENT);
+        assertEquals(person1.getDisableGeofenceChecks(), testDGchecks);
 
         //test if person is updated to caretaker
         Person person2 = new Person(Person.CARETAKER, testToken)
@@ -99,7 +105,6 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person3.getObjectId());
         assertEquals(person3.getType(), Person.PATIENT);
 
-
     }
 
     //read
@@ -108,7 +113,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
         //read
 
         Person person1 = Person
-                .getByUniqueToken(testToken)
+                .findByUniqueToken(testToken)
                 .toBlocking()
                 .first();
 
@@ -117,29 +122,55 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person1.getUniqueToken(), testToken);
         assertEquals(person1.getType(), person.getType());
         assertTrue(person1.getType() == Person.PATIENT);
+        assertEquals(person1.getDisableGeofenceChecks(), testDGchecks);
+
+    }
+
+
+    public void testEdit() {
+
+        Person person1 = Person
+                .findByUniqueToken(testToken)
+                .toBlocking()
+                .first();
+
+        assertNotNull(person1);
+        assertEquals(person1.getUniqueToken(), person.getUniqueToken());
+        assertEquals(person1.getUniqueToken(), testToken);
+        assertEquals(person1.getType(), person.getType());
+        assertTrue(person1.getType() == Person.PATIENT);
+        assertEquals(person1.getDisableGeofenceChecks(), false);
+
+        // set disableGeoFence flag
+        person1.setDisableGeofenceChecks(true);
+
+        // save the modified person
+        Person peron1AfterSave = person1.save().toBlocking().single();
+
+        // the saved person is the same as the previous person
+        assertEquals(person1.getObjectId(), peron1AfterSave.getObjectId());
+
+        // check the saved changes
+        assertEquals(peron1AfterSave.getDisableGeofenceChecks(), true);
     }
 
     //delete
     @Test
     public void testDelete() {
 
-        try {
-            assertNull(person.delete().toBlocking().single());
-            assertNull(person.getObjectId());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(person.delete().toBlocking().single());
+        assertNull(person.getObjectId());
 
         try {
             assertNull(person.delete().toBlocking().single());
             assertTrue(false);
         } catch (Exception e) {
+            // re-delete throws exception
             assertTrue(true);
         }
 
         Person person1 = Person
-                .getByUniqueToken(testToken)
+                .findByUniqueToken(testToken)
                 .toBlocking()
                 .first();
 
@@ -158,12 +189,7 @@ public class PersonTest extends ApplicationTestCase<Application> {
 
     @After
     protected void tearDown() throws Exception {
-        try {
-            assertNull(person.delete().toBlocking().single());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(person.delete().toBlocking().single());
 
         person = null;
 

@@ -4,18 +4,24 @@ import android.location.Location;
 import android.support.annotation.IntDef;
 
 import com.justzed.common.model.PatientFence;
+import com.justzed.common.model.PatientLocation;
 import com.justzed.common.model.Person;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by Tristan Dubois on 03/09/2015.
- * <p>
  * This class checks wether the patient is in a geofence.
+ *
+ * @author Tristan Dubois
+ * @version 2.0
+ * @since 2015-09-03
  */
 public class GeofencingCheck {
 
@@ -26,12 +32,10 @@ public class GeofencingCheck {
     public static final int INSIDE_FENCE = 0;
     public static final int OUTSIDE_FENCE = 1;
 
-
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({INSIDE_FENCE, OUTSIDE_FENCE})
     public @interface Status {
     }
-
 
     //Status Change
     public static final int EXITED_A_FENCE = 1;
@@ -44,104 +48,111 @@ public class GeofencingCheck {
     public @interface StatusChange {
     }
 
-    //Location and Geofencing Indicies
-    //TODO: change it to use PatientFence class later
-    private static final int LATITUDE_INDEX = 0;
-    private static final int LONGITUDE_INDEX = 1;
-    private static final int RADIUS_INDEX = 2;
-
-
     //Variables
     @Status
     private int previouslyInAFence = INSIDE_FENCE;
     @Status
     private int currentlyInAFence = INSIDE_FENCE;
-    private List<double[]> geofenceList;
-    private double[] currentLocation;
+    private List<PatientFence> geofenceList;
+
+    public void setPreviouslyInAFence(@Status int Status){previouslyInAFence = Status;}
 
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * Main method to check if a patient is in a geofence.
+     *
+     * @param myLocation This is the location of a patient.
+     * @param patient This is the Person database details of the patient.
+     * @return int This returns whether a status changed has happened or if there are no geofences.
      */
     @StatusChange
-    public int checkGeofence(double[] myLocation, Person patient) {
-
-        if (!geofenceList.isEmpty()) {
-            checkIfInsideGeofences(geofenceList, myLocation);
-            return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
-        } else {
-            return NO_GEOFENCES_FOUND;
-        }
+    public int checkGeofence(PatientLocation myLocation, Person patient) {
+        if(geofenceList != null){
+            if ( !geofenceList.isEmpty()) {
+                checkIfInsideGeofences(geofenceList, myLocation);
+                return checkIfStatusHasChanged(currentlyInAFence, previouslyInAFence);
+            } else {
+                return NO_GEOFENCES_FOUND;}
+        }else {
+            return NO_GEOFENCES_FOUND;}
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This method gets the values of all geofences from the database and stores them in a list.
+     *
+     * @param patientFences This is a list of geofences
+     * @return List PatientFence This returns a clean List of geofences
      */
-    public List<double[]> getGeofencesFromDatabase(List<PatientFence> patientFences) {
+    public List<PatientFence> getGeofencesFromDatabase(List<PatientFence> patientFences) {
         geofenceList = new ArrayList<>();
-
+        /*
         if (patientFences != null) {
             for (int i = 0; i < patientFences.size(); i++) {
-                PatientFence patientFence = patientFences.get(i);
-                double[] toAddToList = new double[]{patientFence.getCenter().latitude, patientFence.getCenter().longitude, patientFence.getRadius()};
-
+                PatientFence toAddToList = patientFences.get(i);
                 geofenceList.add(toAddToList);
             }
-        }
+        }*/
+        geofenceList = patientFences;
         return geofenceList;
 
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This uses the location of the device and all the geofence values to check wether the device is inside a geofence.
+     *
+     * @param patientFences This is a List of the geofences being checked.
+     * @param deviceLocation This is the device thats being checked.
+     * @return int This returns the status after all geofences have been checked.
      */
 
-    //TODO: change to more type safe codes
     @Status
-    public int checkIfInsideGeofences(List<double[]> geofences, double[] deviceLocation) {
+    public int checkIfInsideGeofences(List<PatientFence> patientFences, PatientLocation deviceLocation) {
         float[] distance = new float[1];
         double distanceBetweenTwoPoints;
         previouslyInAFence = currentlyInAFence;
 
-        if (!geofences.isEmpty()) {
+        if (!patientFences.isEmpty()) {
             currentlyInAFence = OUTSIDE_FENCE;
 
-            for (int indexOfGeofences = 0; indexOfGeofences < geofences.size(); indexOfGeofences++) {
-                Location.distanceBetween(geofences.get(indexOfGeofences)[LATITUDE_INDEX],
-                        geofences.get(indexOfGeofences)[LONGITUDE_INDEX],
-                        deviceLocation[LATITUDE_INDEX],
-                        deviceLocation[LONGITUDE_INDEX],
-                        distance);
+            for (int indexOfGeofences = 0; indexOfGeofences < patientFences.size(); indexOfGeofences++) {
 
-                distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
+                Calendar currentDate = Calendar.getInstance();
+                Calendar geofenceEndDate = patientFences.get(indexOfGeofences).getEndTime();
+                Calendar geofenceStartDate = patientFences.get(indexOfGeofences).getStartTime();
 
-                //Uses the equation Math.sqrt((lat2-lat1)*(lat2-lat1) + (long2-long1)*(long2-long1))to check if the distance between the two points is less than
-                //the radius.
-                //distanceBetweenTwoPoints = Math.sqrt((geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
-                //       * (geofences.get(indexOfGeofences)[LATITUDE_INDEX] - deviceLocation[LATITUDE_INDEX])
-                //        + (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX])
-                //        * (geofences.get(indexOfGeofences)[LONGITUDE_INDEX] - deviceLocation[LONGITUDE_INDEX]));
+                /* If the geofence has no end date
+                 * or if the geofence has and end date and the current time is before or equal to the end time,
+                 * check if the patient is inside or outside the fence.
+                 */
+                if (geofenceEndDate == null
+                        || geofenceEndDate.before(geofenceStartDate)
+                        || geofenceEndDate.after(currentDate)
+                        || currentDate.equals(geofenceEndDate)) {
 
-                if (distanceBetweenTwoPoints < geofences.get(indexOfGeofences)[RADIUS_INDEX]) {
-                    currentlyInAFence = INSIDE_FENCE;
+                    Location.distanceBetween(patientFences.get(indexOfGeofences).getCenter().latitude,
+                            patientFences.get(indexOfGeofences).getCenter().longitude,
+                            deviceLocation.getLatLng().latitude,
+                            deviceLocation.getLatLng().longitude,
+                            distance);
+
+                    distanceBetweenTwoPoints = new BigDecimal(String.valueOf(distance[0])).doubleValue();
+
+                    if (distanceBetweenTwoPoints < patientFences.get(indexOfGeofences).getRadius()) {
+                        currentlyInAFence = INSIDE_FENCE;
+
+                    }
                 }
             }
-
-
         }
         return currentlyInAFence;
     }
 
     /**
-     * Created by Tristan Dubois.
-     * <p>
      * This checks if the patient has entered or exited a fence.
+     *
+     * @param currentStatus This is the current status of the patient.
+     * @param previousStatus This is the last status of the patient
+     * @return int This returns a status change
      */
     @StatusChange
     public int checkIfStatusHasChanged(@Status int currentStatus, @Status int previousStatus) {
@@ -158,4 +169,5 @@ public class GeofencingCheck {
             return NOTHING_HAS_CHANGED;
         }
     }
+
 }

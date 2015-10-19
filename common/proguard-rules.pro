@@ -15,3 +15,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+# Keep source file names, line numbers, and Parse class/method names for easier debugging
+-keepattributes SourceFile,LineNumberTable
+-keepnames class com.parse.** { *; }
+
+# Required for Parse
+-keepattributes *Annotation*
+-keepattributes Signature
+-dontwarn com.squareup.**
+-dontwarn okio.**

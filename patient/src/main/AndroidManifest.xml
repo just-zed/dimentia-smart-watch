@@ -7,9 +7,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-permission android:name="android.permission.NFC" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -29,12 +27,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/FullscreenTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,18 +40,17 @@
         </activity>
         <activity
             android:name=".TokenSenderActivity"
-            android:label="@string/title_activity_token_sender" />
+            android:label="@string/title_activity_token_sender"
+            android:parentActivityName=".MainActivity" />
 
         <service
             android:name=".PatientService"
             android:exported="false"
             android:label="@string/title_patient_service" />
 
-
         <meta-data
             android:name="com.parse.push.gcm_sender_id"
             android:value="id:609971025017" />
-
 
         <service android:name="com.parse.PushService" />
 
@@ -80,11 +76,14 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <!-- IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
                 <category android:name="com.justzed.patient" />
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".PremadeMessagesActivity"
+            android:label="@string/title_activity_premade_messages"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
