@@ -49,6 +49,12 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <meta-data
+            android:name="com.parse.APPLICATION_ID"
+            android:value="@string/PARSE_APPLICATION_KEY" />
+        <meta-data
+            android:name="com.parse.CLIENT_KEY"
+            android:value="@string/PARSE_CLIENT_KEY" />
 
         <meta-data
             android:name="com.parse.push.gcm_sender_id"

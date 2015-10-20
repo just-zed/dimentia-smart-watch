@@ -1,4 +1,6 @@
 <resources>
     <!--<string name="DEVICE_TOKEN">ffffffff-fcfb-6ccb-0033-c58700000000</string>-->
     <string name="DEVICE_TOKEN" />
+    <string name="PARSE_APPLICATION_KEY">2TkyjUhZajx0P7wA7zAx6EOeucEV7WMU6J2QFU9P</string>
+    <string name="PARSE_CLIENT_KEY">05fmQpMVWkGU9yf8Q3LmMmoh9PDdygePdVdNjkc0</string>
 </resources>
