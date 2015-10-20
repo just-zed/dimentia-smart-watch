@@ -3,11 +3,12 @@ package com.justzed.patient;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 
-import static com.justzed.common.R.string.PARSE_APPLICATION_KEY;
-import static com.justzed.common.R.string.PARSE_CLIENT_KEY;
-
 /**
- * Created by freeman on 8/16/15.
+ * Custom Application class that initiates and setup Parse.com libraries
+ *
+ * @author Freeman Man
+ * @version 1.0
+ * @since 2015-8-22
  */
 public class Application extends android.app.Application {
 
@@ -17,9 +18,7 @@ public class Application extends android.app.Application {
 
         Parse.enableLocalDatastore(this);
 
-        Parse.initialize(this,
-                this.getString(PARSE_APPLICATION_KEY),
-                this.getString(PARSE_CLIENT_KEY));
+        Parse.initialize(this);
 
         ParseInstallation.getCurrentInstallation().saveInBackground();
 
