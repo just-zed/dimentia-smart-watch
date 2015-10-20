@@ -1,15 +1,12 @@
-package com.justzed.common;
+package com.justzed.common.model;
 
+import android.app.Application;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.justzed.common.model.PatientLocation;
-import com.justzed.common.model.Person;
-import com.justzed.patient.Application;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
+import com.justzed.common.TestSetup;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,17 +38,22 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         super.setUp();
 
         patientToken = "test_patient_" + Math.random() * 1000;
-        //test creation
+
+        latLng = new LatLng(0, 0);
+        latLng2 = new LatLng(1, 1);
+
+
+        try {
+            TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
+        }
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
                 .toBlocking()
                 .single();
 
         assertNotNull(patient.getObjectId());
-
-        latLng = new LatLng(0, 0);
-        latLng2 = new LatLng(1, 1);
-
 
     }
 
@@ -62,25 +64,7 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
         assertEquals(link.getPatient().getUniqueToken(), patientToken);
         assertEquals(link.getLatLng(), latLng);
 
-    }
-
-    @Test
-    public void testClassConverters() throws ParseException {
-        double lat = -27d;
-        double lng = 153d;
-
-        ParseGeoPoint parseGeoPoint = new ParseGeoPoint(lat, lng);
-        LatLng latLng = new LatLng(lat, lng);
-
-        try {
-            assertEquals(FenceUtils.toLatLng(parseGeoPoint).latitude, lat);
-            assertEquals(FenceUtils.toLatLng(parseGeoPoint).longitude, lng);
-
-        } catch (ParseException e) {
-            assertNull(e.getMessage());
-        }
-        assertEquals(FenceUtils.toParseGeoPoint(latLng).getLatitude(), lat);
-        assertEquals(FenceUtils.toParseGeoPoint(latLng).getLongitude(), lng);
+        assertNull(link.getParseObject());
     }
 
     //create
@@ -120,6 +104,8 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
     //read
     @Test
     public void testRead() {
+
+        assertNull(PatientLocation.findLatestPatientLocation(patient).toBlocking().single());
 
         //setUp
         PatientLocation location = new PatientLocation(patient, latLng)
@@ -169,12 +155,8 @@ public class PatientLocationTest extends ApplicationTestCase<Application> {
 
     @After
     public void tearDown() throws Exception {
-        try {
-            assertNull(patient.delete().toBlocking().single());
-            assertTrue(true);
-        } catch (Exception e) {
-            assertTrue(false);
-        }
+        assertNull(patient.delete().toBlocking().single());
+        assertTrue(true);
 
         patient = null;
 

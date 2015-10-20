@@ -1,12 +1,11 @@
-package com.justzed.common;
+package com.justzed.common.model;
 
+import android.app.Application;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import com.justzed.caretaker.Application;
-import com.justzed.common.model.PatientLink;
-import com.justzed.common.model.Person;
+import com.justzed.common.TestSetup;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +54,13 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         String patientToken2 = "test_patient_" + Math.random() * 1000;
         String caretakerToken2 = "test_caretaker_" + Math.random() * 1000;
 
+
+        try {
+            TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
+        }
+
         //test creation
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
@@ -102,7 +108,16 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
                 .single();
 
         assertNotNull(caretaker2.getObjectId());
+
     }
+
+
+    @Test
+    public void test1Init() {
+        // hack to init application
+        assertTrue(true);
+    }
+
 
     @Test
     public void testConstructer() {
@@ -112,6 +127,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         assertEquals(link.getCaretaker().getType(), Person.CARETAKER);
         assertEquals(link.getCaretaker().getUniqueToken(), caretakerToken);
 
+        assertNull(link.getParseObject());
     }
 
     //create
@@ -193,6 +209,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
     public void testSearch() {
 
         assertNull(PatientLink.findLatestByPatient(patient).toBlocking().single());
+        assertNull(PatientLink.findLatestByCaretaker(caretaker).toBlocking().single());
 
         //setUp
 
@@ -272,6 +289,7 @@ public class PatientLinkTest extends ApplicationTestCase<Application> {
         assertNull(caretaker1.delete().toBlocking().single());
         assertNull(patient2.delete().toBlocking().single());
         assertNull(caretaker2.delete().toBlocking().single());
+
 
         patient = null;
         caretaker = null;
