@@ -171,15 +171,12 @@ public class PatientLink {
             }
             query.findInBackground((list, e) -> {
                 try {
-                    if (e == null && list.size() >= 1) {
-                        List<PatientLink> patientLinks = new ArrayList<>();
+                    List<PatientLink> patientLinks = new ArrayList<>();
+                    if (e == null && list.size() >= 0) {
                         for (int i = 0; i < list.size(); i++) {
                             patientLinks.add(deserialize(list.get(i)));
                         }
                         subscriber.onNext(patientLinks);
-                        subscriber.onCompleted();
-                    } else if (list.size() == 0) {
-                        subscriber.onNext(null);
                         subscriber.onCompleted();
                     } else {
                         subscriber.onError(e);
