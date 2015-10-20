@@ -1,17 +1,15 @@
 package com.justzed.patient;
 
-import com.justzed.patient.internal.di.ApplicationComponent;
-import com.justzed.patient.internal.di.ApplicationModule;
-import com.justzed.patient.internal.di.DaggerApplicationComponent;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+
+import static com.justzed.common.R.string.PARSE_APPLICATION_KEY;
+import static com.justzed.common.R.string.PARSE_CLIENT_KEY;
 
 /**
  * Created by freeman on 8/16/15.
  */
 public class Application extends android.app.Application {
-
-    ApplicationComponent component;
 
     @Override
     public void onCreate() {
@@ -19,19 +17,11 @@ public class Application extends android.app.Application {
 
         Parse.enableLocalDatastore(this);
 
-        component = DaggerApplicationComponent
-                .builder()
-                .applicationModule(new ApplicationModule(this)).build();
-
-
-        component.injectApplication(this);
+        Parse.initialize(this,
+                this.getString(PARSE_APPLICATION_KEY),
+                this.getString(PARSE_CLIENT_KEY));
 
         ParseInstallation.getCurrentInstallation().saveInBackground();
 
-
-    }
-
-    public ApplicationComponent getComponent() {
-        return component;
     }
 }

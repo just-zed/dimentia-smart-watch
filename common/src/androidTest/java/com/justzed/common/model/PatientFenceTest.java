@@ -1,13 +1,12 @@
-package com.justzed.common;
+package com.justzed.common.model;
 
+import android.app.Application;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.justzed.caretaker.Application;
-import com.justzed.common.model.PatientFence;
-import com.justzed.common.model.Person;
+import com.justzed.common.TestSetup;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,6 +38,8 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     private double radius1;
     private LatLng center2;
     private double radius2;
+    private long groupId;
+    private String description;
 
     public PatientFenceTest() {
         super(Application.class);
@@ -55,6 +56,14 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         patientToken = "test_patient_" + Math.random() * 1000;
         //test creation
+
+
+        try {
+            TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
+        }
+
         patient = new Person(Person.PATIENT, patientToken)
                 .save()
                 .toBlocking()
@@ -62,15 +71,17 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
 
         assertNotNull(patient.getObjectId());
 
+
         center = new LatLng(0, 0);
         center1 = new LatLng(1, 0);
         center2 = new LatLng(2, 0);
         radius = 1.0f;
         radius1 = 1.0f;
         radius2 = 1.0f;
-
-
+        description = "description";
+        groupId = 1l;
     }
+
 
     /**
      * Tests the constructors
@@ -80,10 +91,16 @@ public class PatientFenceTest extends ApplicationTestCase<Application> {
     @Test
     public void testConstructer() {
         PatientFence fence = new PatientFence(patient, center, radius);
+        PatientFence fence1 = new PatientFence(patient, center, radius, description);
+        PatientFence fence2 = new PatientFence(patient, center, radius, description, groupId);
         assertEquals(fence.getPatient().getType(), Person.PATIENT);
         assertEquals(fence.getPatient().getUniqueToken(), patientToken);
         assertEquals(fence.getCenter(), center);
         assertEquals(fence.getRadius(), radius);
+        assertEquals(fence1.getDescription(), description);
+        assertEquals(fence2.getGroupId(), groupId);
+
+        assertNull(fence.getParseObject());
     }
 
     /**

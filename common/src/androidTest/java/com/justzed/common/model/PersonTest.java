@@ -1,13 +1,14 @@
-package com.justzed.common;
+package com.justzed.common.model;
 
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.ApplicationTestCase;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import com.justzed.caretaker.Application;
-import com.justzed.common.model.Person;
+import com.justzed.common.TestSetup;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,13 +41,22 @@ public class PersonTest extends ApplicationTestCase<Application> {
         super.setUp();
 
         testToken = "test_person_" + Math.random() * 1000;
-        //test creation
+
+
+        try {
+            TestSetup.setupParse(getContext());
+        } catch (Exception e) {
+
+        }
+
         person = new Person(Person.PATIENT, testToken)
                 .save()
                 .toBlocking()
-                .first();
+                .single();
 
         assertNotNull(person.getObjectId());
+
+
     }
 
     @Test
@@ -57,6 +67,8 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotSame(person.getType(), Person.PATIENT);
         assertEquals(person.getType(), Person.CARETAKER);
         assertEquals(person.getDisableGeofenceChecks(), testDGchecks);
+
+        assertNull(person.getParseObject());
     }
 
     @Test
@@ -73,6 +85,21 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertNotNull(person1);
         assertEquals(person.getObjectId(), person1.getObjectId());
 
+    }
+
+    @Test
+    public void testUnitParcelable() {
+
+        // Obtain a Parcel object and write the parcelable object to it:
+        Parcel parcel = Parcel.obtain();
+        person.writeToParcel(parcel, 0);
+
+        // After you're done with writing, you need to reset the parcel for reading:
+        parcel.setDataPosition(0);
+
+        // Reconstruct object from parcel and asserts:
+        Person createdFromParcel = Person.CREATOR.createFromParcel(parcel);
+        assertEquals(person.getName(), createdFromParcel.getName());
     }
 
     //create
@@ -104,6 +131,9 @@ public class PersonTest extends ApplicationTestCase<Application> {
         assertEquals(person3.getType(), Person.PATIENT);
         assertNotNull(person3.getObjectId());
         assertEquals(person3.getType(), Person.PATIENT);
+
+        assertNotNull(person.getParseObject());
+
 
     }
 

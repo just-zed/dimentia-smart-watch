@@ -22,7 +22,8 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 
 /**
- * TODO: this doesn't seem to be working
+ * @author Freeman Man
+ * @since 2015-8-23
  * Created by freeman on 8/23/15.
  */
 public class PatientService extends IntentService {
