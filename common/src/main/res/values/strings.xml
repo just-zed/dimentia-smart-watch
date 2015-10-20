@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Common</string>
+    <string name="unknown_error">Please relaunch the app and try again.</string>
 </resources>

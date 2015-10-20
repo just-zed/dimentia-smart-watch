@@ -158,9 +158,18 @@ public class MainActivity extends Activity {
             return Person.findByUniqueToken(token)
                     .map(person1 -> {
                         this.caretaker = person1;
+
+                        if (person1 == null) {
+                            SharedPreferences.Editor editor = mPrefs.edit();
+                            editor.remove(PREF_PERSON_KEY);
+                            editor.apply();
+                            finish();
+                        }
                         return person1;
+
                     });
         }
+
     }
 
     private void finishActivityWithResult() {
