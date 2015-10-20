@@ -104,7 +104,7 @@ public class PatientLink {
     public static Observable<PatientLink> findLatestByPatient(Person patient) {
         return findByPerson(patient, Person.PATIENT, 1)
                 .map(patientLinks -> {
-                    if (patientLinks == null) {
+                    if (patientLinks == null || patientLinks.size() == 0) {
                         return null;
                     } else {
                         return patientLinks.get(0);
@@ -133,7 +133,7 @@ public class PatientLink {
     public static Observable<PatientLink> findLatestByCaretaker(Person caretaker) {
         return findByPerson(caretaker, Person.CARETAKER, 1)
                 .map(patientLinks -> {
-                    if (patientLinks == null) {
+                    if (patientLinks == null || patientLinks.size() == 0) {
                         return null;
                     } else {
                         return patientLinks.get(0);
@@ -171,15 +171,12 @@ public class PatientLink {
             }
             query.findInBackground((list, e) -> {
                 try {
-                    if (e == null && list.size() >= 1) {
-                        List<PatientLink> patientLinks = new ArrayList<>();
+                    List<PatientLink> patientLinks = new ArrayList<>();
+                    if (e == null && list.size() >= 0) {
                         for (int i = 0; i < list.size(); i++) {
                             patientLinks.add(deserialize(list.get(i)));
                         }
                         subscriber.onNext(patientLinks);
-                        subscriber.onCompleted();
-                    } else if (list.size() == 0) {
-                        subscriber.onNext(null);
                         subscriber.onCompleted();
                     } else {
                         subscriber.onError(e);

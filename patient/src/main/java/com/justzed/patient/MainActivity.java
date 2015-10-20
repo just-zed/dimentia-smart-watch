@@ -125,23 +125,20 @@ public class MainActivity extends Activity {
                             person -> {
                                 this.patient = person;
 
-                                if (person != null) {
-                                    panicButton.setEnabled(true);
-                                    messageButton.setEnabled(true);
+                                panicButton.setEnabled(true);
+                                messageButton.setEnabled(true);
 
-                                    startPatientService();
-                                    //start token activity
-                                    autoStartTokenSenderActivity();
-                                } else {
-                                    Editor editor = mPrefs.edit();
-                                    editor.remove(PREF_PERSON_KEY);
-                                    editor.apply();
-                                    Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
-                                    finish();
-                                }
+                                startPatientService();
+                                //start token activity
+                                autoStartTokenSenderActivity();
 
                             },
                             throwable -> {
+                                Editor editor = mPrefs.edit();
+                                editor.remove(PREF_PERSON_KEY);
+                                editor.apply();
+                                Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                     );
 
