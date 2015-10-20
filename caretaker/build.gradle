@@ -46,6 +46,9 @@ android {
         abortOnError false
         return true
     }
+    dexOptions {
+        preDexLibraries = Boolean.valueOf(System.getProperty("pre-dex", "true"))
+    }
 }
 
 dependencies {

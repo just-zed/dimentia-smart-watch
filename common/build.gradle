@@ -36,7 +36,13 @@ android {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
         return true
     }
-    productFlavors {
+    lintOptions {
+        disable 'InvalidPackage'
+        abortOnError false
+        return true
+    }
+    dexOptions {
+        preDexLibraries = Boolean.valueOf(System.getProperty("pre-dex", "true"))
     }
 }
 

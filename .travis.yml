@@ -1,10 +1,8 @@
 language: android
 jdk: oraclejdk8
-before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-    - $HOME/.gradle/caches/
+    - $HOME/.gradle
 addons:
   artifacts: true
 env:
@@ -36,7 +34,7 @@ before_script:
   - adb shell pm grant no.finn.android_emulator_hacks android.permission.SET_ANIMATION_SCALE
   - adb shell am start -n no.finn.android_emulator_hacks/no.finn.android_emulator_hacks.HackActivity
   - adb shell input keyevent 82 &
-script: ./gradlew connectedAndroidTest -PpreDexEnable=false
+script: ./gradlew connectedAndroidTest -Dpre-dex=false
 notifications:
   hipchat: 9a2ee1a055d11705229e675c791952@travis-ci
   email: false
