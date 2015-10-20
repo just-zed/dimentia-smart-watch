@@ -24,3 +24,4 @@ allprojects {
         maven { url 'https://maven.parse.com/repo' }
     }
 }
+apply plugin: 'android-reporting'
