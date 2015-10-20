@@ -64,6 +64,7 @@
     <string name="alert_message_change_fence_1">Are you sure this is the starting fence?</string>
     <string name="hours">Hours :</string>
     <string name="minutes">Min :</string>
+    <string name="R.string.delete_confirm">Are you sure you want to delete this patient?</string>
 
 
 </resources>

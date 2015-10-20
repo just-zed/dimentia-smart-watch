@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.justzed.common.DeviceUtils;
 import com.justzed.common.SaveSyncToken;
@@ -60,8 +61,15 @@ public class MainActivity extends Activity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             person -> finishActivityWithResult(),
-                            throwable -> Log.e(TAG, throwable.getMessage())
-                    );
+                            throwable -> {
+                                Log.e(TAG, throwable.getMessage());
+                                SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+                                SharedPreferences.Editor editor = mPrefs.edit();
+                                editor.remove(PREF_PERSON_KEY);
+                                editor.apply();
+                                Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+                                finish();
+                            });
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, patientList);
@@ -94,12 +102,18 @@ public class MainActivity extends Activity {
             editText.setText(patient.getName());
             AlertDialog alertDialog = alertDialogBuilder.setCancelable(false)
                     .setPositiveButton(R.string.save, null)
+                    .setNeutralButton(R.string.delete, null)
+                    .setCancelable(true)
                     .setNegativeButton(android.R.string.cancel,
                             (dialog, id1) -> dialog.cancel())
                     .create();
 
+            alertDialog.setOnDismissListener(dialog -> {
+                populatePatientList();
+            });
             alertDialog.setOnShowListener(dialog -> {
                 Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+                Button neutralButton = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
                 positiveButton.setOnClickListener(v -> {
                     if (TextUtils.isEmpty(editText.getText().toString())) {
                         editText.setError(getText(R.string.hint_enter_name));
@@ -114,6 +128,22 @@ public class MainActivity extends Activity {
                                 );
                     }
                 });
+                neutralButton.setOnClickListener(v ->
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setMessage(R.string.R_string_delete_confirm)
+                                .setPositiveButton(R.string.delete, (dialog1, which) -> {
+                                    PatientLink.findByPersons(patient, caretaker)
+                                            .flatMap(PatientLink::delete)
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(
+                                                    patientLink -> dialog.dismiss(),
+                                                    throwable -> Log.e(TAG, throwable.getMessage())
+                                            );
+                                })
+                                .setCancelable(true)
+                                .setNegativeButton(R.string.cancel, (dialog2, which1) -> dialog2.cancel())
+                                .show());
             });
 
             alertDialog.show();
@@ -158,7 +188,15 @@ public class MainActivity extends Activity {
             return Person.findByUniqueToken(token)
                     .map(person1 -> {
                         this.caretaker = person1;
+
+                        if (person1 == null) {
+                            SharedPreferences.Editor editor = mPrefs.edit();
+                            editor.remove(PREF_PERSON_KEY);
+                            editor.apply();
+                            finish();
+                        }
                         return person1;
+
                     });
         }
     }

@@ -110,6 +110,7 @@ public class MainActivity extends Activity {
                         editor.apply();
                         //start token activity
                         autoStartTokenSenderActivity();
+                    }, throwable -> {
                     });
 
 
@@ -123,14 +124,21 @@ public class MainActivity extends Activity {
                     .subscribe(
                             person -> {
                                 this.patient = person;
+
                                 panicButton.setEnabled(true);
                                 messageButton.setEnabled(true);
 
                                 startPatientService();
                                 //start token activity
                                 autoStartTokenSenderActivity();
+
                             },
                             throwable -> {
+                                Editor editor = mPrefs.edit();
+                                editor.remove(PREF_PERSON_KEY);
+                                editor.apply();
+                                Toast.makeText(this, R.string.unknown_error, Toast.LENGTH_SHORT).show();
+                                finish();
                             }
                     );
 
